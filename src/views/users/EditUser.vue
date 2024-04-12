@@ -2,13 +2,14 @@
 import { reactive, ref } from "vue"
 import type { FormInstance, FormRules } from "element-plus"
 import { getUserItemApi } from "@/api/users"
-import { GetUserItemData } from "@/api/users/types"
+import { GetUserItemData } from "@/api/user/types"
 import { useSelectOptions } from "@/hooks/usSelectOptions"
 
 defineOptions({
   name: "EditUser"
 })
 const { codeArr } = useSelectOptions()
+console.log(codeArr)
 
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<GetUserItemData>({

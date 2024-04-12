@@ -68,6 +68,7 @@ const dialogStyle = computed(() => {
     height: unref(dialogHeight)
   }
 })
+// console.log(dialogStyle)
 </script>
 
 <template>
@@ -92,7 +93,7 @@ const dialogStyle = computed(() => {
       </div>
     </template>
 
-    <ElScrollbar :style="dialogStyle">
+    <ElScrollbar>
       <slot />
     </ElScrollbar>
 

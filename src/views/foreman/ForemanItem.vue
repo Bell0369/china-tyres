@@ -2,18 +2,18 @@
 import { ref, reactive } from "vue"
 import { useSelectOptions } from "@/hooks/usSelectOptions"
 import { Tickets, Edit, Delete } from "@element-plus/icons-vue"
-import ClientProduct from "./ClientProduct.vue"
+import ForemanProduct from "./ForemanProduct.vue"
 import { useRoute } from "vue-router"
 import { Dialog } from "@/components/Dialog"
 import PrepayMents from "./components/PrepayMents.vue"
 
 defineOptions({
-  name: "ClientItem"
+  name: "ForemanItem"
 })
 
 const route = useRoute()
 
-const { paymentTermsArr, deliverTypeArr } = useSelectOptions()
+const { deliverTypeArr } = useSelectOptions()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -45,6 +45,35 @@ const connectUpdate = (row) => {
     dialogTitle.value = "新增聯繫人"
   }
 }
+
+/** 多選員工 */
+const value1 = ref(["1", "5"])
+const options = [
+  {
+    value: "1",
+    label: "Option1"
+  },
+  {
+    value: "2",
+    label: "Option2"
+  },
+  {
+    value: "3",
+    label: "Option3"
+  },
+  {
+    value: "4",
+    label: "Option4"
+  },
+  {
+    value: "5",
+    label: "Option5"
+  }
+]
+
+const submitInfo = () => {
+  console.log(value1.value)
+}
 </script>
 
 <template>
@@ -52,82 +81,37 @@ const connectUpdate = (row) => {
     <el-card v-loading="loading" shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
-          <el-text tag="b" size="large">客戶基本信息</el-text>
-          <el-button type="primary">保存</el-button>
+          <el-text tag="b" size="large">工廠基本信息</el-text>
+          <el-button type="primary" @click="submitInfo">保存</el-button>
         </div>
       </div>
       <el-form ref="ruleFormRef" :hide-required-asterisk="true" :model="ruleForm" :rules="rules">
         <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="客戶名稱" prop="name">
-              <el-input v-model="ruleForm.name" placeholder="請輸入客戶名稱" />
+          <el-col :span="7">
+            <el-form-item label="工廠名稱" prop="name">
+              <el-input v-model="ruleForm.name" placeholder="請輸入工廠名稱" />
             </el-form-item>
           </el-col>
-          <el-col :span="6">
-            <el-form-item label="所屬員工" prop="user_id">
-              <el-select v-model="ruleForm.user_id">
-                <el-option label="銷售部" value="1" />
-                <el-option label="財務部" value="2" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="信用額度" prop="credit">
-              <el-input v-model="ruleForm.credit" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="付款條件">
-              <el-select v-model="ruleForm.payment_terms" style="width: 100%">
-                <el-option v-for="(item, index) in paymentTermsArr" :label="item" :value="item" :key="index" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="客戶編碼" prop="client_encod">
-              <el-input v-model="ruleForm.client_encod" placeholder="請輸入客戶名稱" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="發貨類型">
+          <el-col :span="1" />
+          <el-col :span="7">
+            <el-form-item label="工廠FACTORY">
               <el-select v-model="ruleForm.deliver_type" style="width: 100%">
                 <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="6">
-            <el-form-item label="佣金比例" prop="commission_ratio">
-              <el-input v-model="ruleForm.commission_ratio" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="是否有佣金">
-              <el-radio-group v-model="ruleForm.is_commission">
-                <el-radio :value="0">否</el-radio>
-                <el-radio :value="1">是</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="是否能創建發貨計劃">
-              <el-radio-group v-model="ruleForm.is_deliver_project">
-                <el-radio :value="0">否</el-radio>
-                <el-radio :value="1">是</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="是否需要審批發貨計劃">
-              <el-radio-group v-model="ruleForm.is_check_deliver_project">
-                <el-radio :value="0">否</el-radio>
-                <el-radio :value="1">是</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
+          <el-col :span="1" />
           <el-col :span="6">
             <el-form-item label="預付款">
               <span class="color-red">10000.00</span>
               <Tickets class="w6 h6 m-l-2 color-blue cursor-pointer" @click="dialogVisible = true" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="15">
+            <el-form-item label="所屬員工">
+              <el-select v-model="value1" multiple placeholder="請選擇員工">
+                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -157,7 +141,7 @@ const connectUpdate = (row) => {
       </el-row>
     </el-card>
     <el-card shadow="never">
-      <ClientProduct :userId="route.query.id" />
+      <ForemanProduct :userId="route.query.id" />
     </el-card>
 
     <Dialog v-model="dialogVisible" title="預付款">

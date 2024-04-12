@@ -145,6 +145,83 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         }
       }
     ]
+  },
+  {
+    path: "/foreman",
+    component: Layouts,
+    redirect: "/foreman/foremanlist",
+    name: "Foreman",
+    meta: {
+      title: "工廠管理"
+    },
+    children: [
+      {
+        path: "foremanlist",
+        component: () => import("@/views/foreman/ForemanList.vue"),
+        name: "ForemanList",
+        meta: {
+          title: "工廠管理",
+          svgIcon: "dashboard",
+          keepAlive: true
+        }
+      },
+      {
+        path: "foremanitem",
+        component: () => import("@/views/foreman/ForemanItem.vue"),
+        name: "ForemanItem",
+        meta: {
+          title: "工廠詳情",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/configuration",
+    component: Layouts,
+    redirect: "/configuration/index",
+    children: [
+      {
+        path: "index",
+        component: () => import("@/views/configuration/index.vue"),
+        name: "Configuration",
+        meta: {
+          title: "配置項",
+          svgIcon: "dashboard",
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/product",
+    component: Layouts,
+    redirect: "/product/productlist",
+    name: "Product",
+    meta: {
+      title: "產品管理"
+    },
+    children: [
+      {
+        path: "productlist",
+        component: () => import("@/views/product/ProductList.vue"),
+        name: "ProductList",
+        meta: {
+          title: "產品管理",
+          svgIcon: "dashboard",
+          keepAlive: true
+        }
+      },
+      {
+        path: "productitem",
+        component: () => import("@/views/product/ProductItem.vue"),
+        name: "ProductItem",
+        meta: {
+          title: "產品詳情",
+          hidden: true
+        }
+      }
+    ]
   }
 ]
 

@@ -1,6 +1,23 @@
 import { request } from "@/utils/service"
 
-// 用戶信息
+/** 用戶信息列表 */
+//  查
+export function getUserListApi(params) {
+  return request({
+    url: "user/userList",
+    method: "get",
+    params
+  })
+}
+// 删
+export function deleteUserListApi(data) {
+  return request({
+    url: "user/deleteUser",
+    method: "post",
+    data
+  })
+}
+// 详情
 export function getUserItemApi(params) {
   return request({
     url: "user/getOneUser",
@@ -9,7 +26,8 @@ export function getUserItemApi(params) {
   })
 }
 
-/** 查詢客戶 */
+/** 客戶信息列表 */
+// 查
 export function getClientListApi(params) {
   return request({
     url: "client/clientList",
@@ -17,7 +35,7 @@ export function getClientListApi(params) {
     params
   })
 }
-// 刪 *
+// 刪
 export function deleteClientListApi(params) {
   return request({
     url: "client/clientList",
@@ -26,8 +44,8 @@ export function deleteClientListApi(params) {
   })
 }
 
-/** 客戶信息 */
-// 產品列表 - 查
+/** 客戶产品列表 */
+// 查
 export function getClientProductApi(params) {
   return request({
     url: "client/clientProductList",
@@ -35,7 +53,7 @@ export function getClientProductApi(params) {
     params
   })
 }
-// 產品列表 - 刪 *
+// 刪
 export function deleteClientProductApi(params) {
   return request({
     url: "client/clientList",
