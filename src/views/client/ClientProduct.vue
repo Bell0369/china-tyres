@@ -98,13 +98,13 @@ const radio1 = ref(0)
       <div class="flex justify-between">
         <el-text tag="b" size="large">產品信息</el-text>
         <div>
-          <el-input v-model="keywords" placeholder="請輸入產品名稱" style="width: 280px; margin-right: 10px" />
-          <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
-        </div>
-        <div>
           <el-button type="primary" @click="dialogVisible2 = true">批量調整價格</el-button>
           <el-button type="primary" @click="handleUpdate(0)">新增產品</el-button>
         </div>
+      </div>
+      <div>
+        <el-input v-model="keywords" placeholder="請輸入產品名稱" style="width: 280px; margin-right: 10px" />
+        <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
       </div>
     </div>
     <div class="m-b">

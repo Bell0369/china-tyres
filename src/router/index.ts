@@ -60,36 +60,6 @@ export const constantRoutes: RouteRecordRaw[] = [
         }
       }
     ]
-  },
-  {
-    path: "/table",
-    component: Layouts,
-    redirect: "/table/element-plus",
-    name: "Table",
-    meta: {
-      title: "表格",
-      elIcon: "Grid"
-    },
-    children: [
-      {
-        path: "element-plus",
-        component: () => import("@/views/table/element-plus/index.vue"),
-        name: "ElementPlus",
-        meta: {
-          title: "Element Plus",
-          keepAlive: true
-        }
-      },
-      {
-        path: "vxe-table",
-        component: () => import("@/views/table/vxe-table/index.vue"),
-        name: "VxeTable",
-        meta: {
-          title: "Vxe Table",
-          keepAlive: true
-        }
-      }
-    ]
   }
 ]
 
@@ -218,6 +188,141 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "ProductItem",
         meta: {
           title: "產品詳情",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/order",
+    component: Layouts,
+    redirect: "/order/orderlist",
+    name: "Order",
+    meta: {
+      title: "訂單管理"
+    },
+    children: [
+      {
+        path: "orderlist",
+        component: () => import("@/views/order/OrderList.vue"),
+        name: "OrderList",
+        meta: {
+          title: "訂單管理",
+          svgIcon: "dashboard",
+          keepAlive: true
+        }
+      },
+      {
+        path: "orderitem",
+        component: () => import("@/views/order/OrderItem.vue"),
+        name: "OrderItem",
+        meta: {
+          title: "訂單詳情",
+          hidden: true
+        }
+      },
+      {
+        path: "orderupload",
+        component: () => import("@/views/order/OrderUpload.vue"),
+        name: "OrderUpload",
+        meta: {
+          title: "上傳訂單",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/piorder",
+    component: Layouts,
+    redirect: "/piorder/piorderlist",
+    name: "PIOrder",
+    meta: {
+      title: "PI管理"
+    },
+    children: [
+      {
+        path: "piorderlist",
+        component: () => import("@/views/piorder/PIOrderList.vue"),
+        name: "PIOrderList",
+        meta: {
+          title: "PI管理",
+          svgIcon: "dashboard",
+          keepAlive: true
+        }
+      },
+      {
+        path: "piorderitem",
+        component: () => import("@/views/piorder/PIOrderItem.vue"),
+        name: "PIOrderItem",
+        meta: {
+          title: "PI詳情",
+          hidden: true
+        }
+      },
+      {
+        path: "piorderupload",
+        component: () => import("@/views/piorder/PIOrderUpload.vue"),
+        name: "PIOrderUpload",
+        meta: {
+          title: "上傳PI",
+          hidden: true
+        }
+      },
+      {
+        path: "pidelivery",
+        component: () => import("@/views/piorder/PIDelivery.vue"),
+        name: "PIDelivery",
+        meta: {
+          title: "PI發貨計劃",
+          hidden: true
+        }
+      },
+      {
+        path: "filedelivery",
+        component: () => import("@/views/piorder/FileDelivery.vue"),
+        name: "FileDelivery",
+        meta: {
+          title: "文件發貨計劃",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/delivery",
+    component: Layouts,
+    redirect: "/delivery/deliverylist",
+    name: "Delivery",
+    meta: {
+      title: "發貨計劃"
+    },
+    children: [
+      {
+        path: "deliverylist",
+        component: () => import("@/views/delivery/DeliveryList.vue"),
+        name: "DeliveryList",
+        meta: {
+          title: "發貨計劃",
+          svgIcon: "dashboard",
+          keepAlive: true
+        }
+      },
+      {
+        path: "deliveryitem",
+        component: () => import("@/views/delivery/DeliveryItem.vue"),
+        name: "DeliveryItem",
+        meta: {
+          title: "發貨計劃詳情",
+          hidden: true
+        }
+      },
+      {
+        path: "deliveryupload",
+        component: () => import("@/views/delivery/DeliveryUpload.vue"),
+        name: "DeliveryUpload",
+        meta: {
+          title: "上傳發貨計劃",
           hidden: true
         }
       }

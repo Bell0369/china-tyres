@@ -85,7 +85,7 @@ const submitInfo = () => {
           <el-button type="primary" @click="submitInfo">保存</el-button>
         </div>
       </div>
-      <el-form ref="ruleFormRef" :hide-required-asterisk="true" :model="ruleForm" :rules="rules">
+      <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
         <el-row :gutter="20">
           <el-col :span="7">
             <el-form-item label="工廠名稱" prop="name">
@@ -95,7 +95,7 @@ const submitInfo = () => {
           <el-col :span="1" />
           <el-col :span="7">
             <el-form-item label="工廠FACTORY">
-              <el-select v-model="ruleForm.deliver_type" style="width: 100%">
+              <el-select v-model="ruleForm.deliver_type">
                 <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
               </el-select>
             </el-form-item>
