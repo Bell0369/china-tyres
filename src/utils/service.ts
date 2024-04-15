@@ -2,12 +2,37 @@ import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios"
 import { useUserStoreHook } from "@/store/modules/user"
 import { ElMessage } from "element-plus"
 import { get, merge } from "lodash-es"
-import { getToken } from "./cache/cookies"
+import { getToken, setToken } from "./cache/cookies"
 
 /** 退出登录并强制刷新页面（会重定向到登录页） */
 function logout() {
   useUserStoreHook().logout()
   location.reload()
+}
+
+// 刷新 Token 并重试请求
+async function refreshTokenRequest(apiData) {
+  try {
+    const token = getToken()
+    if (token) {
+      const response = await axios.post(
+        import.meta.env.VITE_BASE_API + "/user/refreshToken",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}` // 在请求头中包含 Token
+          }
+        }
+      )
+      const newToken = response.data.data
+      setToken(newToken.token)
+    }
+    return apiData // 重新发送原始请求
+  } catch (error) {
+    // 刷新 Token 失败，跳转到登录页或其他处理
+    // logout()
+    return Promise.reject(error)
+  }
 }
 
 /** 创建请求实例 */
@@ -25,6 +50,7 @@ function createService() {
     (response) => {
       // apiData 是 api 返回的数据
       const apiData = response.data
+
       // 二进制数据则直接返回
       const responseType = response.request?.responseType
       if (responseType === "blob" || responseType === "arraybuffer") return apiData
@@ -38,7 +64,8 @@ function createService() {
       switch (code) {
         case 200:
           // 本系统采用 code === 0 来表示没有业务错误
-          return apiData
+          // return apiData
+          return refreshTokenRequest(apiData)
         case 401:
           // Token 过期时
           return logout()
