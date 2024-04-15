@@ -1,18 +1,15 @@
-<script lang="ts" setup>
+<script setup>
 import { reactive, ref } from "vue"
-import type { FormInstance, FormRules } from "element-plus"
 import { getUserItemApi } from "@/api/users"
-import { GetUserItemData } from "@/api/user/types"
 import { useSelectOptions } from "@/hooks/usSelectOptions"
 
 defineOptions({
   name: "EditUser"
 })
 const { codeArr } = useSelectOptions()
-console.log(codeArr)
 
-const ruleFormRef = ref<FormInstance>()
-const ruleForm = reactive<GetUserItemData>({
+const ruleFormRef = ref()
+const ruleForm = reactive({
   username: "",
   account: "",
   password: "",
@@ -21,12 +18,12 @@ const ruleForm = reactive<GetUserItemData>({
   email: "",
   sex: 0,
   status: 1,
-  role_id: "1",
+  role_id: 1,
   remarks: "",
   role_name: ""
 })
 
-const rules = reactive<FormRules<GetUserItemData>>({
+const rules = reactive({
   username: [{ required: true, message: "請輸入用戶名稱", trigger: "blur" }],
   account: [
     {
@@ -107,31 +104,24 @@ if (rowId > 0) {
   getUserItemApi({
     id: rowId
   }).then(({ data }) => {
-    data.password = ""
+    data.password = "******"
     Object.assign(ruleForm, data)
   })
 }
-// const submitForm = async (formEl: FormInstance | undefined) => {
-//   if (!formEl) return
-//   await formEl.validate((valid, fields) => {
-//     if (valid) {
-//       console.log("submit!")
-//     } else {
-//       console.log("error submit!", fields)
-//     }
-//   })
-// }
+const submitForm = (formEl) => {
+  if (!formEl) return
+  formEl.validate((valid, fields) => {
+    if (valid) {
+      console.log("submit!")
+    } else {
+      console.log("error submit!", fields)
+    }
+  })
+}
 </script>
 
 <template>
-  <el-form
-    label-position="left"
-    label-width="70px"
-    ref="ruleFormRef"
-    :hide-required-asterisk="true"
-    :model="ruleForm"
-    :rules="rules"
-  >
+  <el-form label-position="left" label-width="80px" ref="ruleFormRef" :model="ruleForm" :rules="rules">
     <div class="overflow-hidden">
       <el-row :gutter="10">
         <el-col :span="12">
@@ -141,10 +131,10 @@ if (rowId > 0) {
         </el-col>
         <el-col :span="12">
           <el-form-item label="電話" prop="phone">
-            <el-select v-model="ruleForm.area_code" filterable style="width: 70px">
+            <el-select v-model="ruleForm.area_code" style="width: 70px; margin-right: 5px">
               <el-option v-for="(item, index) in codeArr" :label="item" :value="item" :key="index" />
             </el-select>
-            <el-input v-model="ruleForm.phone" style="width: calc(100% - 70px)" />
+            <el-input v-model="ruleForm.phone" style="width: calc(100% - 80px)" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -163,7 +153,7 @@ if (rowId > 0) {
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="性別" prop="sex">
+          <el-form-item label="性別">
             <el-radio-group v-model="ruleForm.sex">
               <el-radio :value="0">保密</el-radio>
               <el-radio :value="1">男</el-radio>
@@ -172,15 +162,15 @@ if (rowId > 0) {
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="部門" prop="role_id">
-            <el-select v-model="ruleForm.role_id" placeholder="選擇部門">
-              <el-option label="銷售部" value="1" />
-              <el-option label="財務部" value="2" />
+          <el-form-item label="部門">
+            <el-select v-model="ruleForm.role_id">
+              <el-option label="銷售部" :value="1" />
+              <el-option label="財務部" :value="2" />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="賬號狀態" prop="status">
+          <el-form-item label="賬號狀態">
             <el-switch v-model="ruleForm.status" :active-value="1" />
           </el-form-item>
         </el-col>
@@ -190,11 +180,14 @@ if (rowId > 0) {
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="備註" prop="remarks">
+          <el-form-item label="備註">
             <el-input v-model="ruleForm.remarks" type="textarea" rows="4" />
           </el-form-item>
         </el-col>
       </el-row>
+    </div>
+    <div class="text-right">
+      <el-button type="primary" @click="submitForm(ruleFormRef)">提交</el-button>
     </div>
   </el-form>
 </template>

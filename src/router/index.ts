@@ -80,7 +80,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "UserList",
         meta: {
           title: "用戶管理",
-          svgIcon: "dashboard",
+          svgIcon: "user",
           keepAlive: true
         }
       }
@@ -101,7 +101,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "ClientList",
         meta: {
           title: "客戶管理",
-          svgIcon: "dashboard",
+          svgIcon: "client",
           keepAlive: true
         }
       },
@@ -149,16 +149,35 @@ export const dynamicRoutes: RouteRecordRaw[] = [
   {
     path: "/configuration",
     component: Layouts,
-    redirect: "/configuration/index",
+    redirect: "/configuration/foremancode",
+    name: "Configuration",
+    meta: {
+      title: "配置項",
+      svgIcon: "dashboard"
+    },
     children: [
       {
-        path: "index",
-        component: () => import("@/views/configuration/index.vue"),
-        name: "Configuration",
+        path: "foremancode",
+        component: () => import("@/views/configuration/ForemanCode.vue"),
+        name: "ForemanCode",
         meta: {
-          title: "配置項",
-          svgIcon: "dashboard",
-          keepAlive: true
+          title: "工廠代碼"
+        }
+      },
+      {
+        path: "brand",
+        component: () => import("@/views/configuration/Brand.vue"),
+        name: "Brand",
+        meta: {
+          title: "品牌"
+        }
+      },
+      {
+        path: "shipping",
+        component: () => import("@/views/configuration/Shipping.vue"),
+        name: "Shipping",
+        meta: {
+          title: "發貨方式"
         }
       }
     ]
@@ -324,6 +343,54 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "上傳發貨計劃",
           hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/invoice",
+    component: Layouts,
+    redirect: "/invoice/invoicelist",
+    name: "Invoice",
+    meta: {
+      title: "銷售發票"
+    },
+    children: [
+      {
+        path: "invoicelist",
+        component: () => import("@/views/invoice/InvoiceList.vue"),
+        name: "InvoiceList",
+        meta: {
+          title: "銷售發票",
+          svgIcon: "dashboard",
+          keepAlive: true
+        }
+      },
+      {
+        path: "invoiceitem",
+        component: () => import("@/views/invoice/InvoiceItem.vue"),
+        name: "InvoiceItem",
+        meta: {
+          title: "發票詳情",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/payment",
+    component: Layouts,
+    redirect: "/payment/paymentlist",
+    name: "Payment",
+    children: [
+      {
+        path: "paymentlist",
+        component: () => import("@/views/payment/PaymentList.vue"),
+        name: "PaymentList",
+        meta: {
+          title: "應收應付",
+          svgIcon: "dashboard",
+          keepAlive: true
         }
       }
     ]
