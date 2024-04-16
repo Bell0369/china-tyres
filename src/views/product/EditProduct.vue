@@ -1,5 +1,8 @@
 <script setup>
-import { reactive, ref } from "vue"
+import { reactive, ref, onMounted } from "vue"
+import { getProductShowApi, updateProductApi } from "@/api/product"
+import { ElMessage } from "element-plus"
+import { useBrandSelect } from "@/hooks/useSelectOption.js"
 
 defineOptions({
   name: "EditProduct"
@@ -7,113 +10,150 @@ defineOptions({
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
-  username: "",
-  account: "",
-  role_id: "1"
+  name: "",
+  art: "",
+  ean: "",
+  brand_id: 1,
+  customs_code: "",
+  quantity: "",
+  tyre_type: "",
+  piece_weight: "",
+  spout: "",
+  type: "",
+  decorative_design: "",
+  account: "" //缺是否空白&歐標等級
 })
 
 const rules = reactive({
-  username: [{ required: true, message: "請輸入用戶名稱", trigger: "blur" }]
+  name: [{ required: true, message: "請輸入產品名稱", trigger: "blur" }],
+  art: [{ required: true, message: "請輸入產品代碼", trigger: "blur" }],
+  ean: [{ required: true, message: "請輸入條碼", trigger: "blur" }],
+  customs_code: [{ required: true, message: "請輸入海關編碼", trigger: "blur" }],
+  quantity: [{ required: true, message: "請輸入裝箱量", trigger: "blur" }],
+  tyre_type: [{ required: true, message: "請輸入輪胎類型", trigger: "blur" }],
+  piece_weight: [{ required: true, message: "請輸入單重", trigger: "blur" }],
+  type: [{ required: true, message: "請輸入類型", trigger: "blur" }],
+  spout: [{ required: true, message: "請輸入寸口", trigger: "blur" }],
+  decorative_design: [{ required: true, message: "請輸入花紋", trigger: "blur" }]
 })
 
-const { rowId } = defineProps(["rowId"])
-console.log(rowId)
+// 品牌
+const { brandOptions } = useBrandSelect()
 
-// const submitForm = async (formEl: FormInstance | undefined) => {
-//   if (!formEl) return
-//   await formEl.validate((valid, fields) => {
-//     if (valid) {
-//       console.log("submit!")
-//     } else {
-//       console.log("error submit!", fields)
-//     }
-//   })
-// }
+const { rowId } = defineProps(["rowId"])
+
+const loading = ref(false)
+onMounted(() => {
+  if (rowId) {
+    loading.value = true
+    getProductShowApi({
+      id: rowId
+    })
+      .then(({ data }) => {
+        Object.assign(ruleForm, data.info)
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  }
+})
+
+const emitEvents = defineEmits(["childEvent"])
+const submitForm = (formEl) => {
+  if (!formEl) return
+  formEl.validate((valid, fields) => {
+    if (valid) {
+      console.log("submit!")
+      updateProductApi(ruleForm).then(() => {
+        ElMessage.success("操作成功")
+        emitEvents("childEvent")
+      })
+    } else {
+      console.log("error submit!", fields)
+    }
+  })
+}
 </script>
 
 <template>
-  <el-form ref="ruleFormRef" :hide-required-asterisk="true" :model="ruleForm" :rules="rules" label-position="top">
-    <div class="overflow-hidden">
-      <el-row :gutter="10">
-        <el-col :span="6">
-          <el-form-item label="產品名稱" prop="username">
-            <el-input v-model="ruleForm.username" placeholder="請輸入產品名稱" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="產品代碼(ART)" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入產品代碼(ART)" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="條碼ENA" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入條碼ENA" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="品牌" prop="role_id">
-            <el-select v-model="ruleForm.role_id">
-              <el-option label="銷售部" value="1" />
-              <el-option label="財務部" value="2" />
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="海關編碼" prop="username">
-            <el-input v-model="ruleForm.username" placeholder="請輸入海關編碼" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="40'HQ裝箱量" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入裝箱量" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="輪胎類型TYPE" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入輪胎類型" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="海關條碼" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入海關條碼" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="歐標等級" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入歐標等級" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="單重" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入單重" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="是否歐標EUOR 空白" prop="account">
-            <el-input v-model="ruleForm.account" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="類型" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入類型" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="花紋" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入花紋" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="寸口" prop="account">
-            <el-input v-model="ruleForm.account" placeholder="請輸入寸口" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item>
-            <el-button type="primary"> 保存 </el-button>
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </div>
-  </el-form>
+  <div v-loading="loading">
+    <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-position="top">
+      <div class="overflow-hidden">
+        <el-row :gutter="10">
+          <el-col :span="6">
+            <el-form-item label="產品名稱" prop="name">
+              <el-input v-model="ruleForm.name" placeholder="請輸入產品名稱" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="產品代碼(ART)" prop="art">
+              <el-input v-model="ruleForm.art" placeholder="請輸入產品代碼(ART)" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="條碼ENA" prop="ean">
+              <el-input v-model="ruleForm.ean" placeholder="請輸入條碼ENA" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="品牌" prop="brand_id">
+              <el-select v-model="ruleForm.brand_id">
+                <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="海關編碼" prop="customs_code">
+              <el-input v-model="ruleForm.customs_code" placeholder="請輸入海關編碼" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="40'HQ裝箱量" prop="quantity">
+              <el-input v-model="ruleForm.quantity" placeholder="請輸入裝箱量" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="輪胎類型TYPE" prop="tyre_type">
+              <el-input v-model="ruleForm.tyre_type" placeholder="請輸入輪胎類型" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="歐標等級" prop="account">
+              <el-input v-model="ruleForm.account" placeholder="請輸入歐標等級" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="單重" prop="piece_weight">
+              <el-input v-model="ruleForm.piece_weight" placeholder="請輸入單重" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="是否歐標EUOR 空白" prop="account">
+              <el-input v-model="ruleForm.account" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="類型" prop="type">
+              <el-input v-model="ruleForm.type" placeholder="請輸入類型" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="花紋" prop="decorative_design">
+              <el-input v-model="ruleForm.decorative_design" placeholder="請輸入花紋" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="寸口" prop="spout">
+              <el-input v-model="ruleForm.spout" placeholder="請輸入寸口" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item>
+              <el-button type="primary" @click="submitForm(ruleFormRef)"> 保存 </el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
+    </el-form>
+  </div>
 </template>

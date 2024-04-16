@@ -82,13 +82,13 @@ const dialogStyle = computed(() => {
     :show-close="false"
   >
     <template #header="{ close }">
-      <div class="flex justify-between items-center h-54px pl-15px pr-15px relative">
+      <div class="flex justify-between items-center h-30px pl-15px pr-15px relative">
         <slot name="title">
           {{ title }}
         </slot>
-        <div class="h-54px flex justify-between items-center absolute top-[50%] right-15px translate-y-[-50%]">
-          <SvgIcon :name="fullscreenSvgName" @click="toggleFull" class="!h-54px mr-3 cursor-pointer" />
-          <SvgIcon name="close" @click="close" class="!h-54px cursor-pointer" />
+        <div class="h-30px flex justify-between items-center absolute top-[50%] right-15px translate-y-[-50%]">
+          <SvgIcon :name="fullscreenSvgName" @click="toggleFull" class="!h-30px mr-3 cursor-pointer" />
+          <SvgIcon name="close" @click="close" class="!h-30px cursor-pointer" />
         </div>
       </div>
     </template>
@@ -106,7 +106,6 @@ const dialogStyle = computed(() => {
 <style lang="scss">
 .el-dialog {
   &__header {
-    padding: 0;
     border-bottom: 1px solid var(--el-border-color-lighter);
     .svg-icon:hover {
       color: var(--el-color-primary);

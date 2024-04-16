@@ -91,7 +91,7 @@ const handleUpdate = (row) => {
 
 <template>
   <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="search-wrapper">
+    <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="username" label="用户名">
           <el-input v-model="searchData.keyword" placeholder="請輸入客戶名稱、所屬員工、電話" style="width: 300px" />
@@ -121,17 +121,19 @@ const handleUpdate = (row) => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <el-button type="primary" :icon="CirclePlus">新增客戶</el-button>
+          <router-link to="/client/clientitem">
+            <el-button type="primary" :icon="CirclePlus">新增客戶</el-button>
+          </router-link>
         </div>
       </div>
       <div class="table-wrapper">
         <el-table ref="tableRef" :data="tableData">
           <el-table-column prop="client_name" label="客戶名稱" align="center" />
-          <el-table-column prop="username" label="聯絡人" align="center" />
-          <el-table-column prop="user_id" label="所屬員工" align="center" />
+          <el-table-column prop="username" label="所屬員工" align="center" />
+          <el-table-column prop="client_contact" label="聯繫人" align="center" />
+          <el-table-column prop="phone" label="電話" width="150" align="center" />
+          <el-table-column prop="email" label="Email" width="150" :show-overflow-tooltip="true" align="center" />
           <el-table-column prop="address" width="150" :show-overflow-tooltip="true" label="地址" align="center" />
-          <el-table-column prop="phone" label="電話" align="center" />
-          <el-table-column prop="email" label="Email" align="center" />
           <el-table-column prop="payment_terms" label="付款條件" align="center" />
           <el-table-column prop="credit" label="信用額度" align="center" />
           <el-table-column prop="advance_payment" label="預付款" align="center" />

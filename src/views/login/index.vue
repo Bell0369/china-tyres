@@ -37,6 +37,10 @@ const handleLogin = () => {
       useUserStore()
         .login(loginFormData)
         .then(() => {
+          // 初始時間
+          const lastRequestTime = Date.now() + 60 * 1000
+          localStorage.setItem("lastRequestTime", JSON.stringify(lastRequestTime))
+
           router.push({ path: "/" })
         })
         .catch((res) => {

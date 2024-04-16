@@ -53,3 +53,12 @@ export function addDeliveryListApi(params) {
     params
   })
 }
+
+// 國家地區
+export function getCountriesAreaApi(params) {
+  return request({
+    url: "common/getCountriesArea",
+    method: "get",
+    params
+  })
+}

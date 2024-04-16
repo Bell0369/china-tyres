@@ -1,12 +1,13 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getClientListApi, deleteClientListApi } from "@/api/users"
+import { getProductListApi } from "@/api/product"
 import { ElMessage, ElMessageBox, ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
 import { Dialog } from "@/components/Dialog"
 import EditProduct from "./EditProduct.vue"
+import { useBrandSelect } from "@/hooks/useSelectOption.js"
 
 defineOptions({
   name: "ProductList"
@@ -15,18 +16,22 @@ defineOptions({
 const loading = ref(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
+// 品牌
+const { brandOptions } = useBrandSelect()
+
 //#region 删
 const handleDelete = (row) => {
-  ElMessageBox.confirm(`正在刪除用戶 ${row.client_name}，確認刪除？`, "提示", {
+  ElMessageBox.confirm("確認刪除該品牌？", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
   })
     .then(() => {
-      deleteClientListApi(row.id).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
+      console.log(row.id)
+      // deleteClientListApi(row.id).then(() => {
+      //   ElMessage.success("刪除成功")
+      //   getTableData()
+      // })
     })
     .catch(() => {
       ElMessage({
@@ -41,18 +46,18 @@ const handleDelete = (row) => {
 const tableData = ref([])
 const searchFormRef = ref(null)
 const searchData = reactive({
-  keyword: "",
-  payment_terms: "",
-  user_id: ""
+  name: "",
+  factory_id: "",
+  client_id: ""
 })
 const getTableData = () => {
   loading.value = true
-  getClientListApi({
+  getProductListApi({
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
-    keyword: searchData.keyword || undefined,
-    payment_terms: searchData.payment_terms || undefined,
-    user_id: searchData.user_id || undefined
+    name: searchData.name || undefined,
+    factory_id: searchData.factory_id || undefined,
+    client_id: searchData.client_id || undefined
   })
     .then(({ data }) => {
       paginationData.total = data.total
@@ -95,47 +100,52 @@ const dialogVisible = ref(false)
 const dialogTitle = ref("")
 const dialogId = ref(0)
 const handleUpdate = (row) => {
-  console.log(row)
   dialogId.value = row
   dialogVisible.value = true
   if (row) {
-    // 改
     dialogTitle.value = "編輯產品"
   } else {
-    // 增
     dialogTitle.value = "新增產品"
   }
+}
+
+// 逗號隔開
+const userList = (list) => {
+  return list.map((item) => item.name).join(", ")
+}
+
+// 編輯完成
+const handleChildEvent = () => {
+  dialogVisible.value = false
+  getTableData()
 }
 </script>
 
 <template>
   <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="search-wrapper">
+    <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="username" label="產品名稱">
-          <el-input v-model="searchData.keyword" placeholder="請輸入產品名稱" style="width: 300px" />
+          <el-input v-model="searchData.name" placeholder="請輸入產品名稱" style="width: 300px" />
         </el-form-item>
         <el-form-item prop="state" label="客戶編碼">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+          <el-select v-model="searchData.client_id" style="width: 150px">
             <el-option label="全部" value="" />
             <el-option label="付款条件A" value="付款条件A" />
             <el-option label="付款条件B" value="付款条件B" />
           </el-select>
         </el-form-item>
         <el-form-item prop="state" label="工廠名稱">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+          <el-select v-model="searchData.factory_id" style="width: 150px">
             <el-option label="全部" value="" />
             <el-option label="付款条件A" value="付款条件A" />
             <el-option label="付款条件B" value="付款条件B" />
           </el-select>
         </el-form-item>
         <el-form-item prop="department" label="品牌">
-          <el-select v-model="searchData.user_id" style="width: 100px">
+          <el-select v-model="searchData.client_id" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option label="員工1" :value="1" />
-            <el-option label="員工2" :value="2" />
-            <el-option label="員工3" :value="3" />
-            <el-option label="員工4" :value="4" />
+            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -147,24 +157,33 @@ const handleUpdate = (row) => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <el-button type="primary" :icon="CirclePlus">新增產品</el-button>
+          <el-button type="primary" :icon="CirclePlus" @click="handleUpdate(0)">新增產品</el-button>
         </div>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" :data="tableData">
-          <el-table-column prop="client_name" label="產品名稱" align="center" />
-          <el-table-column prop="username" label="品牌" align="center" />
-          <el-table-column prop="user_id" label="產品代碼" align="center" />
-          <el-table-column prop="advance_payment" label="輪胎類型" align="center" />
-          <el-table-column prop="advance_payment" label="海關編碼" align="center" />
-          <el-table-column prop="advance_payment" label="40'HQ裝櫃量" align="center" />
-          <el-table-column prop="advance_payment" label="單重" align="center" />
-          <el-table-column prop="advance_payment" label="客戶" align="center" />
-          <el-table-column prop="advance_payment" label="工廠" align="center" />
+        <el-table ref="tableRef" :data="tableData" border>
+          <el-table-column prop="name" label="產品名稱" align="center" />
+          <el-table-column prop="brand" label="品牌" align="center" />
+          <el-table-column prop="art" label="產品代碼" align="center" />
+          <el-table-column prop="tyre_type" label="輪胎類型" align="center" />
+          <el-table-column prop="customs_code" label="海關編碼" align="center" />
+          <el-table-column prop="quantity" label="40'HQ裝櫃量" align="center" />
+          <el-table-column prop="piece_weight" label="單重" align="center" />
+          <el-table-column prop="client" label="客戶" align="center">
+            <template #default="scope">
+              <el-text>{{ userList(scope.row.client) }}</el-text>
+              <!-- <el-text v-for="item in scope.row.client" :key="item.id">{{ item.name }}</el-text> -->
+            </template>
+          </el-table-column>
+          <el-table-column prop="advance_payment" label="工廠" align="center">
+            <template #default="scope">
+              <el-text>{{ userList(scope.row.factory) }}</el-text>
+            </template>
+          </el-table-column>
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="200" align="center">
             <template #default="scope">
-              <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row.id)">修改</el-button>
               <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
               <el-button type="primary" text bg size="small" @click="handleView(scope.row)">查看</el-button>
             </template>
@@ -185,7 +204,7 @@ const handleUpdate = (row) => {
       </div>
     </el-card>
     <Dialog v-model="dialogVisible" :title="dialogTitle" width="60%">
-      <EditProduct :rowId="dialogId" />
+      <EditProduct :rowId="dialogId" @childEvent="handleChildEvent" />
     </Dialog>
   </div>
 </template>

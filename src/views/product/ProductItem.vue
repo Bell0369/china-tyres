@@ -1,14 +1,35 @@
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted, reactive } from "vue"
+import { useRoute } from "vue-router"
+import { getProductShowApi } from "@/api/product"
+
+const route = useRoute()
+console.log(route.query.id)
 
 const loading = ref(false)
 
-const tableData = [
-  {
-    date: "2016-05-03",
-    name: "Tom"
-  }
-]
+const infoData = reactive({})
+const clientData = ref([])
+const factoryDate = ref([])
+
+const getTableData = () => {
+  loading.value = true
+  getProductShowApi({
+    id: route.query.id
+  })
+    .then(({ data }) => {
+      Object.assign(infoData, data.info)
+      clientData.value = data.client
+      factoryDate.value = data.factory
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+
+onMounted(() => {
+  getTableData()
+})
 </script>
 
 <template>
@@ -18,37 +39,37 @@ const tableData = [
         <div class="m-b">
           <el-text tag="b" size="large">產品信息</el-text>
         </div>
-        <el-descriptions :column="3" border>
-          <el-descriptions-item label="產品名稱">kooriookami</el-descriptions-item>
-          <el-descriptions-item label="產品代碼(ART)">kooriookami</el-descriptions-item>
-          <el-descriptions-item label="品牌">18100000000</el-descriptions-item>
-          <el-descriptions-item label="條碼EAN">Suzhou</el-descriptions-item>
-          <el-descriptions-item label="40'HQ裝箱量">Suzhou</el-descriptions-item>
-          <el-descriptions-item label="輪胎類型TYPE">kooriookami</el-descriptions-item>
-          <el-descriptions-item label="海關條碼">18100000000</el-descriptions-item>
-          <el-descriptions-item label="歐標等級">Suzhou</el-descriptions-item>
-          <el-descriptions-item label="單重">Suzhou</el-descriptions-item>
-          <el-descriptions-item label="是否歐標EU OR 空白">Suzhou</el-descriptions-item>
-          <el-descriptions-item label="類型">Suzhou</el-descriptions-item>
-          <el-descriptions-item label="花紋">Suzhou</el-descriptions-item>
-          <el-descriptions-item label="寸口">Suzhou</el-descriptions-item>
+        <el-descriptions :column="4" border>
+          <el-descriptions-item label="產品名稱">{{ infoData.name }}</el-descriptions-item>
+          <el-descriptions-item label="產品代碼(ART)">{{ infoData.art }}</el-descriptions-item>
+          <el-descriptions-item label="品牌">{{ infoData.brand_id }}</el-descriptions-item>
+          <el-descriptions-item label="條碼EAN">{{ infoData.ean }}</el-descriptions-item>
+          <el-descriptions-item label="40'HQ裝箱量">{{ infoData.quantity }}</el-descriptions-item>
+          <el-descriptions-item label="輪胎類型">{{ infoData.tyre_type }}</el-descriptions-item>
+          <el-descriptions-item label="海關條碼">{{ infoData.customs_code }}</el-descriptions-item>
+          <el-descriptions-item label="歐標等級">{{ infoData.european_standard_level }}</el-descriptions-item>
+          <el-descriptions-item label="單重">{{ infoData.piece_weight }}</el-descriptions-item>
+          <el-descriptions-item label="是否歐標EU OR 空白">{{ infoData.european_standard }}</el-descriptions-item>
+          <el-descriptions-item label="類型">{{ infoData.type }}</el-descriptions-item>
+          <el-descriptions-item label="花紋">{{ infoData.decorative_design }}</el-descriptions-item>
+          <el-descriptions-item label="寸口">{{ infoData.spout }}</el-descriptions-item>
         </el-descriptions>
       </div>
       <div class="mt5">
         <el-col :span="12">
           <el-text tag="b" size="large">銷售客戶</el-text>
-          <el-table :data="tableData" border class="mt">
-            <el-table-column prop="date" label="產品編碼" />
-            <el-table-column prop="name" label="銷售價格" />
+          <el-table :data="clientData" border class="mt">
+            <el-table-column prop="name" label="客戶編碼" />
+            <el-table-column prop="price" label="銷售價格" />
           </el-table>
         </el-col>
       </div>
       <div class="mt10">
         <el-col :span="12">
           <el-text tag="b" size="large">生產工廠</el-text>
-          <el-table :data="tableData" border class="mt">
-            <el-table-column prop="date" label="產品編碼" />
-            <el-table-column prop="name" label="銷售價格" />
+          <el-table :data="factoryDate" border class="mt">
+            <el-table-column prop="name" label="工廠名稱" />
+            <el-table-column prop="product_id" label="工廠價格" />
           </el-table>
         </el-col>
       </div>

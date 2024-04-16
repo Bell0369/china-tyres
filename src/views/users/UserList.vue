@@ -22,7 +22,9 @@ const handleDelete = (row) => {
     type: "warning"
   })
     .then(() => {
-      deleteUserListApi(row.id).then(() => {
+      deleteUserListApi({
+        id: row.id
+      }).then(() => {
         ElMessage.success("刪除成功")
         getTableData()
       })
@@ -46,7 +48,6 @@ const searchData = reactive({
 })
 const getTableData = () => {
   loading.value = true
-  console.log(searchData)
   getUserListApi({
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
@@ -93,15 +94,20 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
 // 修改狀態
 const updatSatus = (row) => {
   console.log("修改状态", row.id)
+  // updateUserItemApi({
+  //   id: row.id,
+  //   status: !row.user_status
+  // }).then(() => {
+  //   ElMessage.success("操作成功")
+  // })
 }
 
 // 增 / 改
 const dialogVisible = ref(false)
 const dialogTitle = ref("")
-const dialogId = ref(0)
+const userId = ref(0)
 const handleUpdate = (row) => {
-  console.log(row)
-  dialogId.value = row
+  userId.value = row
   dialogVisible.value = true
   if (row) {
     // 改
@@ -111,11 +117,17 @@ const handleUpdate = (row) => {
     dialogTitle.value = "新增用戶"
   }
 }
+
+const handleChildEvent = () => {
+  // console.log("Received event from child:", payload)
+  dialogVisible.value = false
+  getTableData()
+}
 </script>
 
 <template>
   <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="search-wrapper">
+    <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="username" label="用户名">
           <el-input v-model="searchData.username" placeholder="請輸入用戶名稱、登錄賬號、Email" style="width: 300px" />
@@ -150,14 +162,14 @@ const handleUpdate = (row) => {
         </div>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" :data="tableData">
+        <el-table ref="tableRef" border :data="tableData">
           <!-- <el-table-column type="selection" width="50" /> -->
-          <el-table-column prop="username" label="用戶名稱" />
-          <el-table-column prop="account" label="登錄號" />
-          <el-table-column prop="sex" label="性別" />
-          <el-table-column prop="phone" label="電話" />
-          <el-table-column prop="email" label="Email" />
-          <el-table-column prop="user_status" label="状态">
+          <el-table-column prop="username" label="用戶名稱" align="center" />
+          <el-table-column prop="account" label="登錄號" align="center" />
+          <el-table-column prop="sex" label="性別" width="100" align="center" />
+          <el-table-column prop="phone" label="電話" align="center" />
+          <el-table-column prop="email" label="Email" align="center" />
+          <el-table-column prop="user_status" label="状态" width="100" align="center">
             <template #default="scope">
               <el-switch
                 v-model="scope.row.user_status"
@@ -191,7 +203,7 @@ const handleUpdate = (row) => {
     </el-card>
 
     <Dialog v-model="dialogVisible" :title="dialogTitle">
-      <EditUser :rowId="dialogId" />
+      <EditUser :rowId="userId" @childEvent="handleChildEvent" />
     </Dialog>
   </div>
 </template>

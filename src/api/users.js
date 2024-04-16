@@ -25,6 +25,14 @@ export function getUserItemApi(params) {
     params
   })
 }
+// 加
+export function updateUserItemApi(params) {
+  return request({
+    url: "user/addUser",
+    method: "post",
+    params
+  })
+}
 
 /** 客戶信息列表 */
 // 查

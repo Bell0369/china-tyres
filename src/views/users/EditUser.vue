@@ -1,11 +1,13 @@
 <script setup>
-import { reactive, ref } from "vue"
-import { getUserItemApi } from "@/api/users"
+import { reactive, ref, defineEmits } from "vue"
+import { getUserItemApi, updateUserItemApi } from "@/api/users"
 import { useSelectOptions } from "@/hooks/usSelectOptions"
+import { ElMessage } from "element-plus"
 
 defineOptions({
   name: "EditUser"
 })
+
 const { codeArr } = useSelectOptions()
 
 const ruleFormRef = ref()
@@ -19,8 +21,7 @@ const ruleForm = reactive({
   sex: 0,
   status: 1,
   role_id: 1,
-  remarks: "",
-  role_name: ""
+  remarks: ""
 })
 
 const rules = reactive({
@@ -108,11 +109,18 @@ if (rowId > 0) {
     Object.assign(ruleForm, data)
   })
 }
+const emitEvents = defineEmits(["childEvent"])
 const submitForm = (formEl) => {
+  console.log(ruleForm)
   if (!formEl) return
   formEl.validate((valid, fields) => {
     if (valid) {
-      console.log("submit!")
+      updateUserItemApi(ruleForm).then(() => {
+        ElMessage.success("操作成功")
+        emitEvents("childEvent")
+        // dialogVisible.value = false
+        // getTableData()
+      })
     } else {
       console.log("error submit!", fields)
     }
@@ -171,7 +179,7 @@ const submitForm = (formEl) => {
         </el-col>
         <el-col :span="12">
           <el-form-item label="賬號狀態">
-            <el-switch v-model="ruleForm.status" :active-value="1" />
+            <el-switch v-model="ruleForm.status" :active-value="1" :inactive-value="0" />
           </el-form-item>
         </el-col>
         <el-col :span="24">
