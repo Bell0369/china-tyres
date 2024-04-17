@@ -1,10 +1,11 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getClientListApi, deleteClientListApi } from "@/api/users"
+import { getFactoryListApi, deleteClientListApi, getUserListApi } from "@/api/users"
 import { ElMessage, ElMessageBox, ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
+import { useBrandSelect } from "@/hooks/useSelectOption.js"
 
 defineOptions({
   name: "ForemanList"
@@ -12,6 +13,30 @@ defineOptions({
 
 const loading = ref(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
+
+//品牌
+const { brandOptions } = useBrandSelect()
+// 員工列表
+const loading2 = ref(false)
+const userOptions = ref([])
+const remoteMethod = (query) => {
+  if (query) {
+    loading2.value = true
+    getUserListApi({
+      keyword: query || undefined
+    })
+      .then(({ data }) => {
+        const list = data.data
+        userOptions.value = list
+      })
+      .catch(() => {
+        userOptions.value = []
+      })
+      .finally(() => {
+        loading2.value = false
+      })
+  }
+}
 
 //#region 删
 const handleDelete = (row) => {
@@ -45,7 +70,7 @@ const searchData = reactive({
 })
 const getTableData = () => {
   loading.value = true
-  getClientListApi({
+  getFactoryListApi({
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
     keyword: searchData.keyword || undefined,
@@ -70,6 +95,7 @@ const handleSearch = () => {
 
 // 重置
 const resetSearch = () => {
+  searchData.user_id = undefined
   searchFormRef.value?.resetFields()
   handleSearch()
 }
@@ -87,29 +113,38 @@ const handleUpdate = (row) => {
     }
   })
 }
+
+// 逗號隔開
+const userList = (list) => {
+  return list.map((item) => item.username).join(", ")
+}
 </script>
 
 <template>
   <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="search-wrapper">
+    <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="username" label="工廠名稱">
           <el-input v-model="searchData.keyword" placeholder="請輸入工廠名稱" style="width: 300px" />
         </el-form-item>
-        <el-form-item prop="state" label="品牌">
+        <el-form-item prop="payment_terms" label="品牌">
           <el-select v-model="searchData.payment_terms" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in brandOptions" :label="item.name" :value="item.id" :key="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="department" label="員工">
-          <el-select v-model="searchData.user_id" style="width: 100px">
+        <el-form-item prop="user_id" label="員工">
+          <el-select
+            v-model="searchData.user_id"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="remoteMethod"
+            :loading="loading2"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="員工1" :value="1" />
-            <el-option label="員工2" :value="2" />
-            <el-option label="員工3" :value="3" />
-            <el-option label="員工4" :value="4" />
+            <el-option v-for="item in userOptions" :key="item.id" :label="item.username" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -121,14 +156,20 @@ const handleUpdate = (row) => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <el-button type="primary" :icon="CirclePlus">新增工廠</el-button>
+          <router-link to="/foreman/foremanadd">
+            <el-button type="primary" :icon="CirclePlus">新增工廠</el-button>
+          </router-link>
         </div>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" :data="tableData">
-          <el-table-column prop="client_name" label="客戶名稱" align="center" />
-          <el-table-column prop="username" label="聯絡人" align="center" />
-          <el-table-column prop="user_id" label="所屬員工" align="center" />
+        <el-table ref="tableRef" :data="tableData" border>
+          <el-table-column prop="name" label="工廠名稱" align="center" />
+          <el-table-column prop="factory_contact" label="聯絡人" align="center" />
+          <el-table-column prop="userInfo" label="所屬員工" align="center">
+            <template #default="scope">
+              <el-text>{{ userList(scope.row.userInfo) }}</el-text>
+            </template>
+          </el-table-column>
           <el-table-column prop="address" width="150" :show-overflow-tooltip="true" label="地址" align="center" />
           <el-table-column prop="phone" label="電話" align="center" />
           <el-table-column prop="email" label="Email" align="center" />

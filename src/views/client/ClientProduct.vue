@@ -1,8 +1,9 @@
 <script setup>
 import { ref, watch, reactive } from "vue"
-import { getClientProductApi, deleteClientProductApi } from "@/api/users"
+import { getClientProductApi, viewProductShowApi, updateProductShowApi } from "@/api/users"
+import { getProductListApi } from "@/api/product"
 import { usePagination } from "@/hooks/usePagination"
-import { Search } from "@element-plus/icons-vue"
+import { Search, Refresh } from "@element-plus/icons-vue"
 import { ElMessageBox, ElMessage } from "element-plus"
 import { Dialog } from "@/components/Dialog"
 
@@ -13,16 +14,17 @@ const props = defineProps(["userId"])
 
 //#region 删
 const handleDelete = (row) => {
-  ElMessageBox.confirm(`確認刪除產品${row.client_name}？`, "提示", {
+  ElMessageBox.confirm(`確認刪除該產品？`, "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
   })
     .then(() => {
-      deleteClientProductApi(row.id).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
+      ElMessage.success("刪除成功", row)
+      // deleteClientProductApi(row.id).then(() => {
+      //   ElMessage.success("刪除成功")
+      //   getTableData()
+      // })
     })
     .catch(() => {
       ElMessage({
@@ -35,13 +37,13 @@ const handleDelete = (row) => {
 
 //#region 查
 const tableData = ref([])
-const keywords = ref(null)
+const keyword = ref("")
 const getTableData = () => {
   loading.value = true
   getClientProductApi({
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
-    keyword: keywords.value || undefined,
+    keyword: keyword.value || undefined,
     id: props.userId
   })
     .then(({ data }) => {
@@ -63,29 +65,95 @@ const handleSearch = () => {
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
 
+// 重置
+const resetSearch = () => {
+  keyword.value = ""
+  handleSearch()
+}
+
 // 增 / 改
 const dialogVisible = ref(false)
-const dialogTitle = ref("")
-const dialogId = ref(0)
 const handleUpdate = (row) => {
-  console.log(row)
-  dialogId.value = row
   dialogVisible.value = true
   if (row) {
-    // 改
-    dialogTitle.value = "編輯用戶"
+    getProductShow(row)
   } else {
-    // 增
-    dialogTitle.value = "新增用戶"
+    Object.keys(productForm).forEach((key) => {
+      productForm[key] = undefined
+    })
   }
 }
 
+// 產品信息明細 - 默認
 const productFormRef = ref(null)
-const productData = reactive({
+const productForm = reactive({
   product_id: 1,
   price: "",
   brand_name: ""
 })
+const getProductShow = (pid) => {
+  viewProductShowApi({
+    id: pid
+  }).then(({ data }) => {
+    Object.assign(productForm, data)
+    const obj = {
+      name: data.name,
+      id: data.product_id
+    }
+    productOptions.value.push(obj)
+  })
+}
+
+// 產品名稱
+const loading2 = ref(false)
+const productOptions = ref([])
+const remoteMethod = (query) => {
+  if (query) {
+    loading2.value = true
+    getProductListApi({
+      name: query || undefined,
+      page_size: 20
+    })
+      .then(({ data }) => {
+        const list = data.data
+        productOptions.value = list
+      })
+      .catch(() => {
+        productOptions.value = []
+      })
+      .finally(() => {
+        loading2.value = false
+      })
+  }
+}
+
+// 切換產品
+const changeProduct = (e) => {
+  const proNum = productOptions.value.findIndex((item) => {
+    return item.id == e
+  })
+  productForm.brand_name = productOptions.value[proNum].brand
+}
+
+// 關閉調整產品彈框 - 清空option數據
+const handleClose = () => {
+  productOptions.value = []
+}
+
+// 提交產品更改
+const submitProductForm = () => {
+  delete productForm["brand_name"]
+  delete productForm["name"]
+  productForm.client_id = props.userId
+  console.log(productForm)
+  updateProductShowApi({
+    product_json: [productForm]
+  }).then(() => {
+    ElMessage.success("操作成功")
+    dialogVisible.value = false
+    getTableData()
+  })
+}
 
 /** 調整價格 */
 const dialogVisible2 = ref(false)
@@ -102,9 +170,10 @@ const radio1 = ref(0)
           <el-button type="primary" @click="handleUpdate(0)">新增產品</el-button>
         </div>
       </div>
-      <div>
-        <el-input v-model="keywords" placeholder="請輸入產品名稱" style="width: 280px; margin-right: 10px" />
+      <div class="mt2">
+        <el-input v-model="keyword" placeholder="請輸入產品名稱" style="width: 280px; margin-right: 10px" />
         <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
+        <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
       </div>
     </div>
     <div class="m-b">
@@ -114,7 +183,7 @@ const radio1 = ref(0)
         <el-table-column prop="brand_name" label="品牌" align="center" />
         <el-table-column fixed="right" label="操作" width="150" align="center">
           <template #default="scope">
-            <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
+            <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row.id)">修改</el-button>
             <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -133,26 +202,35 @@ const radio1 = ref(0)
       />
     </div>
     <!-- 產品調整 -->
-    <Dialog v-model="dialogVisible" title="產品調整">
-      <el-form ref="productFormRef" :model="productData" label-position="left" label-width="100px">
+    <el-dialog v-model="dialogVisible" title="產品調整" @close="handleClose">
+      <!-- <Dialog v-model="dialogVisible" title="產品調整"> -->
+      <el-form ref="productFormRef" :model="productForm" label-position="left" label-width="100px">
         <el-form-item label="產品名稱">
-          <el-select v-model="productData.product_id">
-            <el-option label="付款条件A" value="1" />
-            <el-option label="付款条件B" value="2" />
+          <el-select
+            v-model="productForm.product_id"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="remoteMethod"
+            :loading="loading2"
+            @change="changeProduct($event)"
+          >
+            <el-option v-for="item in productOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="productData.price" label="價格">
-          <el-input v-model="productData.price" placeholder="請輸入價格" type="number" />
+        <el-form-item prop="price" label="價格">
+          <el-input v-model="productForm.price" placeholder="請輸入價格" type="number" />
         </el-form-item>
         <el-form-item label="品牌">
-          <el-text class="mx-1" size="large">Large</el-text>
+          <el-text class="mx-1" size="large">{{ productForm.brand_name }}</el-text>
         </el-form-item>
       </el-form>
       <template #footer>
-        <ElButton type="primary"> 保存 </ElButton>
+        <ElButton type="primary" @click="submitProductForm"> 保存 </ElButton>
         <ElButton @click="dialogVisible = false">關閉</ElButton>
       </template>
-    </Dialog>
+      <!-- </Dialog> -->
+    </el-dialog>
     <!-- 調整價格 -->
     <Dialog v-model="dialogVisible2" title="批量調整價格">
       <div>

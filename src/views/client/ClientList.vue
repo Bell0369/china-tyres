@@ -1,14 +1,37 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getClientListApi, deleteClientListApi } from "@/api/users"
+import { getClientListApi, deleteClientListApi, getUserListApi } from "@/api/users"
 import { ElMessage, ElMessageBox, ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
+import { usePayMentSelect } from "@/hooks/useSelectOption.js"
 
 defineOptions({
   name: "ClientList"
 })
+
+const { PayMentOptions } = usePayMentSelect()
+
+// 員工列表
+const loading2 = ref(false)
+const userOptions = ref([])
+const remoteMethod = (query) => {
+  loading2.value = true
+  getUserListApi({
+    keyword: query || undefined
+  })
+    .then(({ data }) => {
+      const list = data.data
+      userOptions.value = list
+    })
+    .catch(() => {
+      userOptions.value = []
+    })
+    .finally(() => {
+      loading2.value = false
+    })
+}
 
 const loading = ref(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
@@ -93,23 +116,27 @@ const handleUpdate = (row) => {
   <div class="app-container">
     <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
-        <el-form-item prop="username" label="用户名">
+        <el-form-item prop="keyword" label="用户名">
           <el-input v-model="searchData.keyword" placeholder="請輸入客戶名稱、所屬員工、電話" style="width: 300px" />
         </el-form-item>
-        <el-form-item prop="state" label="付款條件">
+        <el-form-item prop="payment_terms" label="付款條件">
           <el-select v-model="searchData.payment_terms" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="(item, index) in PayMentOptions" :label="item" :value="item" :key="index" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="department" label="所屬員工">
-          <el-select v-model="searchData.user_id" style="width: 100px">
+        <el-form-item prop="user_id" label="所屬員工">
+          <el-select
+            v-model="searchData.user_id"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="remoteMethod"
+            :loading="loading"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="員工1" :value="1" />
-            <el-option label="員工2" :value="2" />
-            <el-option label="員工3" :value="3" />
-            <el-option label="員工4" :value="4" />
+            <el-option v-for="item in userOptions" :key="item.id" :label="item.username" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -121,13 +148,13 @@ const handleUpdate = (row) => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <router-link to="/client/clientitem">
+          <router-link to="/client/clientadd">
             <el-button type="primary" :icon="CirclePlus">新增客戶</el-button>
           </router-link>
         </div>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" :data="tableData">
+        <el-table ref="tableRef" :data="tableData" border>
           <el-table-column prop="client_name" label="客戶名稱" align="center" />
           <el-table-column prop="username" label="所屬員工" align="center" />
           <el-table-column prop="client_contact" label="聯繫人" align="center" />

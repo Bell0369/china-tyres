@@ -1,5 +1,5 @@
 import { ref, onMounted } from "vue"
-import { getBrandListApi, getDeliveryListApi } from "@/api/selects"
+import { getBrandListApi, getDeliveryListApi, getFactoryListApi } from "@/api/selects"
 
 // 獲取品牌
 export function useBrandSelect() {
@@ -33,4 +33,27 @@ export function useeDeliverTypeSelect() {
   return {
     eDeliverTypeOptions
   }
+}
+
+// 獲取付款條件
+export function usePayMentSelect() {
+  const PayMentOptions = ["付款条件A", "付款条件B", "付款条件C", "付款条件D"]
+  return {
+    PayMentOptions
+  }
+}
+
+// 獲取工廠代碼
+export function useFactoryCodeSelect() {
+  const factoryCodeOptions = ref([])
+  const getBrandList = () => {
+    getFactoryListApi().then(({ data }) => {
+      factoryCodeOptions.value = data
+    })
+  }
+  onMounted(() => {
+    getBrandList()
+  })
+
+  return factoryCodeOptions
 }

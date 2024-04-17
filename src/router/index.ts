@@ -113,6 +113,15 @@ export const dynamicRoutes: RouteRecordRaw[] = [
           title: "客戶詳情",
           hidden: true
         }
+      },
+      {
+        path: "clientadd",
+        component: () => import("@/views/client/ClientAdd.vue"),
+        name: "ClientAdd",
+        meta: {
+          title: "添加客戶",
+          hidden: true
+        }
       }
     ]
   },
@@ -141,6 +150,15 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "ForemanItem",
         meta: {
           title: "工廠詳情",
+          hidden: true
+        }
+      },
+      {
+        path: "foremanadd",
+        component: () => import("@/views/foreman/ForemanAdd.vue"),
+        name: "ForemanAdd",
+        meta: {
+          title: "添加工廠",
           hidden: true
         }
       }

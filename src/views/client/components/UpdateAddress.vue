@@ -3,7 +3,6 @@ import { reactive, ref } from "vue"
 import cloneDeep from "lodash-es/cloneDeep" // 导入深拷贝函数
 import { CirclePlus, Delete, Edit } from "@element-plus/icons-vue"
 import { getCountriesAreaApi } from "@/api/selects"
-
 const phones_default = ref(1)
 const formRef = ref()
 const dynamicValidateForm = reactive({
@@ -96,6 +95,7 @@ const updateAddress = (item, index) => {
   //   phonesForm.value.area = ""
   //   phonesForm.value.phone = ""
   // }
+  getCountries(0)
 }
 
 const removeDomain = (item) => {
@@ -119,6 +119,7 @@ const submitForm = (formEl) => {
 
 // 獲取國家
 // const options1
+/*
 const id = 0
 const addresValue = ref(["1", "2", "1"])
 const areaId = ref(undefined)
@@ -128,32 +129,54 @@ const props = {
     const { level } = node
     console.log(level)
 
-    getCountriesAreaApi({
-      id: areaId.value
-    }).then(({ data }) => {
-      console.log(data)
+    const nodes = []
+    // 构造查询条件
+    const query = {
+      pid: level == 0 ? 0 : node.value,
+      level: level + 1
+    }
+    console.log(query)
+    //查询接口
+    getCountriesAreaApi(query).then((res) => {
       setTimeout(() => {
-        const nodes = data.map((item) => ({
-          value: item.id,
-          label: item.name,
-          leaf: level >= 2
-        }))
-        console.log(nodes)
+        res.data.map((item) => {
+          const obj = {
+            value: item.id,
+            label: item.name,
+            leaf: level >= 2 // 节点级别，如果没有子节点就停止查询
+          }
+          nodes.push(obj)
+        })
+        //重新加载节点
         resolve(nodes)
-      }, 1000)
+      }, 500)
     })
-
-    // setTimeout(() => {
-    //   const nodes = Array.from({ length: level + 1 }).map((item) => ({
-    //     value: ++id,
-    //     label: `Option - ${id}`,
-    //     leaf: level >= 2
-    //   }))
-    //   console.log(nodes)
-    //   resolve(nodes)
-    // }, 1000)
   }
 }
+*/
+const options1 = ref()
+const options1Value = ref()
+const getCountries = (id) => {
+  //查询接口
+  getCountriesAreaApi({
+    pid: id
+  }).then(({ data }) => {
+    options1.value = data
+  })
+}
+const options2 = ref()
+const options2Value = ref()
+const getOptions2 = () => {
+  //查询接口
+  getCountriesAreaApi({
+    pid: options1Value.value
+  }).then(({ data }) => {
+    options2.value = data
+  })
+}
+
+// 联系人信息
+// const props = defineProps("[rowId]")
 </script>
 
 <template>
@@ -247,8 +270,16 @@ const props = {
     <el-dialog v-model="addressVisible" align-center title="地址" append-to-body>
       <div>
         <el-form-item label="地址">
-          <el-cascader :props="props" v-model="addresValue" filterable />
-          <!-- <el-select-v2 v-model="addressForm.country" :options="options1" /> -->
+          <!-- <el-cascader :props="props" v-model="addresValue" filterable /> -->
+          <el-select v-model="options1Value" @change="getOptions2">
+            <el-option v-for="item in options1" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+          <el-select v-model="options2Value">
+            <el-option v-for="item in options2" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+          <el-select v-model="options3Value">
+            <el-option v-for="item in options3" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
           <el-col :span="18">
             <el-input v-model="addressForm.phone" />
           </el-col>

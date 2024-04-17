@@ -38,7 +38,7 @@ const handleLogin = () => {
         .login(loginFormData)
         .then(() => {
           // 初始時間
-          const lastRequestTime = Date.now() + 60 * 1000
+          const lastRequestTime = Date.now() + 50 * 60 * 1000
           localStorage.setItem("lastRequestTime", JSON.stringify(lastRequestTime))
 
           router.push({ path: "/" })

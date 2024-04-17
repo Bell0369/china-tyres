@@ -26,11 +26,11 @@ export function getUserItemApi(params) {
   })
 }
 // 加
-export function updateUserItemApi(params) {
+export function updateUserItemApi(data) {
   return request({
     url: "user/addUser",
     method: "post",
-    params
+    data
   })
 }
 
@@ -51,8 +51,24 @@ export function deleteClientListApi(params) {
     params
   })
 }
+// 改
+export function updateClientProductApi(data) {
+  return request({
+    url: "client/addClient",
+    method: "post",
+    data
+  })
+}
+// 看
+export function viewClientShowApi(params) {
+  return request({
+    url: "client/clientShow",
+    method: "get",
+    params
+  })
+}
 
-/** 客戶产品列表 */
+// 客戶-产品列表
 // 查
 export function getClientProductApi(params) {
   return request({
@@ -61,10 +77,73 @@ export function getClientProductApi(params) {
     params
   })
 }
-// 刪
+// 刪 *
 export function deleteClientProductApi(params) {
   return request({
     url: "client/clientList",
+    method: "get",
+    params
+  })
+}
+// 看
+export function viewProductShowApi(params) {
+  return request({
+    url: "client/productShow",
+    method: "get",
+    params
+  })
+}
+// 加
+export function updateProductShowApi(data) {
+  return request({
+    url: "client/addProduct",
+    method: "post",
+    data
+  })
+}
+
+// 预付款 - 加
+export function addClientAdvancePaymentApi(data) {
+  return request({
+    url: "client/clientAdvancePayment",
+    method: "post",
+    data
+  })
+}
+// 联系人信息 - 查
+export function getClientContactApi(params) {
+  return request({
+    url: "client/clientContact",
+    method: "get",
+    params
+  })
+}
+
+/**工厂管理 */
+// 查
+export function getFactoryListApi(params) {
+  return request({
+    url: "factory/factoryList",
+    method: "get",
+    params
+  })
+}
+// 刪*
+
+// 加
+export function updateFactoryApi(data) {
+  return request({
+    url: "factory/addFactory",
+    method: "post",
+    data
+  })
+}
+
+// 工廠 - 產品
+// 查
+export function getFactoryProductListApi(params) {
+  return request({
+    url: "factory/factoryProductList",
     method: "get",
     params
   })

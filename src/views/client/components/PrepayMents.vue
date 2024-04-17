@@ -1,12 +1,38 @@
 <script setup>
 import { reactive, ref } from "vue"
+import { addClientAdvancePaymentApi } from "@/api/users"
+import { ElMessage } from "element-plus"
+
+const props = defineProps(["rowId"])
 
 const prepayFormRef = ref()
-const prepayData = reactive({
-  id: 0,
+const prepayForm = reactive({
+  client_id: props.rowId,
   price: null,
   invoice: ""
 })
+
+const rules = reactive({
+  price: [{ required: true, message: "請輸入金额", trigger: "blur" }],
+  invoice: [{ required: true, message: "請輸入流水單號", trigger: "blur" }]
+})
+
+// 添加记录
+const submitForm = (formEl) => {
+  console.log(prepayForm)
+  if (!formEl) return
+  formEl.validate((valid, fields) => {
+    if (valid) {
+      addClientAdvancePaymentApi(prepayForm).then(() => {
+        ElMessage.success("操作成功")
+        prepayFormRef.value?.resetFields()
+        // getClientShow()
+      })
+    } else {
+      console.log("error submit!", fields)
+    }
+  })
+}
 
 const radio1 = ref(0)
 const tableData = [
@@ -20,17 +46,17 @@ const tableData = [
 
 <template>
   <div>
-    <el-form ref="prepayFormRef" :model="prepayData">
+    <el-form ref="prepayFormRef" :model="prepayForm" :rules="rules">
       <el-row>
         <el-col :span="11">
-          <el-form-item prop="prepayData.price" label="添加金額">
-            <el-input v-model="prepayData.price" placeholder="請輸入金額" type="number" />
+          <el-form-item prop="price" label="添加金額">
+            <el-input v-model="prepayForm.price" placeholder="請輸入金額" type="number" />
           </el-form-item>
         </el-col>
         <el-col :span="1" />
         <el-col :span="11">
-          <el-form-item prop="prepayData.price" label="銀行水單">
-            <el-input v-model="prepayData.invoice" placeholder="請輸入流水單號" />
+          <el-form-item prop="invoice" label="銀行水單">
+            <el-input v-model="prepayForm.invoice" placeholder="請輸入流水單號" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -64,7 +90,7 @@ const tableData = [
             <el-text type="danger" size="large">100000</el-text>
           </div>
           <div>
-            <ElButton type="primary"> 保存 </ElButton>
+            <ElButton type="primary" @click="submitForm(prepayFormRef)"> 保存 </ElButton>
           </div>
         </div>
       </div>

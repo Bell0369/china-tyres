@@ -1,12 +1,12 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios"
-// import { useUserStoreHook } from "@/store/modules/user"
+import { useUserStoreHook } from "@/store/modules/user"
 import { ElMessage } from "element-plus"
 import { get, merge } from "lodash-es"
 import { getToken, setToken } from "./cache/cookies"
 
 /** 退出登录并强制刷新页面（会重定向到登录页） */
 function logout() {
-  // useUserStoreHook().logout()
+  useUserStoreHook().logout()
   // location.reload()
 }
 
@@ -15,9 +15,9 @@ async function refreshTokenRequest(apiData) {
   try {
     const currentTime = Date.now()
     const lastRequestTime = localStorage.getItem("lastRequestTime")
-    console.log(currentTime > JSON.parse(lastRequestTime))
     const token = getToken()
     if (token && currentTime > JSON.parse(lastRequestTime)) {
+      console.log(currentTime > JSON.parse(lastRequestTime))
       const response = await axios.post(
         import.meta.env.VITE_BASE_API + "/user/refreshToken",
         {},
@@ -30,7 +30,7 @@ async function refreshTokenRequest(apiData) {
       const newToken = response.data.data
       setToken(newToken.token)
 
-      const lastRequestTime2 = Date.now() + 60 * 1000
+      const lastRequestTime2 = Date.now() + 50 * 60 * 1000
       localStorage.setItem("lastRequestTime", JSON.stringify(lastRequestTime2))
     }
 

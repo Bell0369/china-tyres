@@ -1,8 +1,8 @@
 <script setup>
 import { ref, watch, reactive } from "vue"
-import { getClientProductApi, deleteClientProductApi } from "@/api/users"
+import { getFactoryProductListApi, deleteClientProductApi } from "@/api/users"
 import { usePagination } from "@/hooks/usePagination"
-import { Search } from "@element-plus/icons-vue"
+import { Search, Refresh } from "@element-plus/icons-vue"
 import { ElMessageBox, ElMessage } from "element-plus"
 import { Dialog } from "@/components/Dialog"
 
@@ -13,7 +13,7 @@ const props = defineProps(["userId"])
 
 //#region 删
 const handleDelete = (row) => {
-  ElMessageBox.confirm(`確認刪除產品${row.client_name}？`, "提示", {
+  ElMessageBox.confirm(`確認刪除該產品？`, "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
@@ -35,13 +35,13 @@ const handleDelete = (row) => {
 
 //#region 查
 const tableData = ref([])
-const keywords = ref(null)
+const keyword = ref("")
 const getTableData = () => {
   loading.value = true
-  getClientProductApi({
+  getFactoryProductListApi({
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
-    keyword: keywords.value || undefined,
+    keyword: keyword.value || undefined,
     id: props.userId
   })
     .then(({ data }) => {
@@ -62,6 +62,12 @@ const handleSearch = () => {
 
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
+
+// 重置
+const resetSearch = () => {
+  keyword.value = ""
+  handleSearch()
+}
 
 // 增 / 改
 const dialogVisible = ref(false)
@@ -103,8 +109,9 @@ const radio1 = ref(0)
         </div>
       </div>
       <div class="m-t2">
-        <el-input v-model="keywords" placeholder="請輸入產品名稱" style="width: 380px; margin-right: 10px" />
+        <el-input v-model="keyword" placeholder="請輸入產品名稱" style="width: 380px; margin-right: 10px" />
         <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
+        <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
       </div>
     </div>
     <div class="m-b">

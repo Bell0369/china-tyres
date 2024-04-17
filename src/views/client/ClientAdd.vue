@@ -1,12 +1,10 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue"
-import { Tickets, Edit, Delete } from "@element-plus/icons-vue"
-import ClientProduct from "./ClientProduct.vue"
+import { ref, reactive } from "vue"
+import { Edit, Delete } from "@element-plus/icons-vue"
 import { useRoute } from "vue-router"
 import { Dialog } from "@/components/Dialog"
-import PrepayMents from "./components/PrepayMents.vue"
 import UpdateAddress from "./components/UpdateAddress.vue"
-import { getUserListApi, updateClientProductApi, viewClientShowApi, getClientContactApi } from "@/api/users"
+import { getUserListApi, updateClientProductApi } from "@/api/users"
 import { useeDeliverTypeSelect, usePayMentSelect } from "@/hooks/useSelectOption.js"
 import { ElMessage } from "element-plus"
 
@@ -19,30 +17,25 @@ const route = useRoute()
 const { eDeliverTypeOptions } = useeDeliverTypeSelect()
 const { PayMentOptions } = usePayMentSelect()
 // 員工列表
-const loading2 = ref(false)
+const loading = ref(false)
 const userOptions = ref([])
 const remoteMethod = (query) => {
-  console.log(query)
-  if (query) {
-    loading2.value = true
-    getUserListApi({
-      keyword: query || undefined
+  loading.value = true
+  getUserListApi({
+    keyword: query || undefined
+  })
+    .then(({ data }) => {
+      const list = data.data
+      console.log(list)
+      userOptions.value = list
     })
-      .then(({ data }) => {
-        const list = data.data
-        console.log(list)
-        userOptions.value = list
-      })
-      .catch(() => {
-        userOptions.value = []
-      })
-      .finally(() => {
-        loading2.value = false
-      })
-  }
+    .catch(() => {
+      userOptions.value = []
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
-
-const dialogVisible = ref(false)
 
 // 地址
 const dialogVisible2 = ref(false)
@@ -51,20 +44,20 @@ const connectUpdate = (row) => {
   console.log(row)
   dialogVisible2.value = true
   if (row) {
-    // dialogTitle.value = "聯繫人信息"
+    // dialogTitle.value = "預付款"
   } else {
     // dialogTitle.value = "聯繫人信息"
   }
 }
-const loading = ref(false)
+
 const ruleFormRef = ref()
 const ruleForm = reactive({
-  user_id: "",
+  user_id: null,
   name: "",
   client_encod: "",
   credit: "",
-  payment_terms: "",
-  deliver_type: 1,
+  payment_terms: "付款条件A",
+  deliver_type: "CTD",
   commission_ratio: "",
   is_commission: 0,
   is_deliver_project: 1,
@@ -78,40 +71,6 @@ const rules = reactive({
   commission_ratio: [{ required: true, message: "請輸入傭金比例", trigger: "blur" }]
 })
 
-/**获取数据 */
-onMounted(() => {
-  getClientShow()
-  getClientContact()
-})
-// 基本信息
-const getClientShow = () => {
-  loading.value = true
-  viewClientShowApi({
-    id: route.query.id
-  }).then((data) => {
-    const datas = data.data
-    datas.name = datas.client_name
-    delete datas.client_name
-    datas.deliver_type = parseInt(datas.deliver_type)
-    const obj = {
-      username: datas.username,
-      id: datas.user_id
-    }
-    userOptions.value.push(obj)
-    Object.assign(ruleForm, datas)
-    loading.value = false
-  })
-}
-// 联系人信息
-const ContactList = ref([])
-const getClientContact = () => {
-  getClientContactApi({
-    id: route.query.id
-  }).then(({ data }) => {
-    ContactList.value = data
-  })
-}
-
 // 提交客戶基本信息
 const submitForm = (formEl) => {
   console.log(ruleForm)
@@ -120,7 +79,6 @@ const submitForm = (formEl) => {
     if (valid) {
       updateClientProductApi(ruleForm).then(() => {
         ElMessage.success("操作成功")
-        getClientShow()
       })
     } else {
       console.log("error submit!", fields)
@@ -153,7 +111,7 @@ const submitForm = (formEl) => {
                 remote
                 remote-show-suffix
                 :remote-method="remoteMethod"
-                :loading="loading2"
+                :loading="loading"
               >
                 <el-option v-for="item in userOptions" :key="item.id" :label="item.username" :value="item.id" />
               </el-select>
@@ -212,12 +170,6 @@ const submitForm = (formEl) => {
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col :span="6">
-            <el-form-item label="預付款">
-              <span class="color-red">{{ ruleForm.advance_payment }}</span>
-              <Tickets class="w6 h6 m-l-2 color-blue cursor-pointer" @click="dialogVisible = true" />
-            </el-form-item>
-          </el-col>
         </el-row>
       </el-form>
     </el-card>
@@ -229,30 +181,21 @@ const submitForm = (formEl) => {
           <el-button type="primary" @click="connectUpdate(0, 0)">添加</el-button>
         </div>
       </div>
-      <el-row :gutter="20" v-if="ContactList.length > 0">
-        <el-col :span="8" v-for="item in ContactList" :key="item.id">
+      <el-row :gutter="20">
+        <el-col :span="8">
           <div class="flex items-center">
             <el-card shadow="never">
-              <el-text> {{ item.assemble }} </el-text>
+              <el-text> 小唐唐，+ 86-13800138000，123456@qq.com，中华人民共和国广东省深圳市龙华明治街道112号 </el-text>
             </el-card>
             <div class="m-l">
-              <Edit class="w6 h6 cursor-pointer" @click="connectUpdate(item.id)" />
+              <Edit class="w6 h6 cursor-pointer" @click="connectUpdate(0)" />
               <br />
               <Delete class="w6 h6 cursor-pointer" />
             </div>
           </div>
         </el-col>
       </el-row>
-      <el-empty v-else description="暫無聯繫人" />
     </el-card>
-    <el-card shadow="never">
-      <ClientProduct :userId="route.query.id" />
-    </el-card>
-
-    <Dialog v-model="dialogVisible" title="預付款">
-      <PrepayMents :rowId="dialogId" />
-    </Dialog>
-
     <Dialog v-model="dialogVisible2" title="聯繫人信息">
       <UpdateAddress :rowId="dialogId" />
     </Dialog>
