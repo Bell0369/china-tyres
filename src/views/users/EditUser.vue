@@ -105,7 +105,7 @@ if (rowId > 0) {
   getUserItemApi({
     id: rowId
   }).then(({ data }) => {
-    data.password = "******"
+    data.password = ""
     Object.assign(ruleForm, data)
   })
 }

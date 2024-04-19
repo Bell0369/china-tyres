@@ -6,6 +6,8 @@ import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
 import { useBrandSelect } from "@/hooks/useSelectOption.js"
+import { Dialog } from "@/components/Dialog"
+import ForemanAdd from "./ForemanAdd.vue"
 
 defineOptions({
   name: "ForemanList"
@@ -20,22 +22,20 @@ const { brandOptions } = useBrandSelect()
 const loading2 = ref(false)
 const userOptions = ref([])
 const remoteMethod = (query) => {
-  if (query) {
-    loading2.value = true
-    getUserListApi({
-      keyword: query || undefined
+  loading2.value = true
+  getUserListApi({
+    keyword: query || undefined
+  })
+    .then(({ data }) => {
+      const list = data.data
+      userOptions.value = list
     })
-      .then(({ data }) => {
-        const list = data.data
-        userOptions.value = list
-      })
-      .catch(() => {
-        userOptions.value = []
-      })
-      .finally(() => {
-        loading2.value = false
-      })
-  }
+    .catch(() => {
+      userOptions.value = []
+    })
+    .finally(() => {
+      loading2.value = false
+    })
 }
 
 //#region 删
@@ -118,6 +118,13 @@ const handleUpdate = (row) => {
 const userList = (list) => {
   return list.map((item) => item.username).join(", ")
 }
+
+// 添加工廠
+const dialogVisible = ref(false)
+const handleChildEvent = () => {
+  dialogVisible.value = false
+  getTableData()
+}
 </script>
 
 <template>
@@ -156,23 +163,21 @@ const userList = (list) => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <router-link to="/foreman/foremanadd">
-            <el-button type="primary" :icon="CirclePlus">新增工廠</el-button>
-          </router-link>
+          <el-button type="primary" :icon="CirclePlus" @click="dialogVisible = true">新增工廠</el-button>
         </div>
       </div>
       <div class="table-wrapper">
         <el-table ref="tableRef" :data="tableData" border>
           <el-table-column prop="name" label="工廠名稱" align="center" />
-          <el-table-column prop="factory_contact" label="聯絡人" align="center" />
-          <el-table-column prop="userInfo" label="所屬員工" align="center">
+          <el-table-column prop="userInfo" label="所屬員工" width="200" :show-overflow-tooltip="true" align="center">
             <template #default="scope">
               <el-text>{{ userList(scope.row.userInfo) }}</el-text>
             </template>
           </el-table-column>
-          <el-table-column prop="address" width="150" :show-overflow-tooltip="true" label="地址" align="center" />
+          <el-table-column prop="factory_contact" label="聯絡人" align="center" />
           <el-table-column prop="phone" label="電話" align="center" />
           <el-table-column prop="email" label="Email" align="center" />
+          <el-table-column prop="address" width="150" :show-overflow-tooltip="true" label="地址" align="center" />
           <el-table-column prop="advance_payment" label="預付款" align="center" />
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="150" align="center">
@@ -196,6 +201,10 @@ const userList = (list) => {
         />
       </div>
     </el-card>
+
+    <Dialog v-model="dialogVisible" title="新增工廠">
+      <ForemanAdd :rowId="dialogId" @childEvent="handleChildEvent" />
+    </Dialog>
   </div>
 </template>
 

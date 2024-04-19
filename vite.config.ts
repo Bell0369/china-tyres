@@ -54,7 +54,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           manualChunks: {
             vue: ["vue", "vue-router", "pinia"],
             element: ["element-plus", "@element-plus/icons-vue"],
-            vxe: ["vxe-table", "vxe-table-plugin-element", "xe-utils"]
+            vxe: ["xe-utils"]
           }
         }
       }

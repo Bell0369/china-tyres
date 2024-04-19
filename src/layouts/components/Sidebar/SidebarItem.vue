@@ -4,6 +4,7 @@ import { type RouteRecordRaw } from "vue-router"
 import SidebarItemLink from "./SidebarItemLink.vue"
 import { isExternal } from "@/utils/validate"
 import path from "path-browserify"
+import { useRoute } from "vue-router"
 
 interface Props {
   item: RouteRecordRaw
@@ -51,12 +52,17 @@ const resolvePath = (routePath: string) => {
       return path.resolve(props.basePath, routePath)
   }
 }
+
+const route = useRoute()
 </script>
 
 <template>
   <template v-if="!alwaysShowRootMenu && theOnlyOneChild && !theOnlyOneChild.children">
     <SidebarItemLink v-if="theOnlyOneChild.meta" :to="resolvePath(theOnlyOneChild.path)">
-      <el-menu-item :index="resolvePath(theOnlyOneChild.path)">
+      <el-menu-item
+        :index="resolvePath(theOnlyOneChild.path)"
+        :class="{ 'is-active': props.item.name === route.meta.name }"
+      >
         <SvgIcon v-if="theOnlyOneChild.meta.svgIcon" :name="theOnlyOneChild.meta.svgIcon" />
         <component v-else-if="theOnlyOneChild.meta.elIcon" :is="theOnlyOneChild.meta.elIcon" class="el-icon" />
         <template v-if="theOnlyOneChild.meta.title" #title>

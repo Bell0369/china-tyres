@@ -6,10 +6,14 @@ import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
 import { usePayMentSelect } from "@/hooks/useSelectOption.js"
+import { Dialog } from "@/components/Dialog"
+import ClientAdd from "./ClientAdd.vue"
 
 defineOptions({
   name: "ClientList"
 })
+
+const router = useRouter()
 
 const { PayMentOptions } = usePayMentSelect()
 
@@ -100,7 +104,6 @@ const resetSearch = () => {
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
 
-const router = useRouter()
 // 改
 const handleUpdate = (row) => {
   router.push({
@@ -110,6 +113,15 @@ const handleUpdate = (row) => {
     }
   })
 }
+
+// 增 / 改
+const dialogVisible = ref(false)
+
+// 編輯完成
+const handleChildEvent = () => {
+  dialogVisible.value = false
+  getTableData()
+}
 </script>
 
 <template>
@@ -117,7 +129,7 @@ const handleUpdate = (row) => {
     <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="keyword" label="用户名">
-          <el-input v-model="searchData.keyword" placeholder="請輸入客戶名稱、所屬員工、電話" style="width: 300px" />
+          <el-input v-model="searchData.keyword" placeholder="請輸入客戶名稱、電話" style="width: 300px" />
         </el-form-item>
         <el-form-item prop="payment_terms" label="付款條件">
           <el-select v-model="searchData.payment_terms" style="width: 150px">
@@ -148,9 +160,7 @@ const handleUpdate = (row) => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <router-link to="/client/clientadd">
-            <el-button type="primary" :icon="CirclePlus">新增客戶</el-button>
-          </router-link>
+          <el-button @click="dialogVisible = true" type="primary" :icon="CirclePlus">新增客戶</el-button>
         </div>
       </div>
       <div class="table-wrapper">
@@ -186,6 +196,9 @@ const handleUpdate = (row) => {
         />
       </div>
     </el-card>
+    <Dialog v-model="dialogVisible" title="新增客戶">
+      <ClientAdd :rowId="dialogId" @childEvent="handleChildEvent" />
+    </Dialog>
   </div>
 </template>
 

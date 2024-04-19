@@ -52,7 +52,7 @@ export function deleteClientListApi(params) {
   })
 }
 // 改
-export function updateClientProductApi(data) {
+export function updateClientListApi(data) {
   return request({
     url: "client/addClient",
     method: "post",
@@ -94,7 +94,7 @@ export function viewProductShowApi(params) {
   })
 }
 // 加
-export function updateProductShowApi(data) {
+export function updateClientProductApi(data) {
   return request({
     url: "client/addProduct",
     method: "post",
@@ -139,6 +139,25 @@ export function updateFactoryApi(data) {
   })
 }
 
+// 看
+export function getFactoryBasicInfoApi(params) {
+  return request({
+    url: "factory/factoryBasicInfo",
+    method: "get",
+    params
+  })
+}
+
+// 工廠 - 聯係人信息
+// 看
+export function getFactoryContactApi(params) {
+  return request({
+    url: "factory/factoryContact",
+    method: "get",
+    params
+  })
+}
+
 // 工廠 - 產品
 // 查
 export function getFactoryProductListApi(params) {
@@ -146,5 +165,25 @@ export function getFactoryProductListApi(params) {
     url: "factory/factoryProductList",
     method: "get",
     params
+  })
+}
+
+// 刪*
+
+// 看
+export function getFactoryProductShowApi(params) {
+  return request({
+    url: "factory/productShow",
+    method: "get",
+    params
+  })
+}
+
+// 改
+export function updateFactoryAddProductApi(data) {
+  return request({
+    url: "factory/addProduct",
+    method: "post",
+    data
   })
 }

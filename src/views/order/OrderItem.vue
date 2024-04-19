@@ -1,68 +1,65 @@
 <script setup>
+import { ref, reactive, onMounted } from "vue"
+import { useRoute } from "vue-router"
+import { getOrderDetailApi } from "@/api/order"
 import OrderProduct from "./components/OrderProduct.vue"
+import BasicInformation from "./components/BasicInformation.vue"
 
-const tableData = [
-  {
-    name: "Tom"
-  },
-  {
-    name: "Tom"
-  }
-]
+defineOptions({
+  name: "OrderItem"
+})
+
+const route = useRoute()
+
+const loading = ref(false)
+
+// 基本信息
+const orderInfo = reactive({})
+const orderReal = reactive({})
+const getOrderDetail = () => {
+  loading.value = true
+  getOrderDetailApi({
+    id: route.query.id
+  }).then(({ data }) => {
+    loading.value = false
+    Object.assign(orderInfo, data.orderInfo)
+    Object.assign(orderReal, data.orderReal)
+  })
+}
+
+onMounted(() => {
+  getOrderDetail()
+})
 </script>
 
 <template>
-  <div class="app-container">
-    <el-card shadow="never" class="search-wrapper">
-      <div class="toolbar-wrapper">
-        <el-text tag="b" size="large">訂單基本信息</el-text>
-      </div>
-      <el-descriptions :column="3" border>
-        <el-descriptions-item label="訂單號">kooriookami</el-descriptions-item>
-        <el-descriptions-item label="PI號">
-          <el-link herf="#" type="primary" style="padding-right: 10px; display: inline-block">PI10000</el-link>
-          <el-link herf="#" type="primary">PI20000</el-link>
-        </el-descriptions-item>
-        <el-descriptions-item label="PI未發貨數">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="商品描述">School</el-descriptions-item>
-        <el-descriptions-item label="訂單總數量">100</el-descriptions-item>
-        <el-descriptions-item label="未生產數量">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="Terms of Pay ment">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="Packing">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="訂單總金額">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="PI數量">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="起運港">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="目的港">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="預計櫃量(40HQ)">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="PI已發貨數量">Suzhou</el-descriptions-item>
-        <el-descriptions-item label="Remarks">Suzhou</el-descriptions-item>
-      </el-descriptions>
-    </el-card>
+  <div class="app-container" v-loading="loading">
+    <BasicInformation :orderInfo="orderInfo" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <el-text tag="b" size="large">訂單實時信息</el-text>
       </div>
       <el-descriptions :column="2" border>
-        <el-descriptions-item width="25%" label="訂單數量">100</el-descriptions-item>
-        <el-descriptions-item width="25%" label="BO數量">100</el-descriptions-item>
+        <el-descriptions-item width="25%" label="訂單數量">{{ orderReal.order_number }}</el-descriptions-item>
+        <el-descriptions-item width="25%" label="BO數量">{{ orderReal.unproduced }}</el-descriptions-item>
         <el-descriptions-item :span="4" label="PI數量">
           <el-collapse>
-            <el-collapse-item title="100">
-              <el-table ref="tableRef" border :data="tableData">
-                <el-table-column prop="name" label="編號" align="center" />
-                <el-table-column prop="name" label="數量" align="center" />
+            <el-collapse-item :title="orderReal.pi_number">
+              <el-table border :data="orderReal.pi_list">
+                <el-table-column prop="pi_no" label="編號" align="center" />
+                <el-table-column prop="number" label="數量" align="center" />
               </el-table>
             </el-collapse-item>
           </el-collapse>
         </el-descriptions-item>
         <el-descriptions-item :span="4" label="INV數量">
           <el-collapse>
-            <el-collapse-item title="100">
-              <el-table ref="tableRef" :data="tableData">
+            <el-collapse-item :title="orderReal.inv_number">
+              <el-table border :data="orderReal.inv_list">
                 <el-table-column prop="name" label="編號" align="center" />
                 <el-table-column prop="name" label="數量" align="center" />
-                <el-table-column prop="name" label="日期" align="center" />
+                <el-table-column prop="name" label="ETD时间" align="center" />
               </el-table>
             </el-collapse-item>
           </el-collapse>
@@ -71,7 +68,7 @@ const tableData = [
     </el-card>
 
     <el-card shadow="never">
-      <OrderProduct />
+      <OrderProduct :orderId="route.query.id" />
     </el-card>
   </div>
 </template>

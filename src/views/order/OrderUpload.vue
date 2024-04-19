@@ -1,78 +1,130 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { useSelectOptions } from "@/hooks/usSelectOptions"
 import { UploadFilled } from "@element-plus/icons-vue"
-import { useRouter } from "vue-router"
+import { ElMessage, ElButton } from "element-plus"
+import { useBrandSelect } from "@/hooks/useSelectOption.js"
+import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useClientSelect } from "@/hooks/useClientSelect"
+import { uploadOrderApi } from "@/api/order"
+import BasicInformation from "./components/BasicInformation.vue"
 
 defineOptions({
   name: "OrderUpload"
 })
-const router = useRouter()
 
-const { deliverTypeArr } = useSelectOptions()
+const loading = ref(false)
+
+// 品牌
+const { brandOptions } = useBrandSelect()
+
+//工厂
+const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+
+// 客户
+const { loadClient, optionsClient, loadClientData } = useClientSelect()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
-  user_id: null,
-  name: "",
-  client_encod: "",
-  credit: "",
-  payment_terms: "付款条件A",
-  deliver_type: "CTD",
-  commission_ratio: "",
-  is_commission: 0,
-  is_deliver_project: 1,
-  is_check_deliver_project: 0
+  file: "",
+  client_id: undefined,
+  factory_code_id: undefined,
+  brand_id: undefined
 })
 
-/** 核對 */
-const radio1 = ref(0)
-const tableData = [
-  {
-    name: "Tom"
-  },
-  {
-    name: "Tom"
-  },
-  {
-    name: "Tom"
-  },
-  {
-    name: "Tom"
-  }
-]
+const rules = reactive({
+  client_id: [{ required: true, message: "請選擇客戶", trigger: "change" }],
+  factory_code_id: [{ required: true, message: "請選擇工廠", trigger: "change" }],
+  brand_id: [{ required: true, message: "請選擇品牌", trigger: "change" }]
+})
 
-const connectUpdate = () => {
-  router.replace("/order/orderitem")
+const isSubmit = ref(true)
+// 1:  比对文件 2: 提交上傳
+const isorderInfo = ref(false)
+const orderInfo = reactive({})
+const orderCheck = ref([])
+const submitForm = (Type) => {
+  // router.replace("/order/orderitem")
+  if (!ruleFormRef.value) return
+  ruleFormRef.value.validate((valid, fields) => {
+    if (valid) {
+      loading.value = true
+      const formData = new FormData()
+      formData.append("file", ruleForm.file)
+      formData.append("type", Type)
+      formData.append("client_id", ruleForm.client_id)
+      formData.append("factory_code_id", ruleForm.factory_code_id)
+      formData.append("brand_id", ruleForm.brand_id)
+      uploadOrderApi(formData).then(({ data }) => {
+        orderCheck.value = data.orderCheck
+        Object.assign(orderInfo, data.orderInfo)
+        loading.value = false
+        isorderInfo.value = true
+      })
+    } else {
+      console.log("error submit!", fields)
+    }
+  })
 }
+
+// 文件上传格式判断
+const uploadRef = ref()
+const uploadFile = (file) => {
+  const typeArray = [".xlsx"]
+  const fileName = file.name
+  const fileExtension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase()
+  if (!typeArray.includes(fileExtension)) {
+    ElMessage.warning("上传文件格式仅支持.xlsx格式")
+    uploadRef.value.clearFiles()
+    ruleForm.file = ""
+    return false
+  }
+  ruleForm.file = file.raw
+}
+
+/** 核對 */
+const errMsgVal = ref("")
 </script>
 
 <template>
-  <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="search-wrapper">
+  <div class="app-container" v-loading="loading">
+    <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <el-text tag="b" size="large">訂單資料</el-text>
       </div>
-      <el-form ref="ruleFormRef" :hide-required-asterisk="true" :model="ruleForm" :rules="rules">
+      <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
         <el-row :gutter="20">
           <el-col :span="6">
-            <el-form-item label="客戶編碼">
-              <el-select v-model="ruleForm.deliver_type">
-                <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
+            <el-form-item prop="client_id" label="客戶編碼">
+              <el-select
+                v-model="ruleForm.client_id"
+                filterable
+                remote
+                remote-show-suffix
+                :remote-method="loadClientData"
+                :loading="loadClient"
+              >
+                <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="工廠代碼">
-              <el-select v-model="ruleForm.deliver_type">
-                <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
+            <el-form-item prop="factory_code_id" label="工廠">
+              <el-select
+                v-model="ruleForm.factory_code_id"
+                filterable
+                remote
+                remote-show-suffix
+                :remote-method="loadFactoryData"
+                :loading="loadFactory"
+              >
+                <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="品牌代碼">
-              <el-select v-model="ruleForm.deliver_type">
-                <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
+            <el-form-item label="品牌代碼" prop="brand_id">
+              <el-select v-model="ruleForm.brand_id">
+                <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -81,10 +133,15 @@ const connectUpdate = () => {
       <div class="flex items-center">
         <div class="w-sm">
           <el-upload
+            ref="uploadRef"
             class="upload-demo"
             drag
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            action="/"
             multiple
+            accept=".xlsx"
+            :limit="1"
+            :auto-upload="false"
+            :on-change="uploadFile"
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
             <div class="el-upload__text">
@@ -94,37 +151,41 @@ const connectUpdate = () => {
           </el-upload>
         </div>
         <div class="ml-10">
-          <el-button type="success">確認上傳</el-button>
+          <el-button type="success" plain @click="submitForm(1)">確認上傳</el-button>
         </div>
       </div>
     </el-card>
+
+    <BasicInformation :orderInfo="orderInfo" v-show="isorderInfo" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">信息核對</el-text>
-          <el-button type="primary" @click="connectUpdate">生成訂單</el-button>
+          <el-button type="primary" @click="submitForm(2)" :disabled="isSubmit">生成訂單</el-button>
         </div>
       </div>
       <div class="mb">
-        <el-radio-group v-model="radio1">
-          <el-radio-button label="全部" :value="0" />
-          <el-radio-button label="正常" :value="1" />
-          <el-radio-button label="異常" :value="2" />
+        <el-radio-group v-model="errMsgVal">
+          <el-radio-button label="全部" value="" />
+          <el-radio-button label="正常" value="1" />
+          <el-radio-button label="異常" value="0" />
         </el-radio-group>
       </div>
-      <el-table ref="tableRef" :data="tableData">
-        <el-table-column prop="name" label="序號" />
-        <el-table-column prop="name" label="產品名稱" align="center" />
-        <el-table-column prop="name" label="數量" align="center" />
-        <el-table-column prop="name" label="單價" align="center" />
-        <el-table-column prop="name" label="總價" align="center" />
-        <el-table-column prop="name" label="備註" align="center">
-          <template #default="scope">
-            <el-text type="danger">{{ scope.row.name }}</el-text>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div v-loading="loading">
+        <el-table :data="orderCheck">
+          <el-table-column prop="serial_number" label="序號" width="100px" align="center" />
+          <el-table-column prop="product_name" label="產品名稱" align="center" />
+          <el-table-column prop="amount" label="數量" align="center" />
+          <el-table-column prop="unit_price" label="單價" align="center" />
+          <el-table-column prop="sum_price" label="總價" align="center" />
+          <el-table-column prop="err_msg" label="備註">
+            <template #default="scope">
+              <el-text type="danger">{{ scope.row.err_msg }}</el-text>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-card>
   </div>
 </template>

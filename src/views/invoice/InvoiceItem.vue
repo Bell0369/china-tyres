@@ -114,18 +114,20 @@ const submitForm = (formEl) => {
           <el-text tag="b" size="large">其它費用</el-text>
         </div>
         <div>
-          <el-row :gutter="20">
-            <el-col :span="6">
-              <el-form-item label="費用標題">
-                <el-input v-model="dynamicValidateForm.order_domasins.value1" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="費用金額">
-                <el-input v-model="dynamicValidateForm.order_domasins.value2" type="number" />
-              </el-form-item>
-            </el-col>
-          </el-row>
+          <el-form>
+            <el-row :gutter="20">
+              <el-col :span="6">
+                <el-form-item label="費用標題">
+                  <el-input v-model="dynamicValidateForm.order_domasins.value1" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item label="費用金額">
+                  <el-input v-model="dynamicValidateForm.order_domasins.value2" type="number" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
         </div>
       </div>
     </el-card>

@@ -42,7 +42,7 @@ onMounted(() => {
         <el-descriptions :column="4" border>
           <el-descriptions-item label="產品名稱">{{ infoData.name }}</el-descriptions-item>
           <el-descriptions-item label="產品代碼(ART)">{{ infoData.art }}</el-descriptions-item>
-          <el-descriptions-item label="品牌">{{ infoData.brand_id }}</el-descriptions-item>
+          <el-descriptions-item label="品牌">{{ infoData.brand_code }}</el-descriptions-item>
           <el-descriptions-item label="條碼EAN">{{ infoData.ean }}</el-descriptions-item>
           <el-descriptions-item label="40'HQ裝箱量">{{ infoData.quantity }}</el-descriptions-item>
           <el-descriptions-item label="輪胎類型">{{ infoData.tyre_type }}</el-descriptions-item>
@@ -56,22 +56,18 @@ onMounted(() => {
         </el-descriptions>
       </div>
       <div class="mt5">
-        <el-col :span="12">
-          <el-text tag="b" size="large">銷售客戶</el-text>
-          <el-table :data="clientData" border class="mt">
-            <el-table-column prop="name" label="客戶編碼" />
-            <el-table-column prop="price" label="銷售價格" />
-          </el-table>
-        </el-col>
+        <el-text tag="b" size="large">銷售客戶</el-text>
+        <el-table :data="clientData" border class="mt">
+          <el-table-column prop="name" label="客戶編碼" />
+          <el-table-column prop="price" label="銷售價格" />
+        </el-table>
       </div>
       <div class="mt10">
-        <el-col :span="12">
-          <el-text tag="b" size="large">生產工廠</el-text>
-          <el-table :data="factoryDate" border class="mt">
-            <el-table-column prop="name" label="工廠名稱" />
-            <el-table-column prop="product_id" label="工廠價格" />
-          </el-table>
-        </el-col>
+        <el-text tag="b" size="large">生產工廠</el-text>
+        <el-table :data="factoryDate" border class="mt">
+          <el-table-column prop="name" label="工廠名稱" />
+          <el-table-column prop="product_id" label="工廠價格" />
+        </el-table>
       </div>
     </el-card>
   </div>

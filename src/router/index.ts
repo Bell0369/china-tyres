@@ -48,6 +48,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     path: "/",
     component: Layouts,
     redirect: "/dashboard",
+    name: "Home",
     children: [
       {
         path: "dashboard",
@@ -56,6 +57,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         meta: {
           title: "首页",
           svgIcon: "dashboard",
+          name: "Home",
           affix: true
         }
       }
@@ -73,6 +75,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
     path: "/users",
     component: Layouts,
     redirect: "/users/userlist",
+    name: "User",
     children: [
       {
         path: "userlist",
@@ -81,6 +84,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "用戶管理",
           svgIcon: "user",
+          name: "User",
           keepAlive: true
         }
       }
@@ -102,6 +106,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "客戶管理",
           svgIcon: "client",
+          name: "Client",
           keepAlive: true
         }
       },
@@ -111,15 +116,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "ClientItem",
         meta: {
           title: "客戶詳情",
-          hidden: true
-        }
-      },
-      {
-        path: "clientadd",
-        component: () => import("@/views/client/ClientAdd.vue"),
-        name: "ClientAdd",
-        meta: {
-          title: "添加客戶",
+          name: "Client",
           hidden: true
         }
       }
@@ -141,6 +138,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "工廠管理",
           svgIcon: "dashboard",
+          name: "Foreman",
           keepAlive: true
         }
       },
@@ -150,15 +148,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "ForemanItem",
         meta: {
           title: "工廠詳情",
-          hidden: true
-        }
-      },
-      {
-        path: "foremanadd",
-        component: () => import("@/views/foreman/ForemanAdd.vue"),
-        name: "ForemanAdd",
-        meta: {
-          title: "添加工廠",
+          name: "Foreman",
           hidden: true
         }
       }
@@ -179,6 +169,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/configuration/ForemanCode.vue"),
         name: "ForemanCode",
         meta: {
+          name: "Configuration",
           title: "工廠代碼"
         }
       },
@@ -187,6 +178,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/configuration/Brand.vue"),
         name: "Brand",
         meta: {
+          name: "Configuration",
           title: "品牌"
         }
       },
@@ -195,6 +187,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/configuration/Shipping.vue"),
         name: "Shipping",
         meta: {
+          name: "Configuration",
           title: "發貨方式"
         }
       }
@@ -216,6 +209,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "產品管理",
           svgIcon: "dashboard",
+          name: "Product",
           keepAlive: true
         }
       },
@@ -225,6 +219,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "ProductItem",
         meta: {
           title: "產品詳情",
+          name: "Product",
           hidden: true
         }
       }
@@ -246,7 +241,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "訂單管理",
           svgIcon: "dashboard",
-          keepAlive: true
+          keepAlive: true,
+          name: "Order"
         }
       },
       {
@@ -255,7 +251,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "OrderItem",
         meta: {
           title: "訂單詳情",
-          hidden: true
+          hidden: true,
+          name: "Order"
         }
       },
       {
@@ -264,7 +261,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "OrderUpload",
         meta: {
           title: "上傳訂單",
-          hidden: true
+          hidden: true,
+          name: "Order"
         }
       }
     ]
@@ -285,6 +283,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "PI管理",
           svgIcon: "dashboard",
+          name: "PIOrder",
           keepAlive: true
         }
       },
@@ -294,6 +293,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "PIOrderItem",
         meta: {
           title: "PI詳情",
+          name: "PIOrder",
           hidden: true
         }
       },
@@ -303,6 +303,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "PIOrderUpload",
         meta: {
           title: "上傳PI",
+          name: "PIOrder",
           hidden: true
         }
       },
@@ -312,6 +313,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "PIDelivery",
         meta: {
           title: "PI發貨計劃",
+          name: "PIOrder",
           hidden: true
         }
       },
@@ -321,6 +323,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "FileDelivery",
         meta: {
           title: "文件發貨計劃",
+          name: "PIOrder",
           hidden: true
         }
       }
@@ -342,6 +345,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "發貨計劃",
           svgIcon: "dashboard",
+          name: "Delivery",
           keepAlive: true
         }
       },
@@ -351,6 +355,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "DeliveryItem",
         meta: {
           title: "發貨計劃詳情",
+          name: "Delivery",
           hidden: true
         }
       },
@@ -360,6 +365,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "DeliveryUpload",
         meta: {
           title: "上傳發貨計劃",
+          name: "Delivery",
           hidden: true
         }
       }
@@ -381,6 +387,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "銷售發票",
           svgIcon: "dashboard",
+          name: "Invoice",
           keepAlive: true
         }
       },
@@ -390,6 +397,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "InvoiceItem",
         meta: {
           title: "發票詳情",
+          name: "Invoice",
           hidden: true
         }
       }

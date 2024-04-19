@@ -6,7 +6,7 @@ import { useRoute } from "vue-router"
 import { Dialog } from "@/components/Dialog"
 import PrepayMents from "./components/PrepayMents.vue"
 import UpdateAddress from "./components/UpdateAddress.vue"
-import { getUserListApi, updateClientProductApi, viewClientShowApi, getClientContactApi } from "@/api/users"
+import { getUserListApi, updateClientListApi, viewClientShowApi, getClientContactApi } from "@/api/users"
 import { useeDeliverTypeSelect, usePayMentSelect } from "@/hooks/useSelectOption.js"
 import { ElMessage } from "element-plus"
 
@@ -118,7 +118,7 @@ const submitForm = (formEl) => {
   if (!formEl) return
   formEl.validate((valid, fields) => {
     if (valid) {
-      updateClientProductApi(ruleForm).then(() => {
+      updateClientListApi(ruleForm).then(() => {
         ElMessage.success("操作成功")
         getClientShow()
       })

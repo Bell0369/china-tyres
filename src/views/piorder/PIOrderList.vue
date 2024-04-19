@@ -1,39 +1,31 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
 import { getClientListApi, deleteClientListApi } from "@/api/users"
-import { ElMessage, ElMessageBox, ElButton } from "element-plus"
+// import { ElMessage, ElMessageBox, ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
-import { useRouter } from "vue-router"
+import { useDeleteList } from "@/hooks/useDeleteList"
 
 defineOptions({
   name: "PIOrderList"
 })
 
 const loading = ref(false)
+
+// 分页
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`正在刪除用戶 ${row.client_name}，確認刪除？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      deleteClientListApi(row.id).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: deleteClientListApi,
+  text: "PI"
+})
+// 删除成功
+watch(isDeleted, (newValue) => {
+  if (newValue) {
+    getTableData()
+  }
+})
 
 //#region 查
 const tableData = ref([])
@@ -77,7 +69,6 @@ const resetSearch = () => {
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
 
-const router = useRouter()
 // 改
 const handleView = (row) => {
   router.push({
@@ -91,7 +82,7 @@ const handleView = (row) => {
 
 <template>
   <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="search-wrapper">
+    <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="username" label="訂單">
           <el-input v-model="searchData.keyword" placeholder="請輸入訂單號，PI號" style="width: 300px" />
@@ -148,8 +139,8 @@ const handleView = (row) => {
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="200" align="center">
             <template #default="scope">
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
-              <el-button type="primary" text bg size="small" @click="handleView(scope.row)">查看</el-button>
+              <el-button type="success" text bg size="small" @click="handleView(scope.row)">查看</el-button>
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

@@ -1,55 +1,53 @@
 <script setup>
-import { ref, reactive } from "vue"
-import { usePagination } from "@/hooks/usePagination"
+import { ref, reactive, onMounted } from "vue"
+import { getOrderDetailProductApi } from "@/api/order"
+import { useBrandSelect } from "@/hooks/useSelectOption.js"
+import { useFactorySelect } from "@/hooks/useFactorySelect"
 
 defineOptions({
   name: "OrderProduct"
 })
 
-const { paginationData } = usePagination()
+const loading = ref(false)
 
-//#region 查
-const searchFormRef = ref(null)
+const { orderId } = defineProps(["orderId"])
+
+// 品牌
+const { brandOptions } = useBrandSelect()
+
+//工厂
+const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+
+const monthrangeData = ref(["", ""])
+
+const searchFormRef = ref()
 const searchData = reactive({
   keyword: "",
   payment_terms: "",
   data: ""
 })
-const handleSearch = () => {
-  paginationData.currentPage === 1 ? getTableData() : (paginationData.currentPage = 1)
+
+// 获取数据
+const tableData = ref([])
+const getOrderDetailProduct = () => {
+  loading.value = true
+  getOrderDetailProductApi({
+    id: orderId
+  }).then(({ data }) => {
+    loading.value = false
+    // tableData.value = data
+  })
 }
-//#endregion
+
+onMounted(() => {
+  getOrderDetailProduct()
+})
 
 // 重置
 const resetSearch = () => {
   searchFormRef.value?.resetFields()
   handleSearch()
 }
-
-const tableData = [
-  {
-    date: "PI10000",
-    family: [
-      {
-        name: "Jerry"
-      },
-      {
-        name: "Tyke"
-      }
-    ]
-  },
-  {
-    date: "PI10000",
-    family: [
-      {
-        name: "Jerry"
-      },
-      {
-        name: "Tyke"
-      }
-    ]
-  }
-]
 </script>
 
 <template>
@@ -64,25 +62,32 @@ const tableData = [
         </el-form-item>
         <el-form-item>
           <el-date-picker
-            v-model="searchData.data"
-            type="monthrange"
+            v-model="monthrangeData"
+            type="daterange"
             range-separator="-"
             start-placeholder="開始日期"
             end-placeholder="結束日期"
+            value-format="YYYY-MM-DD"
           />
         </el-form-item>
         <el-form-item prop="state" label="品牌">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+          <el-select v-model="searchData.brand_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="state" label="工廠">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+        <el-form-item prop="factory_code" label="工廠">
+          <el-select
+            v-model="searchData.factory_code"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadFactoryData"
+            :loading="loadFactory"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -91,24 +96,25 @@ const tableData = [
         </el-form-item>
       </el-form>
     </div>
-    <el-table :data="tableData" border>
+    <el-table v-loading="loading" :data="tableData" border>
       <el-table-column type="expand">
         <template #default="props">
           <div class="px">
             <el-table :data="props.row.family" border>
-              <el-table-column label="序號" prop="name" />
-              <el-table-column label="產品名稱" prop="name" />
-              <el-table-column label="訂單數量" prop="name" />
-              <el-table-column label="PI數量" prop="name" />
-              <el-table-column label="PI已發貨數量" prop="name" />
-              <el-table-column label="單價" prop="name" />
-              <el-table-column label="總價" prop="name" />
+              <el-table-column label="序號" prop="id" width="80px" />
+              <el-table-column label="產品名稱" prop="product_name" />
+              <el-table-column label="訂單數量" prop="order_number" />
+              <el-table-column label="PI數量" prop="pi_number" />
+              <el-table-column label="PI已發貨數量" prop="pi_shipped" />
+              <el-table-column label="PI未發貨數量" prop="pi_not_shipped" />
+              <el-table-column label="單價" prop="unit_price" />
+              <el-table-column label="總價" prop="total_prices" />
               <el-table-column label="ETD時間" prop="name" />
             </el-table>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="編號" prop="date" />
+      <el-table-column label="編號" prop="id" />
     </el-table>
   </div>
 </template>

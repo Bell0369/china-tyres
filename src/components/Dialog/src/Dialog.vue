@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ElDialog, ElScrollbar } from "element-plus"
-import { computed, useAttrs, ref, unref, useSlots, watch, nextTick } from "vue"
-import { isNumber } from "@/utils/is"
+import { computed, useAttrs, ref, unref, useSlots } from "vue"
 
 const slots = useSlots()
 
@@ -17,15 +16,11 @@ const props = defineProps({
   fullscreen: {
     type: Boolean,
     default: true
-  },
-  maxHeight: {
-    type: String,
-    default: "400px"
   }
 })
 
 const getBindValue = computed(() => {
-  const delArr: string[] = ["fullscreen", "title", "maxHeight"]
+  const delArr: string[] = ["fullscreen", "title"]
   const attrs = useAttrs()
   const obj = { ...attrs, ...props }
   for (const key in obj) {
@@ -44,31 +39,6 @@ const toggleFull = () => {
 const fullscreenSvgName = computed(() => {
   return isFullscreen.value ? "fullscreen-exit" : "fullscreen"
 })
-
-const dialogHeight = ref(isNumber(props.maxHeight) ? `${props.maxHeight}px` : props.maxHeight)
-
-watch(
-  () => isFullscreen.value,
-  async (val: boolean) => {
-    await nextTick()
-    if (val) {
-      const windowHeight = document.documentElement.offsetHeight
-      dialogHeight.value = `${windowHeight - 55 - 60 - (slots.footer ? 63 : 0)}px`
-    } else {
-      dialogHeight.value = isNumber(props.maxHeight) ? `${props.maxHeight}px` : props.maxHeight
-    }
-  },
-  {
-    immediate: true
-  }
-)
-
-const dialogStyle = computed(() => {
-  return {
-    height: unref(dialogHeight)
-  }
-})
-// console.log(dialogStyle)
 </script>
 
 <template>
@@ -82,7 +52,7 @@ const dialogStyle = computed(() => {
     :show-close="false"
   >
     <template #header="{ close }">
-      <div class="flex justify-between items-center h-30px pl-15px pr-15px relative">
+      <div class="flex justify-between items-center h-30px relative">
         <slot name="title">
           {{ title }}
         </slot>

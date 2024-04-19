@@ -1,11 +1,10 @@
 <script setup>
 import { ref, watch, reactive } from "vue"
-import { getClientProductApi, viewProductShowApi, updateProductShowApi } from "@/api/users"
+import { getClientProductApi, viewProductShowApi, updateClientProductApi } from "@/api/users"
 import { getProductListApi } from "@/api/product"
 import { usePagination } from "@/hooks/usePagination"
 import { Search, Refresh } from "@element-plus/icons-vue"
 import { ElMessageBox, ElMessage } from "element-plus"
-import { Dialog } from "@/components/Dialog"
 
 const loading = ref(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
@@ -81,6 +80,7 @@ const handleUpdate = (row) => {
     Object.keys(productForm).forEach((key) => {
       productForm[key] = undefined
     })
+    productForm.id = 0
   }
 }
 
@@ -108,23 +108,21 @@ const getProductShow = (pid) => {
 const loading2 = ref(false)
 const productOptions = ref([])
 const remoteMethod = (query) => {
-  if (query) {
-    loading2.value = true
-    getProductListApi({
-      name: query || undefined,
-      page_size: 20
+  loading2.value = true
+  getProductListApi({
+    name: query || undefined,
+    page_size: 20
+  })
+    .then(({ data }) => {
+      const list = data.data
+      productOptions.value = list
     })
-      .then(({ data }) => {
-        const list = data.data
-        productOptions.value = list
-      })
-      .catch(() => {
-        productOptions.value = []
-      })
-      .finally(() => {
-        loading2.value = false
-      })
-  }
+    .catch(() => {
+      productOptions.value = []
+    })
+    .finally(() => {
+      loading2.value = false
+    })
 }
 
 // 切換產品
@@ -142,13 +140,8 @@ const handleClose = () => {
 
 // 提交產品更改
 const submitProductForm = () => {
-  delete productForm["brand_name"]
-  delete productForm["name"]
   productForm.client_id = props.userId
-  console.log(productForm)
-  updateProductShowApi({
-    product_json: [productForm]
-  }).then(() => {
+  updateClientProductApi(productForm).then(() => {
     ElMessage.success("操作成功")
     dialogVisible.value = false
     getTableData()
@@ -164,7 +157,7 @@ const radio1 = ref(0)
   <div v-loading="loading">
     <div class="m-b">
       <div class="flex justify-between">
-        <el-text tag="b" size="large">產品信息</el-text>
+        <el-text tag="b">產品信息</el-text>
         <div>
           <el-button type="primary" @click="dialogVisible2 = true">批量調整價格</el-button>
           <el-button type="primary" @click="handleUpdate(0)">新增產品</el-button>
@@ -203,7 +196,6 @@ const radio1 = ref(0)
     </div>
     <!-- 產品調整 -->
     <el-dialog v-model="dialogVisible" title="產品調整" @close="handleClose">
-      <!-- <Dialog v-model="dialogVisible" title="產品調整"> -->
       <el-form ref="productFormRef" :model="productForm" label-position="left" label-width="100px">
         <el-form-item label="產品名稱">
           <el-select
@@ -229,13 +221,14 @@ const radio1 = ref(0)
         <ElButton type="primary" @click="submitProductForm"> 保存 </ElButton>
         <ElButton @click="dialogVisible = false">關閉</ElButton>
       </template>
-      <!-- </Dialog> -->
     </el-dialog>
     <!-- 調整價格 -->
-    <Dialog v-model="dialogVisible2" title="批量調整價格">
+    <el-dialog v-model="dialogVisible2" title="批量調整價格">
       <div>
-        <div class="m-b5 text-center">
-          <el-text>輸入金額後會將該客戶或該工廠下的產品價格都進行調整，調整金額和百分比可以輸入負數</el-text>
+        <div class="m-b5">
+          <el-text size="large"
+            >輸入金額後會將該客戶或該工廠下的產品價格都進行調整，調整金額和百分比可以輸入負數</el-text
+          >
         </div>
         <div class="m-b5">
           <el-radio-group v-model="radio1">
@@ -244,18 +237,18 @@ const radio1 = ref(0)
           </el-radio-group>
         </div>
         <div v-show="radio1 === 0">
-          <el-input v-model="productData.price" placeholder="請輸入金額" type="number" />
+          <el-input v-model="productForm.price" placeholder="請輸入金額" type="number" />
         </div>
         <div v-show="radio1 === 1">
-          <el-input v-model="productData.price" placeholder="請輸入百分比" type="number" />
+          <el-input v-model="productForm.price" placeholder="請輸入百分比" type="number" />
         </div>
         <div class="m-t5 line-height-6">
           <div class="mx-1 m-b2">
-            <el-text type="danger">註：<br />調整後金額=調整前金額+調整金額</el-text>
+            <el-text type="danger">註：調整後金額=調整前金額+調整金額</el-text>
           </div>
           <div class="mx-1">
             <el-text type="danger"
-              >如：<br />調整前100 調整金額20 調整後120<br />調整前100 調整金額百分比2% 調整後102
+              >如：調整前100 調整金額20 調整後120<br />調整前100 調整金額百分比2% 調整後102
             </el-text>
           </div>
         </div>
@@ -264,7 +257,7 @@ const radio1 = ref(0)
         <ElButton type="primary"> 保存 </ElButton>
         <ElButton @click="dialogVisible2 = false">關閉</ElButton>
       </template>
-    </Dialog>
+    </el-dialog>
   </div>
 </template>
 

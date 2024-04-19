@@ -21,7 +21,8 @@ const ruleForm = reactive({
   spout: "",
   type: "",
   decorative_design: "",
-  account: "" //缺是否空白&歐標等級
+  european_standard: "",
+  european_standard_level: ""
 })
 
 const rules = reactive({
@@ -118,18 +119,18 @@ const submitForm = (formEl) => {
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="歐標等級" prop="account">
-              <el-input v-model="ruleForm.account" placeholder="請輸入歐標等級" />
+            <el-form-item label="歐標等級">
+              <el-input v-model="ruleForm.european_standard_level" placeholder="請輸入歐標等級" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="單重" prop="piece_weight">
-              <el-input v-model="ruleForm.piece_weight" placeholder="請輸入單重" />
+              <el-input v-model="ruleForm.piece_weight" type="number" placeholder="請輸入單重" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="是否歐標EUOR 空白" prop="account">
-              <el-input v-model="ruleForm.account" />
+            <el-form-item label="是否歐標EU OR空白">
+              <el-input v-model="ruleForm.european_standard" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
@@ -147,12 +148,10 @@ const submitForm = (formEl) => {
               <el-input v-model="ruleForm.spout" placeholder="請輸入寸口" />
             </el-form-item>
           </el-col>
-          <el-col :span="24">
-            <el-form-item>
-              <el-button type="primary" @click="submitForm(ruleFormRef)"> 保存 </el-button>
-            </el-form-item>
-          </el-col>
         </el-row>
+      </div>
+      <div class="text-right">
+        <el-button type="primary" @click="submitForm(ruleFormRef)"> 保存 </el-button>
       </div>
     </el-form>
   </div>
