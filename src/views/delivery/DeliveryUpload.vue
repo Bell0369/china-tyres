@@ -1,16 +1,25 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { useSelectOptions } from "@/hooks/usSelectOptions"
-import { UploadFilled } from "@element-plus/icons-vue"
-// import { useRouter } from "vue-router"
+import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useClientSelect } from "@/hooks/useClientSelect"
+import { useeDeliverTypeSelect } from "@/hooks/useSelectOption"
+import { UploadXlsx } from "@/components/UploadXlsx"
 import PIItem from "../piorder/components/PIItem.vue"
 
 defineOptions({
-  name: "DeliveryItem"
+  name: "DeliveryUoload"
 })
-// const router = useRouter()
 
-const { deliverTypeArr } = useSelectOptions()
+const loading = ref(false)
+
+//工厂
+const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+
+// 客户
+const { loadClient, optionsClient, loadClientData } = useClientSelect()
+
+// 發貨類型
+const { eDeliverTypeOptions } = useeDeliverTypeSelect()
 
 const ruleForm = reactive({
   user_id: null,
@@ -18,12 +27,13 @@ const ruleForm = reactive({
   client_encod: "",
   credit: "",
   payment_terms: "付款条件A",
-  deliver_type: "CTD",
-  commission_ratio: "",
-  is_commission: 0,
-  is_deliver_project: 1,
-  is_check_deliver_project: 0
+  deliver_type: "CTD"
 })
+
+// 上传文件
+const setUploadXlsx = (value) => {
+  ruleForm.file = value
+}
 
 /** 核對 */
 const tableData = [
@@ -72,6 +82,8 @@ const tableData2 = [
     ]
   }
 ]
+
+const infoData = reactive({})
 </script>
 
 <template>
@@ -83,16 +95,30 @@ const tableData2 = [
       <el-row>
         <el-col :span="6">
           <el-form-item label="客戶編碼">
-            <el-select v-model="ruleForm.deliver_type">
-              <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
+            <el-select
+              v-model="ruleForm.client_id"
+              filterable
+              remote
+              remote-show-suffix
+              :remote-method="loadClientData"
+              :loading="loadClient"
+            >
+              <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="1" />
         <el-col :span="6">
-          <el-form-item label="工廠名稱">
-            <el-select v-model="ruleForm.deliver_type">
-              <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
+          <el-form-item prop="factory_code_id" label="工廠">
+            <el-select
+              v-model="ruleForm.factory_code_id"
+              filterable
+              remote
+              remote-show-suffix
+              :remote-method="loadFactoryData"
+              :loading="loadFactory"
+            >
+              <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -108,18 +134,7 @@ const tableData2 = [
       </el-row>
       <div class="my flex items-center">
         <div class="w-sm">
-          <el-upload
-            class="upload-demo"
-            drag
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-            multiple
-          >
-            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              點擊或將文件拖拽此處上傳
-              <p class="c-bluegray">僅支持.xlsx格式</p>
-            </div>
-          </el-upload>
+          <UploadXlsx @setUploadXlsx="setUploadXlsx" />
         </div>
         <div class="ml-10">
           <el-button type="success">確認上傳</el-button>
@@ -135,17 +150,14 @@ const tableData2 = [
         <el-col :span="6">
           <el-form-item label="發貨類型">
             <el-select v-model="ruleForm.deliver_type">
-              <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
+              <el-option v-for="item in eDeliverTypeOptions" :label="item.name" :value="item.id" :key="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
     </el-card>
 
-    <el-card shadow="never" class="search-wrapper">
-      <div class="m-b"><el-text tag="b" size="large">PI基本信息</el-text></div>
-      <PIItem />
-    </el-card>
+    <PIItem :infoData="infoData" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
@@ -163,7 +175,7 @@ const tableData2 = [
         <el-table-column type="expand">
           <template #default="props">
             <div class="px">
-              <el-table :data="props.row.family">
+              <el-table border :data="props.row.family">
                 <el-table-column label="序號" prop="name" />
                 <el-table-column label="產品名稱" prop="name" />
                 <el-table-column label="裝貨數量" prop="name" />

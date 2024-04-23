@@ -34,7 +34,7 @@ onMounted(() => {
 
 <template>
   <div class="app-container" v-loading="loading">
-    <BasicInformation :orderInfo="orderInfo" />
+    <BasicInformation :orderInfo="orderInfo" @data-change="getOrderDetail" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">

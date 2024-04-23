@@ -1,5 +1,5 @@
 import { ref } from "vue"
-import { getFactoryListApi } from "@/api/users"
+import { getOrderListApi } from "@/api/order"
 import { debounce } from "lodash-es"
 
 type OptionValue = string | number
@@ -11,31 +11,31 @@ interface SelectOption {
   disabled?: boolean
 }
 
-export function useFactorySelect() {
-  const loadFactory = ref<boolean>(false)
-  const optionsFactory = ref<SelectOption[]>([])
+export function useOrderSelet() {
+  const loadOrder = ref<boolean>(false)
+  const optionsOrder = ref<SelectOption[]>([])
   const keyword = ref<string>("")
 
-  const loadFactoryData = (query: string) => {
-    loadFactory.value = true
+  const loadOrderData = (query: string) => {
+    loadOrder.value = true
     keyword.value = query
     getUserListThrottled()
   }
 
   /** 调用接口获取数据 */
   const remoteMethod = () => {
-    getFactoryListApi({
+    getOrderListApi({
       page_size: 20,
       keyword: keyword.value
     })
       .then(({ data }) => {
-        optionsFactory.value = data.data
+        optionsOrder.value = data.data
       })
       .catch(() => {
-        optionsFactory.value = []
+        optionsOrder.value = []
       })
       .finally(() => {
-        loadFactory.value = false
+        loadOrder.value = false
       })
   }
 
@@ -43,8 +43,8 @@ export function useFactorySelect() {
   const getUserListThrottled = debounce(remoteMethod, 500)
 
   return {
-    loadFactory,
-    optionsFactory,
-    loadFactoryData
+    loadOrder,
+    optionsOrder,
+    loadOrderData
   }
 }

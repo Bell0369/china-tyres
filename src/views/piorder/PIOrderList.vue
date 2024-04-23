@@ -1,10 +1,13 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getClientListApi, deleteClientListApi } from "@/api/users"
-// import { ElMessage, ElMessageBox, ElButton } from "element-plus"
-import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
+import { Search, CirclePlus, Refresh, EditPen } from "@element-plus/icons-vue"
+import { getPiListApi, deletePiListApi, deletePiQuantityApi } from "@/api/order"
 import { usePagination } from "@/hooks/usePagination"
 import { useDeleteList } from "@/hooks/useDeleteList"
+import { useBrandSelect } from "@/hooks/useSelectOption"
+import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useClientSelect } from "@/hooks/useClientSelect"
+import { useUpdateQuantity } from "@/hooks/useUpdateQuantity"
 
 defineOptions({
   name: "PIOrderList"
@@ -15,35 +18,52 @@ const loading = ref(false)
 // 分页
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
+// 品牌
+const { brandOptions } = useBrandSelect()
+
+//工厂
+const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+
+// 客户
+const { loadClient, optionsClient, loadClientData } = useClientSelect()
+
 // 删除
 const { handleDelete, isDeleted } = useDeleteList({
-  api: deleteClientListApi,
+  api: deletePiListApi,
   text: "PI"
 })
-// 删除成功
-watch(isDeleted, (newValue) => {
-  if (newValue) {
-    getTableData()
-  }
+
+// 修改柜量
+const { handleUpdateQuantity, isQuantity } = useUpdateQuantity({
+  api: deletePiQuantityApi
 })
 
-//#region 查
+// 删除/修改 成功
+watch([isDeleted, isQuantity], () => {
+  getTableData()
+})
+//查
 const tableData = ref([])
-const searchFormRef = ref(null)
+
+const monthrangeData = ref(["", ""])
+
+const searchFormRef = ref()
 const searchData = reactive({
   keyword: "",
-  payment_terms: "",
-  data: ""
+  client_code: "",
+  brand_code: "",
+  factory_code: ""
 })
 const getTableData = () => {
   loading.value = true
-  getClientListApi({
+  const page = {
+    start_date: monthrangeData.value[0],
+    end_date: monthrangeData.value[1],
     page: paginationData.currentPage,
-    page_size: paginationData.pageSize,
-    keyword: searchData.keyword || undefined,
-    payment_terms: searchData.payment_terms || undefined,
-    user_id: searchData.user_id || undefined
-  })
+    page_size: paginationData.pageSize
+  }
+  Object.assign(searchData, page)
+  getPiListApi(searchData)
     .then(({ data }) => {
       paginationData.total = data.total
       tableData.value = data.data
@@ -63,44 +83,63 @@ const handleSearch = () => {
 // 重置
 const resetSearch = () => {
   searchFormRef.value?.resetFields()
+  monthrangeData.value = ["", ""]
   handleSearch()
 }
 
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
-
-// 改
-const handleView = (row) => {
-  router.push({
-    path: "/piorder/piorderitem",
-    query: {
-      id: row.id
-    }
-  })
-}
 </script>
 
 <template>
   <div class="app-container">
     <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
-        <el-form-item prop="username" label="訂單">
+        <el-form-item prop="keyword" label="訂單">
           <el-input v-model="searchData.keyword" placeholder="請輸入訂單號，PI號" style="width: 300px" />
         </el-form-item>
         <el-form-item>
           <el-date-picker
-            v-model="searchData.data"
-            type="monthrange"
+            v-model="monthrangeData"
+            type="daterange"
             range-separator="-"
             start-placeholder="開始日期"
             end-placeholder="結束日期"
+            value-format="YYYY-MM-DD"
           />
         </el-form-item>
-        <el-form-item prop="state" label="客戶編碼">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+        <el-form-item prop="client_code" label="客戶編碼">
+          <el-select
+            v-model="searchData.client_code"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadClientData"
+            :loading="loadClient"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="brand_code" label="品牌">
+          <el-select v-model="searchData.brand_code" style="width: 150px">
+            <el-option label="全部" value="" />
+            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="factory_code" label="工廠">
+          <el-select
+            v-model="searchData.factory_code"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadFactoryData"
+            :loading="loadFactory"
+            style="width: 150px"
+          >
+            <el-option label="全部" value="" />
+            <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -112,34 +151,46 @@ const handleView = (row) => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
-          <router-link to="/piorder/piorderupload">
-            <el-button type="primary" :icon="CirclePlus">上傳PI</el-button>
-          </router-link>
+          <el-button type="primary" :icon="CirclePlus" tag="router-link" to="/piorder/piorderupload">上傳PI</el-button>
           <div>
-            <el-text size="large">未發貨PI總數量：</el-text>
-            <el-text size="large" type="danger">10000</el-text>
+            <el-text>未發貨PI總數量：</el-text>
+            <el-text size="large" type="danger">XXXX</el-text>
           </div>
         </div>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" :data="tableData">
-          <el-table-column prop="client_name" label="PI號" align="center" />
-          <el-table-column prop="username" label="訂單號" align="center" />
-          <el-table-column prop="advance_payment" label="客戶編碼" align="center" />
-          <el-table-column prop="advance_payment" label="櫃量(40HQ)" align="center" />
-          <el-table-column prop="advance_payment" label="PI數量" align="center" />
-          <el-table-column prop="advance_payment" label="已發貨數" align="center" />
-          <el-table-column prop="advance_payment" label="未發貨數" align="center" />
-          <el-table-column prop="advance_payment" label="PI總金額" align="center" />
-          <el-table-column prop="advance_payment" label="是否完成" align="center">
+        <el-table border :data="tableData">
+          <el-table-column prop="order_no" label="PI號" align="center" />
+          <el-table-column prop="pi_no" label="訂單號" align="center" />
+          <el-table-column prop="client_code" label="客戶編碼" align="center" />
+          <el-table-column prop="quantity" label="櫃量(40'HQ)" align="center">
             <template #default="scope">
-              <el-tag type="primary">{{ scope.row.advance_payment }}</el-tag>
+              {{ scope.row.quantity }}
+              <EditPen @click="handleUpdateQuantity(scope.row)" class="w4 h4 cursor-pointer hover:c-blue" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="product_total_number" label="PI數量" align="center" />
+          <el-table-column prop="shipped" label="已發貨數" align="center" />
+          <el-table-column prop="not_shipped" label="未發貨數" align="center" />
+          <el-table-column prop="total_price" label="PI總金額" align="center" />
+          <el-table-column prop="status" label="是否完成" align="center">
+            <template #default="scope">
+              <el-tag type="success" v-if="scope.row.status">已完成</el-tag>
+              <el-tag type="danger" v-else>未完成</el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="200" align="center">
+          <el-table-column fixed="right" label="操作" width="130" align="center">
             <template #default="scope">
-              <el-button type="success" text bg size="small" @click="handleView(scope.row)">查看</el-button>
+              <el-button
+                type="success"
+                text
+                bg
+                size="small"
+                tag="router-link"
+                :to="`/piorder/piorderitem?id=${scope.row.id}`"
+                >查看</el-button
+              >
               <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>

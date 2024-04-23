@@ -7,9 +7,7 @@ interface FetchSelectProps {
 }
 
 export function useDeleteList(props: FetchSelectProps) {
-  const isLoading = ref(false)
-
-  const isDeleted = ref(false)
+  const isDeleted = ref(0)
 
   const { api, text } = props
 
@@ -21,19 +19,15 @@ export function useDeleteList(props: FetchSelectProps) {
       type: "warning"
     })
       .then(() => {
-        isLoading.value = true
         api({
           id: id
         })
           .then(() => {
             ElMessage.success("刪除成功")
-            isDeleted.value = true
+            isDeleted.value = id
           })
           .catch(() => {
             ElMessage.error("刪除失败")
-          })
-          .finally(() => {
-            isLoading.value = false
           })
       })
       .catch(() => {
@@ -46,7 +40,6 @@ export function useDeleteList(props: FetchSelectProps) {
 
   return {
     handleDelete,
-    isLoading,
     isDeleted
   }
 }

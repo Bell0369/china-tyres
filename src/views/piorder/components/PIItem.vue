@@ -1,21 +1,42 @@
-<script setup></script>
+<script setup>
+defineOptions({
+  name: "PIItem"
+})
+const { infoData, isStatus } = defineProps(["infoData", "isStatus"])
+</script>
 
 <template>
-  <el-descriptions :column="3" border>
-    <el-descriptions-item label="訂單號">kooriookami</el-descriptions-item>
-    <el-descriptions-item label="PI號">kooriookami</el-descriptions-item>
-    <el-descriptions-item label="發貨計劃號">18100000000</el-descriptions-item>
-    <el-descriptions-item label="訂單總數量">Suzhou</el-descriptions-item>
-    <el-descriptions-item label="PI數量">Suzhou</el-descriptions-item>
-    <el-descriptions-item label="PI已發貨數">kooriookami</el-descriptions-item>
-    <el-descriptions-item label="PI未發貨數">18100000000</el-descriptions-item>
-    <el-descriptions-item label="訂單總金額">Suzhou</el-descriptions-item>
-    <el-descriptions-item label="PI總數量">Suzhou</el-descriptions-item>
-    <el-descriptions-item label="櫃量(40HQ)">Suzhou</el-descriptions-item>
-    <el-descriptions-item label="目的港">Suzhou</el-descriptions-item>
-    <el-descriptions-item label="Termms of Pay ment">Suzhou</el-descriptions-item>
-    <el-descriptions-item label="Remarks">Suzhou</el-descriptions-item>
-  </el-descriptions>
+  <el-card shadow="never" class="search-wrapper">
+    <div class="m-b">
+      <div class="flex justify-between">
+        <el-text tag="b" size="large">PI基本信息</el-text>
+        <el-alert
+          v-show="isStatus === 1"
+          title="已完成"
+          type="success"
+          effect="dark"
+          :closable="false"
+          show-icon
+          style="width: auto"
+        />
+      </div>
+    </div>
+    <el-descriptions :column="3" border>
+      <el-descriptions-item label="訂單號">{{ infoData.order_no }}</el-descriptions-item>
+      <el-descriptions-item label="PI號">{{ infoData.pi_no }}</el-descriptions-item>
+      <el-descriptions-item label="發貨計劃號">{{ infoData.delivery_plan_no }}</el-descriptions-item>
+      <el-descriptions-item label="訂單總數量">{{ infoData.order_number }}</el-descriptions-item>
+      <el-descriptions-item label="未生產數量">{{ infoData.unproduced }}</el-descriptions-item>
+      <el-descriptions-item label="PI數量">{{ infoData.product_total_number }}</el-descriptions-item>
+      <el-descriptions-item label="PI已發貨數">{{ infoData.shipped }}</el-descriptions-item>
+      <el-descriptions-item label="PI未發貨數">{{ infoData.not_shipped }}</el-descriptions-item>
+      <el-descriptions-item label="櫃量(40'HQ)">{{ infoData.quantity }}</el-descriptions-item>
+      <el-descriptions-item label="訂單總金額">{{ infoData.order_total_price }}</el-descriptions-item>
+      <el-descriptions-item label="目的港">{{ infoData.destination }}</el-descriptions-item>
+      <el-descriptions-item label="Remarks">{{ infoData.remarks }}</el-descriptions-item>
+      <el-descriptions-item label="Terms of Pay ment">{{ infoData.terms_of_payment }}</el-descriptions-item>
+    </el-descriptions>
+  </el-card>
 </template>
 
 <style scoped></style>

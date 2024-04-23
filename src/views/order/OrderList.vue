@@ -1,13 +1,14 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getOrderListApi, updateQuantityApi } from "@/api/order"
-import { ElMessage, ElMessageBox, ElButton } from "element-plus"
+import { getOrderListApi, updateQuantityApi, deletePiListApi } from "@/api/order"
+import { ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh, EditPen } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
-import { useRouter } from "vue-router"
-import { useBrandSelect } from "@/hooks/useSelectOption.js"
+import { useBrandSelect } from "@/hooks/useSelectOption"
 import { useFactorySelect } from "@/hooks/useFactorySelect"
 import { useClientSelect } from "@/hooks/useClientSelect"
+import { useDeleteList } from "@/hooks/useDeleteList"
+import { useUpdateQuantity } from "@/hooks/useUpdateQuantity"
 
 defineOptions({
   name: "OrderList"
@@ -26,30 +27,23 @@ const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
 // 客户
 const { loadClient, optionsClient, loadClientData } = useClientSelect()
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`確認刪除該訂單？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      console.log(row)
-      // deleteClientListApi(row.id).then(() => {
-      //   ElMessage.success("刪除成功")
-      //   getTableData()
-      // })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: deletePiListApi,
+  text: "PI"
+})
 
-//#region 查
+// 修改柜量
+const { handleUpdateQuantity, isQuantity } = useUpdateQuantity({
+  api: updateQuantityApi
+})
+
+// 删除/修改 成功
+watch([isDeleted, isQuantity], () => {
+  getTableData()
+})
+
+//# 查
 const tableData = ref([])
 
 const monthrangeData = ref(["", ""])
@@ -96,47 +90,6 @@ const resetSearch = () => {
 
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
-
-const router = useRouter()
-// 改
-const handleView = (row) => {
-  router.push({
-    path: "/order/orderitem",
-    query: {
-      id: row.id
-    }
-  })
-}
-
-// 增 / 改
-// const dialogId = ref(0)
-const handleUpdate = (row) => {
-  ElMessageBox.prompt("", "修改櫃量", {
-    confirmButtonText: "確定",
-    cancelButtonText: "取消",
-    inputPattern: /^\d+(\.\d+)?$/,
-    inputErrorMessage: "請輸入正確數量",
-    inputValue: row.quantity
-  })
-    .then(({ value }) => {
-      updateQuantityApi({
-        id: row.id,
-        quantity: value
-      }).then(() => {
-        ElMessage({
-          type: "success",
-          message: "操作成功"
-        })
-        handleSearch()
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
 </script>
 
 <template>
@@ -209,7 +162,7 @@ const handleUpdate = (row) => {
           <el-table-column prop="quantity" label="櫃量(40'HQ)" align="center">
             <template #default="scope">
               {{ scope.row.quantity }}
-              <EditPen @click="handleUpdate(scope.row)" class="w4 h4 cursor-pointer hover:c-blue" />
+              <EditPen @click="handleUpdateQuantity(scope.row)" class="w4 h4 cursor-pointer hover:c-blue" />
             </template>
           </el-table-column>
           <el-table-column prop="price" label="訂單金額" align="center" />
@@ -221,7 +174,15 @@ const handleUpdate = (row) => {
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="200" align="center">
             <template #default="scope">
-              <el-button type="success" text bg size="small" @click="handleView(scope.row)">查看</el-button>
+              <el-button
+                type="success"
+                text
+                bg
+                size="small"
+                tag="router-link"
+                :to="`/order/orderitem?id=${scope.row.id}`"
+                >查看</el-button
+              >
               <el-button type="warning" text bg size="small" @click="handleView(scope.row)">下载</el-button>
               <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
             </template>

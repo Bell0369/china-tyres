@@ -1,12 +1,12 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { UploadFilled } from "@element-plus/icons-vue"
-import { ElMessage, ElButton } from "element-plus"
+import { ElButton } from "element-plus"
 import { useBrandSelect } from "@/hooks/useSelectOption.js"
 import { useFactorySelect } from "@/hooks/useFactorySelect"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { uploadOrderApi } from "@/api/order"
 import BasicInformation from "./components/BasicInformation.vue"
+import { UploadXlsx } from "@/components/UploadXlsx"
 
 defineOptions({
   name: "OrderUpload"
@@ -37,12 +37,24 @@ const rules = reactive({
   brand_id: [{ required: true, message: "請選擇品牌", trigger: "change" }]
 })
 
+// 上传文件
+const setUploadXlsx = (value) => {
+  ruleForm.file = value
+}
+
 const isSubmit = ref(true)
 // 1:  比对文件 2: 提交上傳
 const isorderInfo = ref(false)
 const orderInfo = reactive({})
 const orderCheck = ref([])
+
+const orderChecks = ref([])
+const orderCheck0 = ref([])
+const orderCheck1 = ref([])
 const submitForm = (Type) => {
+  // 重置表格数据
+  orderCheck.value = orderChecks.value = orderCheck0.value = orderCheck1.value = []
+  errMsgVal.value = 0
   // router.replace("/order/orderitem")
   if (!ruleFormRef.value) return
   ruleFormRef.value.validate((valid, fields) => {
@@ -55,10 +67,25 @@ const submitForm = (Type) => {
       formData.append("factory_code_id", ruleForm.factory_code_id)
       formData.append("brand_id", ruleForm.brand_id)
       uploadOrderApi(formData).then(({ data }) => {
-        orderCheck.value = data.orderCheck
-        Object.assign(orderInfo, data.orderInfo)
+        if (Type === 1) {
+          orderCheck.value = orderChecks.value = data.orderCheck
+          data.orderCheck.forEach((item) => {
+            if (item.err_msg === "") {
+              orderCheck0.value.push(item)
+            } else {
+              orderCheck1.value.push(item)
+            }
+          })
+          // 无异常，按钮亮起
+          if (orderCheck1.value.length === 0) {
+            isSubmit.value = false
+          } else {
+            isSubmit.value = true
+          }
+          Object.assign(orderInfo, data.orderInfo)
+          isorderInfo.value = true
+        }
         loading.value = false
-        isorderInfo.value = true
       })
     } else {
       console.log("error submit!", fields)
@@ -66,27 +93,21 @@ const submitForm = (Type) => {
   })
 }
 
-// 文件上传格式判断
-const uploadRef = ref()
-const uploadFile = (file) => {
-  const typeArray = [".xlsx"]
-  const fileName = file.name
-  const fileExtension = fileName.substring(fileName.lastIndexOf(".")).toLowerCase()
-  if (!typeArray.includes(fileExtension)) {
-    ElMessage.warning("上传文件格式仅支持.xlsx格式")
-    uploadRef.value.clearFiles()
-    ruleForm.file = ""
-    return false
-  }
-  ruleForm.file = file.raw
-}
-
 /** 核對 */
-const errMsgVal = ref("")
+const errMsgVal = ref(0)
+const filterTable = () => {
+  if (errMsgVal.value === 1) {
+    orderCheck.value = orderCheck0.value
+  } else if (errMsgVal.value === 2) {
+    orderCheck.value = orderCheck1.value
+  } else {
+    orderCheck.value = orderChecks.value
+  }
+}
 </script>
 
 <template>
-  <div class="app-container" v-loading="loading">
+  <div class="app-container">
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <el-text tag="b" size="large">訂單資料</el-text>
@@ -132,26 +153,10 @@ const errMsgVal = ref("")
       </el-form>
       <div class="flex items-center">
         <div class="w-sm">
-          <el-upload
-            ref="uploadRef"
-            class="upload-demo"
-            drag
-            action="/"
-            multiple
-            accept=".xlsx"
-            :limit="1"
-            :auto-upload="false"
-            :on-change="uploadFile"
-          >
-            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              點擊或將文件拖拽此處上傳
-              <p class="c-bluegray">僅支持.xlsx格式</p>
-            </div>
-          </el-upload>
+          <UploadXlsx @setUploadXlsx="setUploadXlsx" />
         </div>
         <div class="ml-10">
-          <el-button type="success" plain @click="submitForm(1)">確認上傳</el-button>
+          <el-button type="success" @click="submitForm(1)">確認上傳</el-button>
         </div>
       </div>
     </el-card>
@@ -166,14 +171,14 @@ const errMsgVal = ref("")
         </div>
       </div>
       <div class="mb">
-        <el-radio-group v-model="errMsgVal">
-          <el-radio-button label="全部" value="" />
-          <el-radio-button label="正常" value="1" />
-          <el-radio-button label="異常" value="0" />
+        <el-radio-group v-model="errMsgVal" @change="filterTable">
+          <el-radio-button label="全部" :value="0" />
+          <el-radio-button label="正常" :value="1" />
+          <el-radio-button label="異常" :value="2" />
         </el-radio-group>
       </div>
       <div v-loading="loading">
-        <el-table :data="orderCheck">
+        <el-table :data="orderCheck" height="400">
           <el-table-column prop="serial_number" label="序號" width="100px" align="center" />
           <el-table-column prop="product_name" label="產品名稱" align="center" />
           <el-table-column prop="amount" label="數量" align="center" />

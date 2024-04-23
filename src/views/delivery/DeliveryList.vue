@@ -1,57 +1,69 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getClientListApi, deleteClientListApi } from "@/api/users"
-import { ElMessage, ElMessageBox, ElButton } from "element-plus"
+import { getDeliveryPlanListApi, deletePiListApi } from "@/api/order"
+import { ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
-import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
+import { usePagination } from "@/hooks/usePagination"
+import { useBrandSelect } from "@/hooks/useSelectOption"
+import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useClientSelect } from "@/hooks/useClientSelect"
+import { useDeleteList } from "@/hooks/useDeleteList"
 
 defineOptions({
   name: "DeliveryList"
 })
 
+const router = useRouter()
+
 const loading = ref(false)
+
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`正在刪除用戶 ${row.client_name}，確認刪除？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      deleteClientListApi(row.id).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+// 品牌
+const { brandOptions } = useBrandSelect()
+
+//工厂
+const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+
+// 客户
+const { loadClient, optionsClient, loadClientData } = useClientSelect()
+
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: deletePiListApi,
+  text: "發貨計劃"
+})
+
+// 成功
+watch([isDeleted], () => {
+  getTableData()
+})
 
 //#region 查
 const tableData = ref([])
+
+const monthrangeData = ref(["", ""])
+
 const searchFormRef = ref(null)
 const searchData = reactive({
+  is_check: undefined,
+  is_shipped: 0,
   keyword: "",
-  payment_terms: "",
-  data: ""
+  client_code: "",
+  factory_code: "",
+  brand_code: ""
 })
 const getTableData = () => {
   loading.value = true
-  getClientListApi({
+  const page = {
+    start_date: monthrangeData.value[0],
+    end_date: monthrangeData.value[1],
     page: paginationData.currentPage,
-    page_size: paginationData.pageSize,
-    keyword: searchData.keyword || undefined,
-    payment_terms: searchData.payment_terms || undefined,
-    user_id: searchData.user_id || undefined
-  })
+    page_size: paginationData.pageSize
+  }
+  Object.assign(searchData, page)
+  getDeliveryPlanListApi(searchData)
     .then(({ data }) => {
       paginationData.total = data.total
       tableData.value = data.data
@@ -71,13 +83,13 @@ const handleSearch = () => {
 // 重置
 const resetSearch = () => {
   searchFormRef.value?.resetFields()
+  monthrangeData.value = ["", ""]
   handleSearch()
 }
 
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
 
-const router = useRouter()
 // 改
 const handleView = (row) => {
   router.push({
@@ -87,45 +99,57 @@ const handleView = (row) => {
     }
   })
 }
-
-const radio2 = ref("0")
 </script>
 
 <template>
   <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="search-wrapper">
+    <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
-        <el-form-item prop="username" label="訂單">
-          <el-input v-model="searchData.keyword" placeholder="請輸入訂單號，發貨計劃號" style="width: 300px" />
+        <el-form-item prop="keyword" label="訂單">
+          <el-input v-model="searchData.keyword" placeholder="請輸入PI號，發貨計劃號" style="width: 300px" />
         </el-form-item>
         <el-form-item>
           <el-date-picker
-            v-model="searchData.data"
-            type="monthrange"
+            v-model="monthrangeData"
+            type="daterange"
             range-separator="-"
             start-placeholder="開始日期"
             end-placeholder="結束日期"
+            value-format="YYYY-MM-DD"
           />
         </el-form-item>
-        <el-form-item prop="state" label="客戶編碼">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+        <el-form-item prop="client_code" label="客戶編碼">
+          <el-select
+            v-model="searchData.client_code"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadClientData"
+            :loading="loadClient"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="state" label="品牌">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+        <el-form-item prop="brand_code" label="品牌">
+          <el-select v-model="searchData.brand_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="state" label="工廠">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+        <el-form-item prop="factory_code" label="工廠">
+          <el-select
+            v-model="searchData.factory_code"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadFactoryData"
+            :loading="loadFactory"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -145,25 +169,26 @@ const radio2 = ref("0")
           </div>
           <div>
             <el-text size="large">未發貨PI總數量：</el-text>
-            <el-text size="large" type="danger">10000</el-text>
+            <el-text size="large" type="danger">----</el-text>
           </div>
         </div>
       </div>
       <div class="mb5">
-        <el-radio-group v-model="radio2">
-          <el-radio-button label="未完全發貨" value="0" />
-          <el-radio-button label="已發貨" value="1" />
-          <el-radio-button label="待審批" value="2" />
+        <el-radio-group v-model="searchData.is_shipped">
+          <el-radio-button label="未發貨" :value="0" />
+          <el-radio-button label="已發貨" :value="1" />
+          <el-radio-button label="待審批" :value="2" />
         </el-radio-group>
       </div>
       <div class="table-wrapper">
         <el-table ref="tableRef" :data="tableData">
-          <el-table-column prop="client_name" label="發貨計劃號" align="center" />
-          <el-table-column prop="username" label="PI號" align="center" />
-          <el-table-column prop="advance_payment" label="客戶編碼" align="center" />
-          <el-table-column prop="advance_payment" label="計劃發貨數" align="center" />
-          <el-table-column prop="advance_payment" label="已發貨數" align="center" />
-          <el-table-column prop="advance_payment" label="採購發票號" align="center" />
+          <el-table-column prop="delivery_plan_no" label="發貨計劃號" align="center" />
+          <el-table-column prop="pi_no" label="PI號" align="center" />
+          <el-table-column prop="client_code" label="客戶編碼" align="center" />
+          <el-table-column prop="number" label="計劃發貨數" align="center" />
+          <el-table-column prop="shipped" label="已發貨數" align="center" />
+          <el-table-column prop="not_shipped" label="未發貨數" align="center" />
+          <el-table-column prop="procurement_invoice_no" label="採購發票號" align="center" />
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">

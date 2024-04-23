@@ -35,7 +35,7 @@ const getOrderDetailProduct = () => {
     id: orderId
   }).then(({ data }) => {
     loading.value = false
-    // tableData.value = data
+    tableData.value = data
   })
 }
 
@@ -96,11 +96,11 @@ const resetSearch = () => {
         </el-form-item>
       </el-form>
     </div>
-    <el-table v-loading="loading" :data="tableData" border>
+    <el-table v-loading="loading" :data="tableData" border row-key="pi_no">
       <el-table-column type="expand">
         <template #default="props">
           <div class="px">
-            <el-table :data="props.row.family" border>
+            <el-table :data="props.row.list" border>
               <el-table-column label="序號" prop="id" width="80px" />
               <el-table-column label="產品名稱" prop="product_name" />
               <el-table-column label="訂單數量" prop="order_number" />
@@ -114,7 +114,7 @@ const resetSearch = () => {
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="編號" prop="id" />
+      <el-table-column label="編號" prop="pi_no" />
     </el-table>
   </div>
 </template>

@@ -1,122 +1,176 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { useSelectOptions } from "@/hooks/usSelectOptions"
-import { UploadFilled } from "@element-plus/icons-vue"
 import { useRouter } from "vue-router"
+import { ElMessage } from "element-plus"
 import PIItem from "./components/PIItem.vue"
+import { useOrderSelet } from "@/hooks/useOrderSelet"
+import { UploadXlsx } from "@/components/UploadXlsx"
+import { uploadPiApi } from "@/api/order"
 
 defineOptions({
   name: "PIOrderUpload"
 })
+
 const router = useRouter()
 
-const { deliverTypeArr } = useSelectOptions()
+const loading = ref(false)
+
+// 订单
+const { loadOrder, optionsOrder, loadOrderData } = useOrderSelet()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
-  user_id: null,
-  name: "",
-  client_encod: "",
-  credit: "",
-  payment_terms: "付款条件A",
-  deliver_type: "CTD",
-  commission_ratio: "",
-  is_commission: 0,
-  is_deliver_project: 1,
-  is_check_deliver_project: 0,
-  month: ""
+  file: "",
+  date: "",
+  order_id: ""
 })
 
-/** 核對 */
-const radio1 = ref(0)
-const tableData = [
-  {
-    name: "Tom"
-  },
-  {
-    name: "Tom"
-  },
-  {
-    name: "Tom"
-  },
-  {
-    name: "Tom"
-  }
-]
+const rules = reactive({
+  order_id: [{ required: true, message: "請選擇订单", trigger: "change" }],
+  date: [{ required: true, message: "請選擇时间", trigger: "change" }]
+})
 
-const connectUpdate = () => {
-  router.replace("/piorder/piorderitem")
+// 上传文件
+const setUploadXlsx = (value) => {
+  ruleForm.file = value
+}
+
+const isSubmit = ref(true)
+// 1:  比对文件 2: 提交上傳
+const isorderInfo = ref(false)
+const infoData = reactive({})
+const orderCheck = ref([])
+
+const orderChecks = ref([])
+const orderCheck0 = ref([])
+const orderCheck1 = ref([])
+const submitForm = (Type) => {
+  // 重置表格数据
+  orderCheck.value = []
+  orderChecks.value = []
+  orderCheck0.value = []
+  orderCheck1.value = []
+  errMsgVal.value = 0
+
+  if (ruleForm.file === "") {
+    ElMessage.error("請上傳文件先")
+    return
+  }
+
+  if (!ruleFormRef.value) return
+  ruleFormRef.value.validate((valid, fields) => {
+    if (valid) {
+      loading.value = true
+      const formData = new FormData()
+      formData.append("file", ruleForm.file)
+      formData.append("type", Type)
+      formData.append("order_id", ruleForm.order_id)
+      formData.append("date", ruleForm.date)
+      uploadPiApi(formData)
+        .then(({ data }) => {
+          if (Type === 1) {
+            orderCheck.value = orderChecks.value = data.orderCheck
+            data.orderCheck.forEach((item) => {
+              if (item.err_msg === "") {
+                orderCheck0.value.push(item)
+              } else {
+                orderCheck1.value.push(item)
+              }
+            })
+            // 无异常，按钮亮起
+            if (orderCheck1.value.length === 0) {
+              isSubmit.value = false
+            } else {
+              isSubmit.value = true
+            }
+            Object.assign(infoData, data.orderInfo)
+            isorderInfo.value = true
+          } else {
+            router.replace("/piorder/piorderitem")
+          }
+          loading.value = false
+        })
+        .finally(() => {
+          loading.value = false
+        })
+    } else {
+      console.log("error submit!", fields)
+    }
+  })
+}
+
+/** 核對 */
+const errMsgVal = ref(0)
+const filterTable = () => {
+  if (errMsgVal.value === 1) {
+    orderCheck.value = orderCheck0.value
+  } else if (errMsgVal.value === 2) {
+    orderCheck.value = orderCheck1.value
+  } else {
+    orderCheck.value = orderChecks.value
+  }
 }
 </script>
 
 <template>
   <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="search-wrapper">
+    <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <el-text tag="b" size="large">PI信息</el-text>
       </div>
-      <el-form ref="ruleFormRef" :hide-required-asterisk="true" :model="ruleForm" :rules="rules">
+      <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
         <el-row :gutter="20">
-          <el-col :span="6">
-            <el-form-item label="訂單號">
-              <el-select v-model="ruleForm.deliver_type">
-                <el-option v-for="(item, index) in deliverTypeArr" :label="item" :value="item" :key="index" />
+          <el-col :span="8">
+            <el-form-item label="訂單號" prop="order_id">
+              <el-select
+                v-model="ruleForm.order_id"
+                filterable
+                remote
+                remote-show-suffix
+                :remote-method="loadOrderData"
+                :loading="loadOrder"
+              >
+                <el-option v-for="item in optionsOrder" :key="item.id" :label="item.order_no" :value="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="10">
-            <el-form-item label="計劃月份">
-              <el-date-picker v-model="ruleForm.month" type="month" placeholder="Pick a month" />
+            <el-form-item label="計劃月份" prop="date">
+              <el-date-picker v-model="ruleForm.date" type="month" value-format="YYYYMM" placeholder="请选择月份" />
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div class="flex items-center">
         <div class="w-sm">
-          <el-upload
-            class="upload-demo"
-            drag
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-            multiple
-          >
-            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              點擊或將文件拖拽此處上傳
-              <p class="c-bluegray">僅支持.xlsx格式</p>
-            </div>
-          </el-upload>
+          <UploadXlsx @setUploadXlsx="setUploadXlsx" />
         </div>
         <div class="ml-10">
-          <el-button type="success">確認上傳</el-button>
+          <el-button type="success" @click="submitForm(1)">確認上傳</el-button>
         </div>
       </div>
     </el-card>
 
-    <el-card shadow="never" class="search-wrapper">
-      <div class="m-b">
-        <el-text tag="b" size="large">PI基本信息</el-text>
-      </div>
-      <PIItem />
-    </el-card>
+    <PIItem :infoData="infoData" v-show="isorderInfo" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">信息核對</el-text>
           <div>
-            <el-text type="danger" style="padding-right: 15px">預付款：10000</el-text>
-            <el-button type="primary" @click="connectUpdate">生成PI</el-button>
+            <el-text type="danger" style="padding-right: 15px">預付款：----</el-text>
+            <el-button type="primary" @click="submitForm(2)" :disabled="isSubmit">生成PI</el-button>
           </div>
         </div>
       </div>
       <div class="mb">
-        <el-radio-group v-model="radio1">
+        <el-radio-group v-model="errMsgVal" @change="filterTable">
           <el-radio-button label="全部" :value="0" />
           <el-radio-button label="正常" :value="1" />
           <el-radio-button label="異常" :value="2" />
         </el-radio-group>
       </div>
-      <el-table ref="tableRef" :data="tableData">
+      <el-table v-loading="loading" :data="tableData">
         <el-table-column prop="name" label="序號" />
         <el-table-column prop="name" label="產品名稱" align="center" />
         <el-table-column prop="name" label="訂單剩餘PI數" align="center" />

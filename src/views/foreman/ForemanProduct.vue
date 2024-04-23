@@ -173,6 +173,8 @@ const submitProduct = async (formEl) => {
 /** 調整價格 */
 const dialogVisible2 = ref(false)
 const radio1 = ref(0)
+
+const switchType = ref(true)
 </script>
 
 <template>
@@ -186,7 +188,7 @@ const radio1 = ref(0)
         </div>
       </div>
       <div class="m-t2">
-        <el-input v-model="keyword" placeholder="請輸入產品名稱" style="width: 380px; margin-right: 10px" />
+        <el-input v-model="keyword" placeholder="請輸入產品名稱" style="width: 300px; margin-right: 10px" />
         <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
         <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
       </div>
@@ -283,12 +285,22 @@ const radio1 = ref(0)
             <el-radio-button label="按百分比調整" :value="1" />
           </el-radio-group>
         </div>
-        <div v-show="radio1 === 0">
-          <el-input v-model="productForm.price" placeholder="請輸入金額" type="number" />
-        </div>
-        <div v-show="radio1 === 1">
-          <el-input v-model="productForm.price" placeholder="請輸入百分比" type="number" />
-        </div>
+        <el-row>
+          <el-col :span="12">
+            <div v-show="radio1 === 0">
+              <el-input v-model="productForm.price" placeholder="請輸入金額" type="number" />
+            </div>
+            <div v-show="radio1 === 1">
+              <el-input v-model="productForm.price" placeholder="請輸入百分比" type="number">
+                <template #append>%</template>
+              </el-input>
+            </div>
+          </el-col>
+          <el-col :span="1" />
+          <el-col :span="10">
+            <el-switch v-model="switchType" active-text="增加" inactive-text="減少" />
+          </el-col>
+        </el-row>
         <div class="m-t5 line-height-6">
           <div class="mx-1 m-b2">
             <el-text type="danger">註：調整後金額=調整前金額+調整金額</el-text>

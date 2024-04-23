@@ -61,3 +61,91 @@ export function getPiListApi(params) {
     params
   })
 }
+
+// 刪*
+export function deletePiListApi(params) {
+  return request({
+    url: "order/piList",
+    method: "get",
+    params
+  })
+}
+
+// 上传PI
+export function uploadPiApi(data) {
+  return request({
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    url: "order/uploadPi",
+    method: "post",
+    data
+  })
+}
+
+// PI基本信息
+export function getPiBasicDetailApi(params) {
+  return request({
+    url: "order/piBasicDetail",
+    method: "get",
+    params
+  })
+}
+
+// PI产品信息
+export function getPiProductDetailApi(params) {
+  return request({
+    url: "order/piProductDetail",
+    method: "get",
+    params
+  })
+}
+
+// 修改柜量
+export function deletePiQuantityApi(data) {
+  return request({
+    url: "order/PiEditQuantity",
+    method: "post",
+    data
+  })
+}
+
+// 生成发货计划-上传文件
+export function uploadPiQuantityPlanApi(data) {
+  return request({
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    url: "order/uploadDeliveryPlan",
+    method: "post",
+    data
+  })
+}
+
+/** 發貨計劃 */
+// 列表
+export function getDeliveryPlanListApi(params) {
+  return request({
+    url: "delivery/deliveryPlanList",
+    method: "get",
+    params
+  })
+}
+
+// 詳情
+export function getDeliveryPlanDetailsApi(params) {
+  return request({
+    url: "delivery/deliveryPlanDetails",
+    method: "get",
+    params
+  })
+}
+
+// 詳情 - 產品
+export function getDeliveryPlanProductApi(params) {
+  return request({
+    url: "delivery/deliveryPlanProduct",
+    method: "get",
+    params
+  })
+}

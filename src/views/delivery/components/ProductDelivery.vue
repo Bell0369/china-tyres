@@ -1,28 +1,22 @@
 <script setup>
-import { ref, watch } from "vue"
-import { getClientProductApi } from "@/api/users"
-import { usePagination } from "@/hooks/usePagination"
+import { ref, onMounted } from "vue"
+import { getDeliveryPlanProductApi } from "@/api/order"
 import { Search } from "@element-plus/icons-vue"
 
 const loading = ref(false)
-const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
 const props = defineProps(["userId"])
 
 //#region 查
 const tableData = ref([])
-const keywords = ref(null)
+const listTableData = ref([])
 const getTableData = () => {
   loading.value = true
-  getClientProductApi({
-    page: paginationData.currentPage,
-    page_size: paginationData.pageSize,
-    keyword: keywords.value || undefined,
+  getDeliveryPlanProductApi({
     id: props.userId
   })
     .then(({ data }) => {
-      paginationData.total = data.total
-      tableData.value = data.data
+      tableData.value = listTableData.value = data
     })
     .catch(() => {
       tableData.value = []
@@ -31,13 +25,31 @@ const getTableData = () => {
       loading.value = false
     })
 }
-const handleSearch = () => {
-  paginationData.currentPage === 1 ? getTableData() : (paginationData.currentPage = 1)
-}
-//#endregion
 
-/** 监听分页参数的变化 */
-watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
+onMounted(() => {
+  getTableData()
+})
+
+// 查询产品信息
+const keyword = ref("")
+const searchTable = () => {
+  const searchTerm = keyword.value.trim().toLowerCase()
+  if (searchTerm === "") {
+    tableData.value = listTableData.value
+    return tableData.value
+  }
+
+  tableData.value = listTableData.value.filter((item) => {
+    const productName = item.brand_code.toLowerCase()
+    return productName.includes(searchTerm)
+  })
+}
+
+// 重置
+const resetSearch = () => {
+  keyword.value = ""
+  tableData.value = listTableData.value
+}
 </script>
 
 <template>
@@ -47,31 +59,20 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
         <el-text tag="b" size="large">產品信息</el-text>
       </div>
       <div class="m-t2">
-        <el-input v-model="keywords" placeholder="請輸入產品名稱" style="width: 300px; margin-right: 10px" />
-        <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
+        <el-input v-model="keyword" placeholder="請輸入產品名稱" style="width: 300px" class="pr" />
+        <el-button type="primary" :icon="Search" @click="searchTable">查詢</el-button>
+        <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
       </div>
     </div>
     <div class="m-b">
-      <el-table ref="tableRef" :data="tableData">
-        <el-table-column prop="name" label="序号" align="center" />
-        <el-table-column prop="name" label="產品名稱" align="center" />
-        <el-table-column prop="name" label="实际装货数" align="center" />
-        <el-table-column prop="price" label="计划装货数" align="center" />
-        <el-table-column prop="name" label="柜号" align="center" />
-        <el-table-column prop="name" label="铅封号" align="center" />
+      <el-table :data="tableData">
+        <el-table-column type="index" label="序号" align="center" width="80" />
+        <el-table-column prop="brand_code" label="產品名稱" align="center" />
+        <el-table-column prop="reality_number" label="实际装货数" align="center" />
+        <el-table-column prop="plan_number" label="计划装货数" align="center" />
+        <el-table-column prop="container_no" label="柜号" align="center" />
+        <el-table-column prop="seal_no" label="铅封号" align="center" />
       </el-table>
-    </div>
-    <div class="pager-wrapper">
-      <el-pagination
-        background
-        :layout="paginationData.layout"
-        :page-sizes="paginationData.pageSizes"
-        :total="paginationData.total"
-        :page-size="paginationData.pageSize"
-        :currentPage="paginationData.currentPage"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
     </div>
   </div>
 </template>

@@ -1,13 +1,14 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue"
-import { Tickets, Edit, Delete } from "@element-plus/icons-vue"
+import { Tickets } from "@element-plus/icons-vue"
 import ForemanProduct from "./ForemanProduct.vue"
 import { useRoute } from "vue-router"
 import { Dialog } from "@/components/Dialog"
 import PrepayMents from "./components/PrepayMents.vue"
 import { useFactoryCodeSelect } from "@/hooks/useSelectOption"
-import { getUserListApi, updateFactoryApi, getFactoryBasicInfoApi, getFactoryContactApi } from "@/api/users"
+import { getUserListApi, updateFactoryApi, getFactoryBasicInfoApi } from "@/api/users"
 import { ElMessage } from "element-plus"
+import AddressList from "@/views/componrnts/address/AddressList.vue"
 
 defineOptions({
   name: "ForemanItem"
@@ -72,7 +73,6 @@ const submitInfo = async (formEl) => {
 /**获取数据 */
 onMounted(() => {
   getfactoryBasicInfo()
-  getClientContact()
 })
 // 基本信息
 const getfactoryBasicInfo = () => {
@@ -93,32 +93,6 @@ const getfactoryBasicInfo = () => {
     ruleForm.id = data.id
     loading.value = false
   })
-}
-// 联系人信息
-const ContactList = ref([])
-const getClientContact = () => {
-  getFactoryContactApi({
-    id: route.query.id
-  }).then(({ data }) => {
-    ContactList.value = data
-  })
-}
-
-// const loading = ref<boolean>(false)
-const dialogVisible = ref(false)
-const dialogTitle = ref("")
-const dialogId = ref(0)
-const connectUpdate = (row) => {
-  console.log(row)
-  dialogId.value = row
-  dialogVisible.value = true
-  if (row) {
-    // 改
-    dialogTitle.value = "編輯聯繫人"
-  } else {
-    // 增
-    dialogTitle.value = "新增聯繫人"
-  }
 }
 </script>
 
@@ -173,29 +147,9 @@ const connectUpdate = (row) => {
       </el-form>
     </el-card>
 
-    <el-card shadow="never" class="search-wrapper">
-      <div class="toolbar-wrapper">
-        <div class="flex justify-between">
-          <el-text tag="b" size="large">聯繫人信息</el-text>
-          <el-button type="primary" @click="connectUpdate(0)">添加</el-button>
-        </div>
-      </div>
-      <el-row :gutter="20" v-if="ContactList.length > 0">
-        <el-col :span="8" v-for="item in ContactList" :key="item.id">
-          <div class="flex items-center mb">
-            <el-card shadow="never">
-              <el-text> {{ item.assemble }} </el-text>
-            </el-card>
-            <div class="m-l1">
-              <Edit class="w6 h6 cursor-pointer" @click="connectUpdate(item.id)" />
-              <br />
-              <Delete class="w6 h6 cursor-pointer" />
-            </div>
-          </div>
-        </el-col>
-      </el-row>
-      <el-empty v-else description="暫無聯繫人" />
-    </el-card>
+    <!-- 聯繫人信息 -->
+    <AddressList :userId="route.query.id" addressType="factory" />
+
     <!-- 產品代碼 -->
     <el-card shadow="never">
       <ForemanProduct :userId="route.query.id" />
