@@ -100,6 +100,7 @@ const addaddress = () => {
 const updateAddress = (item, index) => {
   addressVisible.value = true
   addressIndex = index
+  getCountriesArea(1)
   if (item) {
     console.log(item)
     const addresses = cloneDeep(item)
@@ -107,7 +108,6 @@ const updateAddress = (item, index) => {
     phonesForm.value = addresses
   } else {
     addressType = true
-    getCountriesArea(1)
   }
 }
 
@@ -249,9 +249,9 @@ const submitForm = () => {
           </div>
         </el-form-item>
       </div>
-      <el-form-item>
-        <el-button type="primary" @click="submitForm">Submit</el-button>
-      </el-form-item>
+      <div class="text-right">
+        <el-button type="primary" @click="submitForm">保存</el-button>
+      </div>
     </el-form>
 
     <!-- phone -->
@@ -279,16 +279,16 @@ const submitForm = () => {
       <div>
         <el-form-item label="地區選擇">
           <el-col :span="8">
-            <el-select v-model="addressForm.country" @change="getOptions(1)">
+            <el-select filterable v-model="addressForm.country" @change="getOptions(1)">
               <el-option v-for="item in options1" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-col>
-          <el-col :span="8" v-show="options2.length !== 0">
+          <el-col :span="8">
             <el-select v-model="addressForm.province" @change="getOptions(2)">
               <el-option v-for="item in options2" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-col>
-          <el-col :span="8" v-show="options3.length !== 0">
+          <el-col :span="8">
             <el-select v-model="addressForm.city">
               <el-option v-for="item in options3" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>

@@ -4,11 +4,11 @@ import { Tickets } from "@element-plus/icons-vue"
 import ForemanProduct from "./ForemanProduct.vue"
 import { useRoute } from "vue-router"
 import { Dialog } from "@/components/Dialog"
-import PrepayMents from "./components/PrepayMents.vue"
 import { useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { getUserListApi, updateFactoryApi, getFactoryBasicInfoApi } from "@/api/users"
 import { ElMessage } from "element-plus"
 import AddressList from "@/views/componrnts/address/AddressList.vue"
+import PrepayMents from "@/views/componrnts/prepayments/PrepayMents.vue"
 
 defineOptions({
   name: "ForemanItem"
@@ -43,14 +43,14 @@ const remoteMethod = (query) => {
 const ruleFormRef = ref()
 const ruleForm = reactive({
   name: "",
-  factory_code_id: 1,
+  factory_code: 1,
   factory_label_id: 1,
   user_ids: []
 })
 
 const rules = reactive({
   name: [{ required: true, message: "請輸入工廠名稱", trigger: "blur" }],
-  factory_code_id: [{ required: true, message: "請選擇工廠代碼", trigger: "change" }],
+  factory_code: [{ required: true, message: "請選擇工廠代碼", trigger: "change" }],
   user_ids: [{ required: true, message: "請選擇客戶", trigger: "blur" }]
 })
 
@@ -88,12 +88,15 @@ const getfactoryBasicInfo = () => {
       })
     })
     ruleForm.name = data.name
-    ruleForm.factory_code_id = data.factory_code_id
+    ruleForm.factory_code = data.factory_code
     ruleForm.advance_payment = data.advance_payment
     ruleForm.id = data.id
     loading.value = false
   })
 }
+
+// 預付款
+const dialogVisible = ref(false)
 </script>
 
 <template>
@@ -114,9 +117,9 @@ const getfactoryBasicInfo = () => {
           </el-col>
           <el-col :span="1" />
           <el-col :span="7">
-            <el-form-item label="工廠代碼" prop="factory_code_id">
-              <el-select v-model="ruleForm.factory_code_id">
-                <el-option v-for="item in factoryCodeOptions" :label="item.name" :value="item.id" :key="item.code" />
+            <el-form-item label="工廠代碼" prop="factory_code">
+              <el-select v-model="ruleForm.factory_code">
+                <el-option v-for="item in factoryCodeOptions" :label="item.name" :value="item.code" :key="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -150,13 +153,13 @@ const getfactoryBasicInfo = () => {
     <!-- 聯繫人信息 -->
     <AddressList :userId="route.query.id" addressType="factory" />
 
-    <!-- 產品代碼 -->
+    <!-- 產品信息 -->
     <el-card shadow="never">
-      <ForemanProduct :userId="route.query.id" />
+      <foreman-product :userId="route.query.id" />
     </el-card>
 
     <Dialog v-model="dialogVisible" title="預付款">
-      <PrepayMents :rowId="dialogId" />
+      <prepay-ments :rowId="dialogId" />
     </Dialog>
   </div>
 </template>

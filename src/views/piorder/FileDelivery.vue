@@ -1,6 +1,8 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { useRoute } from "vue-router"
+import { ElMessage } from "element-plus"
+import { useRoute, useRouter } from "vue-router"
+import { useTagsViewStore } from "@/store/modules/tags-view"
 import { useFactorySelect } from "@/hooks/useFactorySelect"
 import { uploadPiQuantityPlanApi } from "@/api/order"
 import PIItem from "./components/PIItem.vue"
@@ -10,12 +12,15 @@ defineOptions({
   name: "FileDelivery"
 })
 
-const route = useRoute()
-
 const loading = ref(false)
 
 //工厂
 const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+
+// tag
+const route = useRoute()
+const router = useRouter()
+const tagsViewStore = useTagsViewStore()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -83,6 +88,9 @@ const submitForm = (Type) => {
             } else {
               isSubmit.value = true
             }
+          } else {
+            tagsViewStore.delVisitedView(route)
+            router.replace("/delivery/deliverylist")
           }
         })
         .finally(() => {

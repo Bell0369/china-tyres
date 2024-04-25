@@ -101,7 +101,7 @@ const resetSearch = () => {
         <template #default="props">
           <div class="px">
             <el-table :data="props.row.list" border>
-              <el-table-column label="序號" prop="id" width="80px" />
+              <el-table-column type="index" label="序號" width="80px" />
               <el-table-column label="產品名稱" prop="product_name" />
               <el-table-column label="訂單數量" prop="order_number" />
               <el-table-column label="PI數量" prop="pi_number" />

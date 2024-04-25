@@ -1,8 +1,24 @@
 <script setup>
+import { watch, defineEmits } from "vue"
+import { EditPen } from "@element-plus/icons-vue"
+import { useUpdateQuantity } from "@/hooks/useUpdateQuantity"
+import { updatePiQuantityApi } from "@/api/order"
+
 defineOptions({
   name: "PIItem"
 })
 const { infoData, isStatus } = defineProps(["infoData", "isStatus"])
+
+// 修改柜量
+const { handleUpdateQuantity, isQuantity } = useUpdateQuantity({
+  api: updatePiQuantityApi
+})
+
+const emits = defineEmits(["data-change"])
+// 修改 成功
+watch([isQuantity], () => {
+  emits("data-change")
+})
 </script>
 
 <template>
@@ -30,7 +46,10 @@ const { infoData, isStatus } = defineProps(["infoData", "isStatus"])
       <el-descriptions-item label="PI數量">{{ infoData.product_total_number }}</el-descriptions-item>
       <el-descriptions-item label="PI已發貨數">{{ infoData.shipped }}</el-descriptions-item>
       <el-descriptions-item label="PI未發貨數">{{ infoData.not_shipped }}</el-descriptions-item>
-      <el-descriptions-item label="櫃量(40'HQ)">{{ infoData.quantity }}</el-descriptions-item>
+      <el-descriptions-item label="櫃量(40'HQ)">
+        {{ infoData.quantity }}
+        <EditPen @click="handleUpdateQuantity(infoData)" class="w4 h4 cursor-pointer hover:c-blue" />
+      </el-descriptions-item>
       <el-descriptions-item label="訂單總金額">{{ infoData.order_total_price }}</el-descriptions-item>
       <el-descriptions-item label="目的港">{{ infoData.destination }}</el-descriptions-item>
       <el-descriptions-item label="Remarks">{{ infoData.remarks }}</el-descriptions-item>

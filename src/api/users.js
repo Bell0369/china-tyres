@@ -102,6 +102,15 @@ export function updateClientProductApi(data) {
   })
 }
 
+// 批量修改
+export function updateAllClientProductApi(data) {
+  return request({
+    url: "client/editAllClientProductPrice",
+    method: "post",
+    data
+  })
+}
+
 // 预付款 - 加
 export function addClientAdvancePaymentApi(data) {
   return request({

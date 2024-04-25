@@ -112,7 +112,7 @@ const closeTab = () => {
 
 <template>
   <div class="app-container">
-    <PIItem :infoData="infoData" :isStatus="1" />
+    <PIItem :infoData="infoData" :isStatus="1" @data-change="getInfoData" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">

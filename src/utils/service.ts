@@ -6,7 +6,7 @@ import { getToken, setToken } from "./cache/cookies"
 
 /** 退出登录并强制刷新页面（会重定向到登录页） */
 function logout() {
-  useUserStoreHook().logout()
+  // useUserStoreHook().logout()
   // location.reload()
 }
 

@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
 import { Search, CirclePlus, Refresh, EditPen } from "@element-plus/icons-vue"
-import { getPiListApi, deletePiListApi, deletePiQuantityApi } from "@/api/order"
+import { getPiListApi, deletePiListApi, updatePiQuantityApi } from "@/api/order"
 import { usePagination } from "@/hooks/usePagination"
 import { useDeleteList } from "@/hooks/useDeleteList"
 import { useBrandSelect } from "@/hooks/useSelectOption"
@@ -35,13 +35,14 @@ const { handleDelete, isDeleted } = useDeleteList({
 
 // 修改柜量
 const { handleUpdateQuantity, isQuantity } = useUpdateQuantity({
-  api: deletePiQuantityApi
+  api: updatePiQuantityApi
 })
 
-// 删除/修改 成功
+// 删除/修改柜量 成功
 watch([isDeleted, isQuantity], () => {
   getTableData()
 })
+
 //查
 const tableData = ref([])
 

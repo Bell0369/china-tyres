@@ -74,7 +74,10 @@ const ruleForm = reactive({
 const rules = reactive({
   name: [{ required: true, message: "請輸入客戶名稱", trigger: "blur" }],
   credit: [{ required: true, message: "請輸入信用額度", trigger: "blur" }],
-  client_encod: [{ required: true, message: "請輸入客戶編碼", trigger: "blur" }],
+  client_encod: [
+    { required: true, message: "請輸入客戶編碼", trigger: "blur" },
+    { pattern: /^[^\u4e00-\u9fa5]+$/, message: "不能含有漢字", trigger: "blur" }
+  ],
   commission_ratio: [{ required: true, message: "請輸入傭金比例", trigger: "blur" }]
 })
 
@@ -114,7 +117,6 @@ const getClientContact = () => {
 
 // 提交客戶基本信息
 const submitForm = (formEl) => {
-  console.log(ruleForm)
   if (!formEl) return
   formEl.validate((valid, fields) => {
     if (valid) {
@@ -161,7 +163,7 @@ const submitForm = (formEl) => {
           </el-col>
           <el-col :span="6">
             <el-form-item label="信用額度" prop="credit">
-              <el-input v-model="ruleForm.credit" />
+              <el-input v-model="ruleForm.credit" type="number" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
@@ -185,7 +187,7 @@ const submitForm = (formEl) => {
           </el-col>
           <el-col :span="6">
             <el-form-item label="佣金比例" prop="commission_ratio">
-              <el-input v-model="ruleForm.commission_ratio" />
+              <el-input v-model="ruleForm.commission_ratio" type="number" />
             </el-form-item>
           </el-col>
           <el-col :span="6">

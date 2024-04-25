@@ -162,7 +162,7 @@ const handleChildEvent = () => {
         </div>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" border :data="tableData">
+        <el-table border :data="tableData">
           <!-- <el-table-column type="selection" width="50" /> -->
           <el-table-column prop="username" label="用戶名稱" align="center" />
           <el-table-column prop="account" label="登錄號" align="center" />

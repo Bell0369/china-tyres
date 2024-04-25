@@ -36,14 +36,14 @@ const remoteMethod = (query) => {
 const ruleFormRef = ref()
 const ruleForm = reactive({
   name: "",
-  factory_code_id: 1,
+  factory_code: 1,
   factory_label_id: 1,
   user_ids: []
 })
 
 const rules = reactive({
   name: [{ required: true, message: "請輸入工廠名稱", trigger: "blur" }],
-  factory_code_id: [{ required: true, message: "請選擇工廠代碼", trigger: "change" }],
+  factory_code: [{ required: true, message: "請選擇工廠代碼", trigger: "change" }],
   user_ids: [{ required: true, message: "請選擇客戶", trigger: "blur" }]
 })
 
@@ -75,9 +75,9 @@ const submitInfo = async (formEl) => {
         </el-col>
         <el-col :span="1" />
         <el-col :span="11">
-          <el-form-item label="工廠代碼" prop="factory_code_id">
-            <el-select v-model="ruleForm.factory_code_id">
-              <el-option v-for="item in factoryCodeOptions" :label="item.name" :value="item.id" :key="item.code" />
+          <el-form-item label="工廠代碼" prop="factory_code">
+            <el-select v-model="ruleForm.factory_code">
+              <el-option v-for="item in factoryCodeOptions" :label="item.name" :value="item.code" :key="item.id" />
             </el-select>
           </el-form-item>
         </el-col>

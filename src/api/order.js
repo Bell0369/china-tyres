@@ -102,7 +102,7 @@ export function getPiProductDetailApi(params) {
 }
 
 // 修改柜量
-export function deletePiQuantityApi(data) {
+export function updatePiQuantityApi(data) {
   return request({
     url: "order/PiEditQuantity",
     method: "post",
@@ -122,6 +122,15 @@ export function uploadPiQuantityPlanApi(data) {
   })
 }
 
+// 生成发货计划-從PI導入
+export function uploadPIDeliveryPlanApi(data) {
+  return request({
+    url: "order/PIDeliveryPlan",
+    method: "post",
+    data
+  })
+}
+
 /** 發貨計劃 */
 // 列表
 export function getDeliveryPlanListApi(params) {
@@ -129,6 +138,27 @@ export function getDeliveryPlanListApi(params) {
     url: "delivery/deliveryPlanList",
     method: "get",
     params
+  })
+}
+
+// 查詢發貨計劃號
+export function getDeliveryPlanNoApi(params) {
+  return request({
+    url: "delivery/searchDeliveryPlanNo",
+    method: "get",
+    params
+  })
+}
+
+// 上傳發貨計劃
+export function uploadPackingListApi(data) {
+  return request({
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    url: "delivery/uploadPackingList",
+    method: "post",
+    data
   })
 }
 

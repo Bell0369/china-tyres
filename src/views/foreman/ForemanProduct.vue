@@ -1,5 +1,7 @@
 <script setup>
 import { ref, watch, reactive } from "vue"
+import { Search, Refresh } from "@element-plus/icons-vue"
+import { ElMessage } from "element-plus"
 import {
   getFactoryProductListApi,
   deleteClientProductApi,
@@ -8,35 +10,25 @@ import {
 } from "@/api/users"
 import { getProductListApi, getProductShowApi } from "@/api/product"
 import { usePagination } from "@/hooks/usePagination"
-import { Search, Refresh } from "@element-plus/icons-vue"
-import { ElMessageBox, ElMessage } from "element-plus"
+import { useDeleteList } from "@/hooks/useDeleteList"
+import updatePrice from "@/views/componrnts/updatePrice/updatePrice.vue"
 
 const loading = ref(false)
+
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
 const props = defineProps(["userId"])
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`確認刪除該產品？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      deleteClientProductApi(row.id).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: deleteClientProductApi,
+  text: "產品"
+})
+
+// 删除-成功
+watch([isDeleted], () => {
+  getTableData()
+})
 
 //#region 查
 const tableData = ref([])
@@ -172,9 +164,21 @@ const submitProduct = async (formEl) => {
 
 /** 調整價格 */
 const dialogVisible2 = ref(false)
-const radio1 = ref(0)
 
-const switchType = ref(true)
+const childRef = ref(null)
+const submitProductSum = () => {
+  const childData = childRef.value.childData
+  if (childData.price === "" && childData.per === "") {
+    ElMessage.error("請輸入金額/百分比")
+    return
+  }
+  childData.factory_id = props.userId
+  // updateAllClientProductApi(childData).then(() => {
+  //   ElMessage.success("操作成功")
+  //   dialogVisible2.value = false
+  //   getTableData()
+  // })
+}
 </script>
 
 <template>
@@ -260,9 +264,9 @@ const switchType = ref(true)
           <el-descriptions-item label="海關條碼">{{ infoData.customs_code || "---" }}</el-descriptions-item>
           <el-descriptions-item label="歐標等級">{{ infoData.european_standard_level || "---" }}</el-descriptions-item>
           <el-descriptions-item label="單重">{{ infoData.piece_weight || "---" }}</el-descriptions-item>
-          <el-descriptions-item label="是否歐標EU OR 空白">{{
-            infoData.european_standard || "---"
-          }}</el-descriptions-item>
+          <el-descriptions-item label="是否歐標EU OR空白">
+            {{ infoData.european_standard || "---" }}
+          </el-descriptions-item>
           <el-descriptions-item label="類型">{{ infoData.type || "---" }}</el-descriptions-item>
           <el-descriptions-item label="花紋">{{ infoData.decorative_design || "---" }}</el-descriptions-item>
           <el-descriptions-item label="寸口">{{ infoData.spout || "---" }}</el-descriptions-item>
@@ -275,45 +279,9 @@ const switchType = ref(true)
     </el-dialog>
     <!-- 調整價格 -->
     <el-dialog v-model="dialogVisible2" title="批量調整價格">
-      <div>
-        <div class="m-b5">
-          <el-text>輸入金額後會將該客戶或該工廠下的產品價格都進行調整，調整金額和百分比可以輸入負數</el-text>
-        </div>
-        <div class="m-b5">
-          <el-radio-group v-model="radio1">
-            <el-radio-button label="按金額調整" :value="0" />
-            <el-radio-button label="按百分比調整" :value="1" />
-          </el-radio-group>
-        </div>
-        <el-row>
-          <el-col :span="12">
-            <div v-show="radio1 === 0">
-              <el-input v-model="productForm.price" placeholder="請輸入金額" type="number" />
-            </div>
-            <div v-show="radio1 === 1">
-              <el-input v-model="productForm.price" placeholder="請輸入百分比" type="number">
-                <template #append>%</template>
-              </el-input>
-            </div>
-          </el-col>
-          <el-col :span="1" />
-          <el-col :span="10">
-            <el-switch v-model="switchType" active-text="增加" inactive-text="減少" />
-          </el-col>
-        </el-row>
-        <div class="m-t5 line-height-6">
-          <div class="mx-1 m-b2">
-            <el-text type="danger">註：調整後金額=調整前金額+調整金額</el-text>
-          </div>
-          <div class="mx-1">
-            <el-text type="danger"
-              >如：調整前100 調整金額20 調整後120<br />調整前100 調整金額百分比2% 調整後102
-            </el-text>
-          </div>
-        </div>
-      </div>
+      <update-price ref="childRef" />
       <template #footer>
-        <ElButton type="primary"> 保存 </ElButton>
+        <ElButton type="primary" @click="submitProductSum"> 保存 </ElButton>
         <ElButton @click="dialogVisible2 = false">關閉</ElButton>
       </template>
     </el-dialog>

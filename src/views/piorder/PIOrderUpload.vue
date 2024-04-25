@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { useRouter } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
+import { useTagsViewStore } from "@/store/modules/tags-view"
 import { ElMessage } from "element-plus"
 import PIItem from "./components/PIItem.vue"
 import { useOrderSelet } from "@/hooks/useOrderSelet"
@@ -11,12 +12,15 @@ defineOptions({
   name: "PIOrderUpload"
 })
 
-const router = useRouter()
-
 const loading = ref(false)
 
 // 订单
 const { loadOrder, optionsOrder, loadOrderData } = useOrderSelet()
+
+// tag
+const route = useRoute()
+const router = useRouter()
+const tagsViewStore = useTagsViewStore()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -69,8 +73,8 @@ const submitForm = (Type) => {
       uploadPiApi(formData)
         .then(({ data }) => {
           if (Type === 1) {
-            orderCheck.value = orderChecks.value = data.orderCheck
-            data.orderCheck.forEach((item) => {
+            orderCheck.value = orderChecks.value = data.piList
+            data.piList.forEach((item) => {
               if (item.err_msg === "") {
                 orderCheck0.value.push(item)
               } else {
@@ -83,12 +87,13 @@ const submitForm = (Type) => {
             } else {
               isSubmit.value = true
             }
-            Object.assign(infoData, data.orderInfo)
+            Object.assign(infoData, data.piBasicInfo)
             isorderInfo.value = true
           } else {
-            router.replace("/piorder/piorderitem")
+            tagsViewStore.delVisitedView(route)
+            router.go(-1)
+            // router.replace("/piorder/piorderitem")
           }
-          loading.value = false
         })
         .finally(() => {
           loading.value = false
@@ -170,15 +175,16 @@ const filterTable = () => {
           <el-radio-button label="異常" :value="2" />
         </el-radio-group>
       </div>
-      <el-table v-loading="loading" :data="tableData">
-        <el-table-column prop="name" label="序號" />
-        <el-table-column prop="name" label="產品名稱" align="center" />
-        <el-table-column prop="name" label="訂單剩餘PI數" align="center" />
-        <el-table-column prop="name" label="單價" align="center" />
-        <el-table-column prop="name" label="總價" align="center" />
-        <el-table-column prop="name" label="備註" align="center">
+      <el-table v-loading="loading" :data="orderCheck" height="400">
+        <el-table-column type="index" label="序號" width="80" />
+        <el-table-column prop="product_name" label="產品名稱" align="center" />
+        <el-table-column prop="number" label="數量" align="center" />
+        <el-table-column prop="unproduced" label="PI未分配發貨計劃數" align="center" />
+        <el-table-column prop="unit_price" label="單價" align="center" />
+        <el-table-column prop="total_prices" label="總價" align="center" />
+        <el-table-column prop="err_msg" label="備註" align="center">
           <template #default="scope">
-            <el-text type="danger">{{ scope.row.name }}</el-text>
+            <el-text type="danger">{{ scope.row.err_msg }}</el-text>
           </template>
         </el-table-column>
       </el-table>

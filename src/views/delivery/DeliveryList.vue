@@ -181,7 +181,7 @@ const handleView = (row) => {
         </el-radio-group>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" :data="tableData">
+        <el-table ref="tableRef" border :data="tableData">
           <el-table-column prop="delivery_plan_no" label="發貨計劃號" align="center" />
           <el-table-column prop="pi_no" label="PI號" align="center" />
           <el-table-column prop="client_code" label="客戶編碼" align="center" />

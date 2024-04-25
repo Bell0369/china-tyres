@@ -1,38 +1,28 @@
 <script setup>
 import { ref, watch, reactive } from "vue"
-import { getClientProductApi, viewProductShowApi, updateClientProductApi } from "@/api/users"
+import { Search, Refresh } from "@element-plus/icons-vue"
+import { ElMessage } from "element-plus"
+import { getClientProductApi, viewProductShowApi, updateClientProductApi, updateAllClientProductApi } from "@/api/users"
 import { getProductListApi } from "@/api/product"
 import { usePagination } from "@/hooks/usePagination"
-import { Search, Refresh } from "@element-plus/icons-vue"
-import { ElMessageBox, ElMessage } from "element-plus"
+import { useDeleteList } from "@/hooks/useDeleteList"
+import updatePrice from "@/views/componrnts/updatePrice/updatePrice.vue"
 
 const loading = ref(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
 const props = defineProps(["userId"])
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`確認刪除該產品？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      ElMessage.success("刪除成功", row)
-      // deleteClientProductApi(row.id).then(() => {
-      //   ElMessage.success("刪除成功")
-      //   getTableData()
-      // })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: getClientProductApi,
+  text: "產品"
+})
+
+// 删除-成功
+watch([isDeleted], () => {
+  getTableData()
+})
 
 //#region 查
 const tableData = ref([])
@@ -150,7 +140,21 @@ const submitProductForm = () => {
 
 /** 調整價格 */
 const dialogVisible2 = ref(false)
-const radio1 = ref(0)
+
+const childRef = ref(null)
+const submitProductSum = () => {
+  const childData = childRef.value.childData
+  if (childData.price === "" && childData.per === "") {
+    ElMessage.error("請輸入金額/百分比")
+    return
+  }
+  childData.client_id = props.userId
+  updateAllClientProductApi(childData).then(() => {
+    ElMessage.success("操作成功")
+    dialogVisible2.value = false
+    getTableData()
+  })
+}
 </script>
 
 <template>
@@ -224,37 +228,9 @@ const radio1 = ref(0)
     </el-dialog>
     <!-- 調整價格 -->
     <el-dialog v-model="dialogVisible2" title="批量調整價格">
-      <div>
-        <div class="m-b5">
-          <el-text size="large"
-            >輸入金額後會將該客戶或該工廠下的產品價格都進行調整，調整金額和百分比可以輸入負數</el-text
-          >
-        </div>
-        <div class="m-b5">
-          <el-radio-group v-model="radio1">
-            <el-radio-button label="按金額調整" :value="0" />
-            <el-radio-button label="按百分比調整" :value="1" />
-          </el-radio-group>
-        </div>
-        <div v-show="radio1 === 0">
-          <el-input v-model="productForm.price" placeholder="請輸入金額" type="number" />
-        </div>
-        <div v-show="radio1 === 1">
-          <el-input v-model="productForm.price" placeholder="請輸入百分比" type="number" />
-        </div>
-        <div class="m-t5 line-height-6">
-          <div class="mx-1 m-b2">
-            <el-text type="danger">註：調整後金額=調整前金額+調整金額</el-text>
-          </div>
-          <div class="mx-1">
-            <el-text type="danger"
-              >如：調整前100 調整金額20 調整後120<br />調整前100 調整金額百分比2% 調整後102
-            </el-text>
-          </div>
-        </div>
-      </div>
+      <update-price ref="childRef" />
       <template #footer>
-        <ElButton type="primary"> 保存 </ElButton>
+        <ElButton type="primary" @click="submitProductSum"> 保存 </ElButton>
         <ElButton @click="dialogVisible2 = false">關閉</ElButton>
       </template>
     </el-dialog>

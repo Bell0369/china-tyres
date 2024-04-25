@@ -72,128 +72,6 @@ export const constantRoutes: RouteRecordRaw[] = [
  */
 export const dynamicRoutes: RouteRecordRaw[] = [
   {
-    path: "/users",
-    component: Layouts,
-    redirect: "/users/userlist",
-    name: "User",
-    children: [
-      {
-        path: "userlist",
-        component: () => import("@/views/users/UserList.vue"),
-        name: "UserList",
-        meta: {
-          title: "用戶管理",
-          svgIcon: "user",
-          name: "User",
-          keepAlive: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/client",
-    component: Layouts,
-    redirect: "/client/clientlist",
-    name: "Client",
-    meta: {
-      title: "客戶管理"
-    },
-    children: [
-      {
-        path: "clientlist",
-        component: () => import("@/views/client/ClientList.vue"),
-        name: "ClientList",
-        meta: {
-          title: "客戶管理",
-          svgIcon: "client",
-          name: "Client",
-          keepAlive: true
-        }
-      },
-      {
-        path: "clientitem",
-        component: () => import("@/views/client/ClientItem.vue"),
-        name: "ClientItem",
-        meta: {
-          title: "客戶詳情",
-          name: "Client",
-          hidden: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/foreman",
-    component: Layouts,
-    redirect: "/foreman/foremanlist",
-    name: "Foreman",
-    meta: {
-      title: "工廠管理"
-    },
-    children: [
-      {
-        path: "foremanlist",
-        component: () => import("@/views/foreman/ForemanList.vue"),
-        name: "ForemanList",
-        meta: {
-          title: "工廠管理",
-          svgIcon: "dashboard",
-          name: "Foreman",
-          keepAlive: true
-        }
-      },
-      {
-        path: "foremanitem",
-        component: () => import("@/views/foreman/ForemanItem.vue"),
-        name: "ForemanItem",
-        meta: {
-          title: "工廠詳情",
-          name: "Foreman",
-          hidden: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/configuration",
-    component: Layouts,
-    redirect: "/configuration/foremancode",
-    name: "Configuration",
-    meta: {
-      title: "配置項",
-      svgIcon: "dashboard"
-    },
-    children: [
-      {
-        path: "foremancode",
-        component: () => import("@/views/configuration/ForemanCode.vue"),
-        name: "ForemanCode",
-        meta: {
-          name: "Configuration",
-          title: "工廠代碼"
-        }
-      },
-      {
-        path: "brand",
-        component: () => import("@/views/configuration/Brand.vue"),
-        name: "Brand",
-        meta: {
-          name: "Configuration",
-          title: "品牌"
-        }
-      },
-      {
-        path: "shipping",
-        component: () => import("@/views/configuration/Shipping.vue"),
-        name: "Shipping",
-        meta: {
-          name: "Configuration",
-          title: "發貨方式"
-        }
-      }
-    ]
-  },
-  {
     path: "/product",
     component: Layouts,
     redirect: "/product/productlist",
@@ -417,6 +295,128 @@ export const dynamicRoutes: RouteRecordRaw[] = [
           title: "應收應付",
           svgIcon: "dashboard",
           keepAlive: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/users",
+    component: Layouts,
+    redirect: "/users/userlist",
+    name: "User",
+    children: [
+      {
+        path: "userlist",
+        component: () => import("@/views/users/UserList.vue"),
+        name: "UserList",
+        meta: {
+          title: "用戶管理",
+          svgIcon: "user",
+          name: "User",
+          keepAlive: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/client",
+    component: Layouts,
+    redirect: "/client/clientlist",
+    name: "Client",
+    meta: {
+      title: "客戶管理"
+    },
+    children: [
+      {
+        path: "clientlist",
+        component: () => import("@/views/client/ClientList.vue"),
+        name: "ClientList",
+        meta: {
+          title: "客戶管理",
+          svgIcon: "client",
+          name: "Client",
+          keepAlive: true
+        }
+      },
+      {
+        path: "clientitem",
+        component: () => import("@/views/client/ClientItem.vue"),
+        name: "ClientItem",
+        meta: {
+          title: "客戶詳情",
+          name: "Client",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/foreman",
+    component: Layouts,
+    redirect: "/foreman/foremanlist",
+    name: "Foreman",
+    meta: {
+      title: "工廠管理"
+    },
+    children: [
+      {
+        path: "foremanlist",
+        component: () => import("@/views/foreman/ForemanList.vue"),
+        name: "ForemanList",
+        meta: {
+          title: "工廠管理",
+          svgIcon: "dashboard",
+          name: "Foreman",
+          keepAlive: true
+        }
+      },
+      {
+        path: "foremanitem",
+        component: () => import("@/views/foreman/ForemanItem.vue"),
+        name: "ForemanItem",
+        meta: {
+          title: "工廠詳情",
+          name: "Foreman",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/configuration",
+    component: Layouts,
+    redirect: "/configuration/foremancode",
+    name: "Configuration",
+    meta: {
+      title: "配置項",
+      svgIcon: "dashboard"
+    },
+    children: [
+      {
+        path: "foremancode",
+        component: () => import("@/views/configuration/ForemanCode.vue"),
+        name: "ForemanCode",
+        meta: {
+          name: "Configuration",
+          title: "工廠代碼"
+        }
+      },
+      {
+        path: "brand",
+        component: () => import("@/views/configuration/Brand.vue"),
+        name: "Brand",
+        meta: {
+          name: "Configuration",
+          title: "品牌"
+        }
+      },
+      {
+        path: "shipping",
+        component: () => import("@/views/configuration/Shipping.vue"),
+        name: "Shipping",
+        meta: {
+          name: "Configuration",
+          title: "發貨方式"
         }
       }
     ]

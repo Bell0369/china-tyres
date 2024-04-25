@@ -161,7 +161,7 @@ const handleChildEvent = () => {
         </div>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" :data="tableData" border>
+        <el-table :data="tableData" border>
           <el-table-column prop="name" label="產品名稱" align="center" />
           <el-table-column prop="brand" label="品牌" align="center" />
           <el-table-column prop="art" label="產品代碼" align="center" />

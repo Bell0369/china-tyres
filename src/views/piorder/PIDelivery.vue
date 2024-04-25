@@ -1,18 +1,26 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
-import { Refresh, Search, EditPen } from "@element-plus/icons-vue"
-import { useRoute } from "vue-router"
-import { getPiProductDetailApi, getPiBasicDetailApi } from "@/api/order"
+import { Refresh, Search } from "@element-plus/icons-vue"
+import { useRoute, useRouter } from "vue-router"
+import { useTagsViewStore } from "@/store/modules/tags-view"
+import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { getPiProductDetailApi, getPiBasicDetailApi, uploadPIDeliveryPlanApi } from "@/api/order"
 import PIItem from "./components/PIItem.vue"
 
 defineOptions({
   name: "PIDelivery"
 })
 
-const route = useRoute()
-
 const loading = ref(false)
+
+//工厂
+const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+
+// tag
+const route = useRoute()
+const router = useRouter()
+const tagsViewStore = useTagsViewStore()
 
 // 查-基本信息
 const infoData = reactive({})
@@ -55,7 +63,6 @@ const searchTable = () => {
     const productName = item.product_name.toLowerCase()
     return productName.includes(searchTerm)
   })
-  // console.log(filteredData.map((item) => item.product_name))
 }
 
 // 重置
@@ -65,7 +72,17 @@ const resetSearch = () => {
 }
 
 // 審批
-const connectUpdate = () => {
+const submitForm = () => {
+  const rows = tableRef.value.getSelectionRows()
+  if (ruleForm.factory_id === "") {
+    ElMessage.error("請選擇工廠")
+    return
+  }
+  if (rows.length === 0) {
+    ElMessage.error("請勾選產品")
+    return false
+  }
+
   ElMessageBox.prompt("發貨計劃需要審批才能進行，是否繼續？", "發貨計劃", {
     confirmButtonText: "確定",
     cancelButtonText: "取消",
@@ -73,29 +90,79 @@ const connectUpdate = () => {
     inputType: "textarea"
   })
     .then(({ value }) => {
-      ElMessage({
-        type: "success",
-        message: `Delete completed ${value}`
-      })
+      ElMessage.success(value)
+      sendFormData()
     })
     .catch(() => {
       ElMessage({
         type: "info",
-        message: "Delete canceled"
+        message: "已取消"
       })
     })
+}
+
+const tableRef = ref()
+//
+const ruleForm = reactive({
+  type: 2,
+  pi_id: route.query.id,
+  factory_id: "",
+  data_arr: []
+})
+
+const sendFormData = () => {
+  const rows = tableRef.value.getSelectionRows()
+  rows.forEach((item) => {
+    const data_arr = {
+      id: item.id,
+      product_name: item.product_name,
+      brand_code: item.brand_code,
+      number: item.number
+    }
+    ruleForm.data_arr.push(data_arr)
+  })
+  uploadPIDeliveryPlanApi(ruleForm).then((data) => {
+    if (data.code === 200) {
+      tagsViewStore.delVisitedView(route)
+      router.replace("/delivery/deliverylist")
+    }
+  })
 }
 </script>
 
 <template>
   <div class="app-container">
+    <el-card shadow="never" class="search-wrapper">
+      <div class="toolbar-wrapper">
+        <el-text tag="b" size="large">選擇工廠</el-text>
+      </div>
+      <el-form :model="ruleForm">
+        <el-row>
+          <el-col :span="6">
+            <el-form-item label="工廠名稱">
+              <el-select
+                v-model="ruleForm.factory_id"
+                filterable
+                remote
+                remote-show-suffix
+                :remote-method="loadFactoryData"
+                :loading="loadFactory"
+              >
+                <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </el-card>
+
     <PIItem :infoData="infoData" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">核對信息</el-text>
-          <el-button type="primary" @click="connectUpdate">生成發貨計劃</el-button>
+          <el-button type="primary" @click="submitForm">生成發貨計劃</el-button>
         </div>
       </div>
       <div class="mb">
@@ -106,8 +173,8 @@ const connectUpdate = () => {
             <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
           </div>
           <div class="line-height-5">
-            <div><el-text>PI發貨數量：</el-text><el-text type="danger">100 </el-text></div>
-            <div><el-text>計劃發貨數量：</el-text><el-text type="primary">100 </el-text></div>
+            <div><el-text>PI發貨數量：</el-text><el-text type="danger">XXX </el-text></div>
+            <div><el-text>計劃發貨數量：</el-text><el-text type="primary">XXX </el-text></div>
           </div>
         </div>
       </div>
@@ -115,11 +182,10 @@ const connectUpdate = () => {
         <el-table-column type="selection" width="55" />
         <el-table-column type="index" label="序號" width="80" align="center" />
         <el-table-column prop="product_name" label="產品名稱" align="center" />
-        <el-table-column prop="not_shipped_number" label="未發貨數" align="center" />
-        <el-table-column prop="shipped_number" label="已發貨數" align="center">
+        <el-table-column prop="unproduced" label="PI未分配發貨計劃數" align="center" />
+        <el-table-column prop="number" label="發貨數量" align="center" width="150">
           <template #default="scope">
-            {{ scope.row.shipped_number }}
-            <EditPen @click="handleUpdate(scope.row)" class="w4 h4 cursor-pointer hover:c-blue" />
+            <el-input v-model.number="scope.row.number" type="number" />
           </template>
         </el-table-column>
       </el-table>

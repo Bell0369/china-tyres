@@ -27,7 +27,7 @@ export function useUpdateQuantity(props: FetchProps) {
             type: "success",
             message: "操作成功"
           })
-          isQuantity.value = row.id
+          isQuantity.value = row.quantity
         })
       })
       .catch(() => {

@@ -1,8 +1,9 @@
 <script setup>
 import { ref, reactive } from "vue"
 import { ElButton } from "element-plus"
-import { useBrandSelect } from "@/hooks/useSelectOption.js"
-import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useRoute, useRouter } from "vue-router"
+import { useTagsViewStore } from "@/store/modules/tags-view"
+import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { uploadOrderApi } from "@/api/order"
 import BasicInformation from "./components/BasicInformation.vue"
@@ -17,23 +18,28 @@ const loading = ref(false)
 // 品牌
 const { brandOptions } = useBrandSelect()
 
-//工厂
-const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+//工厂代碼
+const factoryCodeOptions = useFactoryCodeSelect()
 
 // 客户
 const { loadClient, optionsClient, loadClientData } = useClientSelect()
+
+// tag
+const route = useRoute()
+const router = useRouter()
+const tagsViewStore = useTagsViewStore()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
   file: "",
   client_id: undefined,
-  factory_code_id: undefined,
+  factory_code: undefined,
   brand_id: undefined
 })
 
 const rules = reactive({
   client_id: [{ required: true, message: "請選擇客戶", trigger: "change" }],
-  factory_code_id: [{ required: true, message: "請選擇工廠", trigger: "change" }],
+  factory_code: [{ required: true, message: "請選擇工廠代碼", trigger: "change" }],
   brand_id: [{ required: true, message: "請選擇品牌", trigger: "change" }]
 })
 
@@ -53,7 +59,10 @@ const orderCheck0 = ref([])
 const orderCheck1 = ref([])
 const submitForm = (Type) => {
   // 重置表格数据
-  orderCheck.value = orderChecks.value = orderCheck0.value = orderCheck1.value = []
+  orderCheck.value = []
+  orderChecks.value = []
+  orderCheck0.value = []
+  orderCheck1.value = []
   errMsgVal.value = 0
   // router.replace("/order/orderitem")
   if (!ruleFormRef.value) return
@@ -64,29 +73,36 @@ const submitForm = (Type) => {
       formData.append("file", ruleForm.file)
       formData.append("type", Type)
       formData.append("client_id", ruleForm.client_id)
-      formData.append("factory_code_id", ruleForm.factory_code_id)
+      formData.append("factory_code", ruleForm.factory_code)
       formData.append("brand_id", ruleForm.brand_id)
-      uploadOrderApi(formData).then(({ data }) => {
-        if (Type === 1) {
-          orderCheck.value = orderChecks.value = data.orderCheck
-          data.orderCheck.forEach((item) => {
-            if (item.err_msg === "") {
-              orderCheck0.value.push(item)
+      uploadOrderApi(formData)
+        .then(({ data }) => {
+          if (Type === 1) {
+            orderCheck.value = orderChecks.value = data.orderCheck
+            data.orderCheck.forEach((item) => {
+              if (item.err_msg === "") {
+                orderCheck0.value.push(item)
+              } else {
+                orderCheck1.value.push(item)
+              }
+            })
+            // 无异常，按钮亮起
+            if (orderCheck1.value.length === 0) {
+              isSubmit.value = false
             } else {
-              orderCheck1.value.push(item)
+              isSubmit.value = true
             }
-          })
-          // 无异常，按钮亮起
-          if (orderCheck1.value.length === 0) {
-            isSubmit.value = false
+            Object.assign(orderInfo, data.orderInfo)
+            isorderInfo.value = true
           } else {
-            isSubmit.value = true
+            tagsViewStore.delVisitedView(route)
+            router.replace("/order/orderlist")
           }
-          Object.assign(orderInfo, data.orderInfo)
-          isorderInfo.value = true
-        }
-        loading.value = false
-      })
+          loading.value = false
+        })
+        .finally(() => {
+          loading.value = false
+        })
     } else {
       console.log("error submit!", fields)
     }
@@ -129,16 +145,9 @@ const filterTable = () => {
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item prop="factory_code_id" label="工廠">
-              <el-select
-                v-model="ruleForm.factory_code_id"
-                filterable
-                remote
-                remote-show-suffix
-                :remote-method="loadFactoryData"
-                :loading="loadFactory"
-              >
-                <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
+            <el-form-item prop="factory_code" label="工廠代碼">
+              <el-select v-model="ruleForm.factory_code">
+                <el-option v-for="item in factoryCodeOptions" :key="item.id" :label="item.name" :value="item.code" />
               </el-select>
             </el-form-item>
           </el-col>
