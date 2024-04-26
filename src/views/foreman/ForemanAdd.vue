@@ -36,7 +36,7 @@ const remoteMethod = (query) => {
 const ruleFormRef = ref()
 const ruleForm = reactive({
   name: "",
-  factory_code: 1,
+  factory_code: "1",
   factory_label_id: 1,
   user_ids: []
 })

@@ -41,6 +41,12 @@ const connectUpdate = (row) => {
     })
   }
 }
+
+// 編輯完成
+const handleChildEvent = () => {
+  dialogVisible.value = false
+  getClientContact()
+}
 </script>
 
 <template>
@@ -55,6 +61,7 @@ const connectUpdate = (row) => {
       <el-row :gutter="20" v-if="ContactList.length > 0">
         <el-col :span="8" v-for="item in ContactList" :key="item.id">
           <div class="flex items-center mb">
+            <!-- class="bg-amber!" @click="defaultAddress(item.id)" -->
             <el-card shadow="never">
               <el-text> {{ item.assemble }} </el-text>
             </el-card>
@@ -71,7 +78,7 @@ const connectUpdate = (row) => {
 
     <!-- 編輯聯繫人 -->
     <Dialog v-model="dialogVisible" title="聯繫人信息">
-      <UpdateAddress :addressData="addressData" idName="factory" />
+      <UpdateAddress :addressData="addressData" :idName="addressType" @childEvent="handleChildEvent" />
     </Dialog>
   </div>
 </template>

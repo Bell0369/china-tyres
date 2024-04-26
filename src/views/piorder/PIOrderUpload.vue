@@ -176,10 +176,10 @@ const filterTable = () => {
         </el-radio-group>
       </div>
       <el-table v-loading="loading" :data="orderCheck" height="400">
-        <el-table-column type="index" label="序號" width="80" />
+        <el-table-column prop="serial_number" label="序號" width="80" />
         <el-table-column prop="product_name" label="產品名稱" align="center" />
         <el-table-column prop="number" label="數量" align="center" />
-        <el-table-column prop="unproduced" label="PI未分配發貨計劃數" align="center" />
+        <el-table-column prop="unproduced" label="订单未分配PI数量" align="center" />
         <el-table-column prop="unit_price" label="單價" align="center" />
         <el-table-column prop="total_prices" label="總價" align="center" />
         <el-table-column prop="err_msg" label="備註" align="center">

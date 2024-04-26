@@ -160,7 +160,7 @@ const closeTab = () => {
         </el-table-column>
         <el-table-column prop="shipped_number" label="已發貨數" align="center" />
         <el-table-column prop="not_shipped_number" label="未發貨數" align="center" />
-        <el-table-column prop="last_undone_number" label="剩餘PI數" align="center" />
+        <el-table-column prop="last_undone_number" label="最终末完成数" align="center" />
         <el-table-column prop="unit_price" label="單價" align="center" />
         <el-table-column prop="total_prices" label="金額" align="center" />
       </el-table>

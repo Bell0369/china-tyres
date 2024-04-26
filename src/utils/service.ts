@@ -6,8 +6,8 @@ import { getToken, setToken } from "./cache/cookies"
 
 /** 退出登录并强制刷新页面（会重定向到登录页） */
 function logout() {
-  // useUserStoreHook().logout()
-  // location.reload()
+  useUserStoreHook().logout()
+  location.reload()
 }
 
 // 刷新 Token 并重试请求
@@ -73,7 +73,7 @@ function createService() {
           // 本系统采用 code === 0 来表示没有业务错误
           // return apiData
           return refreshTokenRequest(apiData)
-        case 401:
+        case 301:
           // Token 过期时
           return logout()
         default:

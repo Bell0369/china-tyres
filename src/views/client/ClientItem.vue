@@ -1,14 +1,14 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue"
-import { Tickets, Edit, Delete } from "@element-plus/icons-vue"
+import { Tickets } from "@element-plus/icons-vue"
 import ClientProduct from "./ClientProduct.vue"
 import { useRoute } from "vue-router"
 import { Dialog } from "@/components/Dialog"
 import PrepayMents from "./components/PrepayMents.vue"
-import UpdateAddress from "./components/UpdateAddress.vue"
-import { getUserListApi, updateClientListApi, viewClientShowApi, getClientContactApi } from "@/api/users"
+import { getUserListApi, updateClientListApi, viewClientShowApi } from "@/api/users"
 import { useeDeliverTypeSelect, usePayMentSelect } from "@/hooks/useSelectOption.js"
 import { ElMessage } from "element-plus"
+import AddressList from "@/views/componrnts/address/AddressList.vue"
 
 defineOptions({
   name: "ClientItem"
@@ -44,18 +44,6 @@ const remoteMethod = (query) => {
 
 const dialogVisible = ref(false)
 
-// 地址
-const dialogVisible2 = ref(false)
-const dialogId = route.query.id
-const connectUpdate = (row) => {
-  console.log(row)
-  dialogVisible2.value = true
-  if (row) {
-    // dialogTitle.value = "聯繫人信息"
-  } else {
-    // dialogTitle.value = "聯繫人信息"
-  }
-}
 const loading = ref(false)
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -84,7 +72,6 @@ const rules = reactive({
 /**获取数据 */
 onMounted(() => {
   getClientShow()
-  getClientContact()
 })
 // 基本信息
 const getClientShow = () => {
@@ -103,15 +90,6 @@ const getClientShow = () => {
     userOptions.value.push(obj)
     Object.assign(ruleForm, datas)
     loading.value = false
-  })
-}
-// 联系人信息
-const ContactList = ref([])
-const getClientContact = () => {
-  getClientContactApi({
-    id: route.query.id
-  }).then(({ data }) => {
-    ContactList.value = data
   })
 }
 
@@ -224,39 +202,15 @@ const submitForm = (formEl) => {
       </el-form>
     </el-card>
 
-    <el-card shadow="never" class="search-wrapper">
-      <div class="toolbar-wrapper">
-        <div class="flex justify-between">
-          <el-text tag="b" size="large">聯繫人信息</el-text>
-          <el-button type="primary" @click="connectUpdate(0, 0)">添加</el-button>
-        </div>
-      </div>
-      <el-row :gutter="20" v-if="ContactList.length > 0">
-        <el-col :span="8" v-for="item in ContactList" :key="item.id">
-          <div class="flex items-center">
-            <el-card shadow="never">
-              <el-text> {{ item.assemble }} </el-text>
-            </el-card>
-            <div class="m-l">
-              <Edit class="w6 h6 cursor-pointer" @click="connectUpdate(item.id)" />
-              <br />
-              <Delete class="w6 h6 cursor-pointer" />
-            </div>
-          </div>
-        </el-col>
-      </el-row>
-      <el-empty v-else description="暫無聯繫人" />
-    </el-card>
+    <!-- 聯繫人信息 -->
+    <AddressList :userId="route.query.id" addressType="client" />
+
     <el-card shadow="never">
       <ClientProduct :userId="route.query.id" />
     </el-card>
 
     <Dialog v-model="dialogVisible" title="預付款">
       <PrepayMents :rowId="dialogId" />
-    </Dialog>
-
-    <Dialog v-model="dialogVisible2" title="聯繫人信息">
-      <UpdateAddress :rowId="dialogId" />
     </Dialog>
   </div>
 </template>

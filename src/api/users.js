@@ -127,6 +127,14 @@ export function getClientContactApi(params) {
     params
   })
 }
+// 客戶 - 新增/修改聯係人信息
+export function updateClientContactApi(data) {
+  return request({
+    url: "client/addAddress",
+    method: "post",
+    data
+  })
+}
 
 /**工厂管理 */
 // 查
@@ -164,6 +172,15 @@ export function getFactoryContactApi(params) {
     url: "factory/factoryContact",
     method: "get",
     params
+  })
+}
+
+// 工廠 - 新增/修改聯係人信息
+export function updateFactoryContactApi(data) {
+  return request({
+    url: "factory/addAddress",
+    method: "post",
+    data
   })
 }
 
