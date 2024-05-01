@@ -9,6 +9,16 @@ export function getUserListApi(params) {
     params
   })
 }
+
+// 修改用戶狀態
+export function updateUserStatusApi(data) {
+  return request({
+    url: "user/editStatus",
+    method: "post",
+    data
+  })
+}
+
 // 删
 export function deleteUserListApi(data) {
   return request({
@@ -78,11 +88,11 @@ export function getClientProductApi(params) {
   })
 }
 // 刪 *
-export function deleteClientProductApi(params) {
+export function deleteClientProductApi(data) {
   return request({
-    url: "client/clientList",
-    method: "get",
-    params
+    url: "client/deleteClientProduct",
+    method: "post",
+    data
   })
 }
 // 看
@@ -111,6 +121,15 @@ export function updateAllClientProductApi(data) {
   })
 }
 
+// 預付款 - 列表
+export function getClientAdvancePaymentListApi(params) {
+  return request({
+    url: "client/clientAdvancePaymentList",
+    method: "get",
+    params
+  })
+}
+
 // 预付款 - 加
 export function addClientAdvancePaymentApi(data) {
   return request({
@@ -119,6 +138,7 @@ export function addClientAdvancePaymentApi(data) {
     data
   })
 }
+
 // 联系人信息 - 查
 export function getClientContactApi(params) {
   return request({
@@ -127,6 +147,16 @@ export function getClientContactApi(params) {
     params
   })
 }
+
+// 刪
+export function deleteClientContactApi(data) {
+  return request({
+    url: "client/deleteClientContact",
+    method: "post",
+    data
+  })
+}
+
 // 客戶 - 新增/修改聯係人信息
 export function updateClientContactApi(data) {
   return request({
@@ -145,7 +175,15 @@ export function getFactoryListApi(params) {
     params
   })
 }
-// 刪*
+
+// 删
+export function deleteFactoryApi(data) {
+  return request({
+    url: "factory/deleteFactory",
+    method: "post",
+    data
+  })
+}
 
 // 加
 export function updateFactoryApi(data) {
@@ -165,6 +203,24 @@ export function getFactoryBasicInfoApi(params) {
   })
 }
 
+// 預付款 - 列表
+export function getFactoryAdvancePaymentListApi(params) {
+  return request({
+    url: "factory/factoryAdvancePaymentList",
+    method: "get",
+    params
+  })
+}
+
+// 预付款 - 加
+export function addFactoryAdvancePaymentApi(data) {
+  return request({
+    url: "factory/factoryAdvancePayment",
+    method: "post",
+    data
+  })
+}
+
 // 工廠 - 聯係人信息
 // 看
 export function getFactoryContactApi(params) {
@@ -172,6 +228,15 @@ export function getFactoryContactApi(params) {
     url: "factory/factoryContact",
     method: "get",
     params
+  })
+}
+
+// 刪
+export function deleteFactoryContactApi(data) {
+  return request({
+    url: "factory/deleteFactoryContact",
+    method: "post",
+    data
   })
 }
 
@@ -194,7 +259,14 @@ export function getFactoryProductListApi(params) {
   })
 }
 
-// 刪*
+// 刪
+export function deleteFactoryProductApi(data) {
+  return request({
+    url: "factory/deleteFactoryProduct",
+    method: "post",
+    data
+  })
+}
 
 // 看
 export function getFactoryProductShowApi(params) {
@@ -209,6 +281,15 @@ export function getFactoryProductShowApi(params) {
 export function updateFactoryAddProductApi(data) {
   return request({
     url: "factory/addProduct",
+    method: "post",
+    data
+  })
+}
+
+// 批量修改
+export function updateAllFactoryProductApi(data) {
+  return request({
+    url: "factory/editAllFactoryProductPrice",
     method: "post",
     data
   })

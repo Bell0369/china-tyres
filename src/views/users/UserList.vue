@@ -1,42 +1,35 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getUserListApi, deleteUserListApi } from "@/api/users"
-import { ElMessage, ElMessageBox, ElButton } from "element-plus"
+import { getUserListApi, deleteUserListApi, updateUserStatusApi } from "@/api/users"
+import { ElButton, ElMessage } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { Dialog } from "@/components/Dialog"
 import EditUser from "./EditUser.vue"
+import { useDeleteList } from "@/hooks/useDeleteList"
+import { usePayMentSelect } from "@/hooks/useSelectOption"
 
 defineOptions({
   name: "UserList"
 })
 
 const loading = ref(false)
+
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`正在刪除用戶${row.username}，確認刪除？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      deleteUserListApi({
-        id: row.id
-      }).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+// 部門
+const { roleOptions } = usePayMentSelect()
+
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: deleteUserListApi,
+  text: "用户"
+})
+
+// 删除 成功
+watch([isDeleted], () => {
+  getTableData()
+})
 
 //#region 查
 const tableData = ref([])
@@ -44,7 +37,7 @@ const searchFormRef = ref(null)
 const searchData = reactive({
   username: "",
   state: "",
-  department: ""
+  role_name: ""
 })
 const getTableData = () => {
   loading.value = true
@@ -53,7 +46,7 @@ const getTableData = () => {
     page_size: paginationData.pageSize,
     keyword: searchData.username || undefined,
     status: searchData.state || undefined,
-    department: searchData.department || undefined
+    role_name: searchData.role_name || undefined
   })
     .then(({ data }) => {
       paginationData.total = data.total
@@ -92,14 +85,22 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
 // }
 
 // 修改狀態
-const updatSatus = (row) => {
-  console.log("修改状态", row.id)
-  // updateUserItemApi({
-  //   id: row.id,
-  //   status: !row.user_status
-  // }).then(() => {
-  //   ElMessage.success("操作成功")
-  // })
+const updatSatus = (row, index) => {
+  loadingStates.value[index] = true
+  updateUserStatusApi({
+    id: row.id,
+    status: row.user_status
+  })
+    .then(() => {
+      ElMessage.success("操作成功")
+    })
+    .finally(() => {
+      loadingStates.value[index] = false
+    })
+}
+const loadingStates = ref([])
+const isLoading = (index) => {
+  return loadingStates.value[index] || false
 }
 
 // 增 / 改
@@ -118,6 +119,7 @@ const handleUpdate = (row) => {
   }
 }
 
+// 子組件調用父組件方法
 const handleChildEvent = () => {
   // console.log("Received event from child:", payload)
   dialogVisible.value = false
@@ -139,13 +141,10 @@ const handleChildEvent = () => {
             <el-option label="已關閉" value="0" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="department" label="部门">
-          <el-select v-model="searchData.department" style="width: 100px">
+        <el-form-item prop="role_name" label="部门">
+          <el-select v-model="searchData.role_name" style="width: 100px">
             <el-option label="全部" value="" />
-            <el-option label="销售部" :value="1" />
-            <el-option label="财务部" :value="2" />
-            <el-option label="物流部" :value="3" />
-            <el-option label="文件部" :value="4" />
+            <el-option v-for="item in roleOptions" :key="item.id" :label="item.name" :value="item.name" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -174,8 +173,10 @@ const handleChildEvent = () => {
               <el-switch
                 v-model="scope.row.user_status"
                 :active-value="1"
+                :inactive-value="0"
+                :loading="isLoading(scope.$index)"
                 style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-                @change="updatSatus(scope.row)"
+                @click="updatSatus(scope.row, scope.$index)"
               />
             </template>
           </el-table-column>
@@ -183,7 +184,7 @@ const handleChildEvent = () => {
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">
               <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row.id)">修改</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

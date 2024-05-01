@@ -169,7 +169,7 @@ const filterTable = () => {
         <el-table-column prop="serial_number" label="序號" align="center" width="80px" />
         <el-table-column prop="product_name" label="產品名稱" align="center" />
         <el-table-column prop="number" label="數量" align="center" />
-        <el-table-column prop="not_shipped" label="PI未發貨數量" align="center" />
+        <el-table-column prop="unproduced" label="PI未分配发货计划数量" align="center" />
         <el-table-column prop="err_msg" label="備註" align="center">
           <template #default="scope">
             <el-text type="danger">{{ scope.row.err_msg }}</el-text>

@@ -137,13 +137,19 @@ const getOptions = (type) => {
     provinceVal.value = {}
     cityVal.value = {}
     cityOptions.value = []
-    // getCountriesArea(2, addressForm.value.country)
+
+    addressForm.value.province = null
+    addressForm.value.province_name = null
+    addressForm.value.city = null
+    addressForm.value.city_name = null
     getCountriesArea(2, countryVal.value.id)
   } else if (type === 2) {
     addressForm.value.province = provinceVal.value.id
     addressForm.value.province_name = provinceVal.value.name
     cityVal.value = {}
-    // getCountriesArea(3, addressForm.value.province)
+
+    addressForm.value.city = null
+    addressForm.value.city_name = null
     getCountriesArea(3, provinceVal.value.id)
   } else {
     addressForm.value.city = cityVal.value.id
@@ -167,7 +173,16 @@ let addressType = false
 let addressIndex = 0
 
 const addaddress = () => {
+  if (addressForm.value.country === "") {
+    ElMessage.error("請选择国家")
+    return
+  }
+  if (addressForm.value.address === "") {
+    ElMessage.error("請输入详细地址")
+    return
+  }
   const addresses = ruleForm.value.address
+  console.log(addresses)
   if (addressType) {
     const address = cloneDeep(addressForm.value)
     addresses.push(address)
@@ -192,8 +207,12 @@ const updateAddress = (item, index) => {
     addressType = false
     addressForm.value = addresses
     // 默認選中
-    getCountriesArea(2, addresses.country)
-    getCountriesArea(3, addresses.province)
+    if (addresses.country) {
+      getCountriesArea(2, addresses.country)
+    }
+    if (addresses.province) {
+      getCountriesArea(3, addresses.province)
+    }
 
     countryVal.value = {
       id: Number(addresses.country),
@@ -301,6 +320,14 @@ const updateEmail = (item, index) => {
 const emitEvents = defineEmits(["childEvent"])
 // 提交
 const submitForm = () => {
+  if (ruleForm.value[idName + "_contact"] === "") {
+    ElMessage.error("請輸入聯繫人")
+    return
+  }
+  if (ruleForm.value.phones.length === 0) {
+    ElMessage.error("請選中默認電話")
+    return
+  }
   // 默認 phone
   Object.keys(ruleForm.value.phones).forEach((key) => {
     if (phones_default.value === Number(key)) {
@@ -309,7 +336,10 @@ const submitForm = () => {
       ruleForm.value.phones[key].default = 0
     }
   })
-
+  if (ruleForm.value.address.length === 0) {
+    ElMessage.error("請選中默認地址")
+    return
+  }
   // 默認 address
   Object.keys(ruleForm.value.address).forEach((key) => {
     if (address_default.value === Number(key)) {
@@ -318,7 +348,10 @@ const submitForm = () => {
       ruleForm.value.address[key].default = 0
     }
   })
-
+  if (ruleForm.value.emails.length === 0) {
+    ElMessage.error("請選中默認電郵")
+    return
+  }
   // 默認 email
   Object.keys(ruleForm.value.emails).forEach((key) => {
     if (emails_default.value === Number(key)) {

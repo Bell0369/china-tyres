@@ -64,6 +64,7 @@ const getDeliveryPlanNo = () => {
   })
 }
 
+const isSubmit = ref(true)
 // 1:  比对文件 2: 提交上傳
 const isorderInfo = ref(false)
 const infoData = reactive({})
@@ -105,6 +106,13 @@ const submitForm = (Type) => {
       if (Type === 1) {
         orderCheck.value = data.listErr
         listInfo.value = data.listInfo
+
+        // 无异常，按钮亮起
+        if (orderCheck.value.length === 0) {
+          isSubmit.value = false
+        } else {
+          isSubmit.value = true
+        }
         Object.assign(infoData, data.basicInfo)
         isorderInfo.value = true
       } else {

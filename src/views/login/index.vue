@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { reactive, ref } from "vue"
+import { reactive, ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { useUserStore } from "@/store/modules/user"
 import { type FormInstance, type FormRules, ElMessage } from "element-plus"
@@ -7,8 +7,10 @@ import { User, Lock } from "@element-plus/icons-vue"
 import { type LoginRequestData } from "@/api/login/types/login"
 import Owl from "./components/Owl.vue"
 import { useFocus } from "./hooks/useFocus"
+import { setRememberMe, getRememberMe } from "@/utils/cache/local-storage"
 
 const router = useRouter()
+
 const { isFocus, handleBlur, handleFocus } = useFocus()
 
 /** 登录表单元素的引用 */
@@ -16,6 +18,10 @@ const loginFormRef = ref<FormInstance | null>(null)
 
 /** 登录按钮 Loading */
 const loading = ref(false)
+
+// 記住密碼
+const remember = ref(true)
+
 /** 登录表单数据 */
 const loginFormData: LoginRequestData = reactive({
   account: "",
@@ -41,6 +47,18 @@ const handleLogin = () => {
           const lastRequestTime = Date.now() + 50 * 60 * 1000
           localStorage.setItem("lastRequestTime", JSON.stringify(lastRequestTime))
 
+          if (remember.value) {
+            setRememberMe({
+              remember: remember.value,
+              loginFormData
+            })
+          } else {
+            setRememberMe({
+              remember: remember.value,
+              loginFormData: {}
+            })
+          }
+
           router.push({ path: "/" })
         })
         .catch((res) => {
@@ -53,6 +71,15 @@ const handleLogin = () => {
     }
   })
 }
+
+onMounted(() => {
+  const info = JSON.parse(getRememberMe())
+  console.log(info)
+  remember.value = info.remember
+  if (info.remember) {
+    Object.assign(loginFormData, info.loginFormData)
+  }
+})
 </script>
 
 <template>
@@ -84,6 +111,9 @@ const handleLogin = () => {
               @blur="handleBlur"
               @focus="handleFocus"
             />
+          </el-form-item>
+          <el-form-item>
+            <el-checkbox v-model="remember" label="記住密碼" />
           </el-form-item>
           <el-button :loading="loading" type="primary" size="large" @click.prevent="handleLogin">登 錄</el-button>
         </el-form>

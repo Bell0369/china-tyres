@@ -1,16 +1,38 @@
 <script setup>
-import { reactive, ref } from "vue"
-import { addClientAdvancePaymentApi } from "@/api/users"
+import { reactive, ref, computed, onMounted, defineEmits } from "vue"
 import { ElMessage } from "element-plus"
+// import { useRoute } from "vue-router"
+import {
+  addClientAdvancePaymentApi,
+  addFactoryAdvancePaymentApi,
+  getClientAdvancePaymentListApi,
+  getFactoryAdvancePaymentListApi
+} from "@/api/users"
 
-const props = defineProps(["rowId"])
+const { isType, id } = defineProps(["isType", "id"])
+console.log(isType, id)
+const emit = defineEmits(["handleEditPayment"])
+
+// const route = useRoute()
+
+const loading = ref(false)
 
 const prepayFormRef = ref()
-const prepayForm = reactive({
-  client_id: props.rowId,
-  price: null,
-  invoice: ""
+// 初始化
+const prepayForm = computed(() => {
+  const form = reactive({
+    price: null,
+    invoice: ""
+  })
+  form[`${isType}_id`] = id
+  return form
 })
+
+// const prepayForm = reactive({
+//   client_id: route.query.id,
+//   price: null,
+//   invoice: ""
+// })
 
 const rules = reactive({
   price: [{ required: true, message: "請輸入金额", trigger: "blur" }],
@@ -19,14 +41,14 @@ const rules = reactive({
 
 // 添加记录
 const submitForm = (formEl) => {
-  console.log(prepayForm)
   if (!formEl) return
   formEl.validate((valid, fields) => {
     if (valid) {
-      addClientAdvancePaymentApi(prepayForm).then(() => {
+      const api = isType === "factory" ? addFactoryAdvancePaymentApi : addClientAdvancePaymentApi
+      api(prepayForm.value).then(() => {
         ElMessage.success("操作成功")
         prepayFormRef.value?.resetFields()
-        // getClientShow()
+        getTableData()
       })
     } else {
       console.log("error submit!", fields)
@@ -34,14 +56,30 @@ const submitForm = (formEl) => {
   })
 }
 
-const radio1 = ref(0)
-const tableData = [
-  {
-    date: "2016-05-03",
-    name: "Tom",
-    address: "No. 189, Grove St, Los Angeles"
-  }
-]
+// 列表
+onMounted(() => {
+  getTableData()
+})
+
+const types = ref(1)
+const tableData = ref([])
+const advancePayment = ref(0)
+const getTableData = () => {
+  loading.value = true
+  const api = isType === "factory" ? getFactoryAdvancePaymentListApi : getClientAdvancePaymentListApi
+  api({
+    id: id,
+    type: types.value
+  })
+    .then(({ data }) => {
+      tableData.value = data.list
+      advancePayment.value = data.advance_payment
+      emit("handleEditPayment", advancePayment.value)
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
 </script>
 
 <template>
@@ -64,29 +102,22 @@ const tableData = [
     <div>
       <div class="my">
         <div>
-          <el-radio-group v-model="radio1">
-            <el-radio-button label="添加記錄" :value="0" />
-            <el-radio-button label="扣除記錄" :value="1" />
+          <el-radio-group v-model="types" @change="getTableData" fill="#29d">
+            <el-radio-button label="添加記錄" :value="1" />
+            <el-radio-button label="扣除記錄" :value="2" />
           </el-radio-group>
         </div>
-        <div v-show="radio1 === 0">
-          <el-table :data="tableData">
-            <el-table-column prop="date" label="添加金額" />
-            <el-table-column prop="name" label="銀行水單" />
-            <el-table-column prop="address" label="添加時間" />
-          </el-table>
-        </div>
-        <div v-show="radio1 === 1">
-          <el-table :data="tableData">
-            <el-table-column prop="date" label="銷售發票號" />
-            <el-table-column prop="name" label="扣除金額  " />
-            <el-table-column prop="address" label="扣除時間" />
+        <div v-loading="loading">
+          <el-table :data="tableData" height="300">
+            <el-table-column prop="price" :label="types === 1 ? '添加金額' : '扣除金額'" />
+            <el-table-column prop="invoice" :label="types === 1 ? '銀行水單' : '銷售發票號'" />
+            <el-table-column prop="created_at" :label="types === 1 ? '添加時間' : '扣除時間'" />
           </el-table>
         </div>
         <div class="flex justify-between m-t5 items-center">
           <div>
             <el-text>當前預付款: </el-text>
-            <el-text type="danger" size="large">100000</el-text>
+            <el-text type="danger" size="large">{{ advancePayment }}</el-text>
           </div>
           <div>
             <ElButton type="primary" @click="submitForm(prepayFormRef)"> 保存 </ElButton>

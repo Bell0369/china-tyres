@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox } from "element-plus"
 import { EditPen, Search, Refresh } from "@element-plus/icons-vue"
 import { useRoute } from "vue-router"
 import PIItem from "./components/PIItem.vue"
-import { getPiProductDetailApi, getPiBasicDetailApi } from "@/api/order"
+import { getPiProductDetailApi, getPiBasicDetailApi, updatePiNumberApi } from "@/api/order"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 
 defineOptions({
@@ -43,7 +43,7 @@ onMounted(() => {
   getTableData()
 })
 
-// 增 / 改
+// 修改PI数量
 const handleUpdate = (row) => {
   ElMessageBox.prompt("", "修改PI数量", {
     confirmButtonText: "確定",
@@ -53,9 +53,16 @@ const handleUpdate = (row) => {
     inputValue: row.number
   })
     .then(({ value }) => {
-      ElMessage({
-        type: "success",
-        message: `is:${value}`
+      if (value < row.shipped_number) {
+        ElMessage.error("数量不可低于该产品已发货数")
+        return
+      }
+      updatePiNumberApi({
+        id: row.id,
+        number: value
+      }).then(() => {
+        ElMessage.success("修改成功")
+        getTableData()
       })
     })
     .catch(() => {

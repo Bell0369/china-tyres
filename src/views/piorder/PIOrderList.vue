@@ -4,8 +4,7 @@ import { Search, CirclePlus, Refresh, EditPen } from "@element-plus/icons-vue"
 import { getPiListApi, deletePiListApi, updatePiQuantityApi } from "@/api/order"
 import { usePagination } from "@/hooks/usePagination"
 import { useDeleteList } from "@/hooks/useDeleteList"
-import { useBrandSelect } from "@/hooks/useSelectOption"
-import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { useUpdateQuantity } from "@/hooks/useUpdateQuantity"
 
@@ -21,8 +20,8 @@ const { paginationData, handleCurrentChange, handleSizeChange } = usePagination(
 // 品牌
 const { brandOptions } = useBrandSelect()
 
-//工厂
-const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+//工厂代碼
+const factoryCodeOptions = useFactoryCodeSelect()
 
 // 客户
 const { loadClient, optionsClient, loadClientData } = useClientSelect()
@@ -129,18 +128,10 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
             <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="factory_code" label="工廠">
-          <el-select
-            v-model="searchData.factory_code"
-            filterable
-            remote
-            remote-show-suffix
-            :remote-method="loadFactoryData"
-            :loading="loadFactory"
-            style="width: 150px"
-          >
+        <el-form-item prop="factory_code" label="工廠代碼">
+          <el-select v-model="searchData.factory_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option v-for="item in factoryCodeOptions" :key="item.id" :label="item.name" :value="item.code" />
           </el-select>
         </el-form-item>
         <el-form-item>

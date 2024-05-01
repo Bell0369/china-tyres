@@ -1,10 +1,11 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getClientListApi, deleteClientListApi } from "@/api/users"
-import { ElMessage, ElMessageBox, ElButton } from "element-plus"
+import { ElButton } from "element-plus"
 import { Search, Refresh } from "@element-plus/icons-vue"
+import { getInvListApi, deleteSellInvApi, exportInvApi } from "@/api/order"
 import { usePagination } from "@/hooks/usePagination"
-import { useRouter } from "vue-router"
+import { useDeleteList } from "@/hooks/useDeleteList"
+import { useClientSelect } from "@/hooks/useClientSelect"
 
 defineOptions({
   name: "DeliveryList"
@@ -13,44 +14,35 @@ defineOptions({
 const loading = ref(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`正在刪除用戶 ${row.client_name}，確認刪除？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      deleteClientListApi(row.id).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+// 客户
+const { loadClient, optionsClient, loadClientData } = useClientSelect()
+
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: deleteSellInvApi,
+  text: "销售发票"
+})
+// 删除/修改柜量 成功
+watch([isDeleted], () => {
+  getTableData()
+})
 
 //#region 查
 const tableData = ref([])
 const searchFormRef = ref(null)
 const searchData = reactive({
   keyword: "",
-  payment_terms: "",
-  data: ""
+  status: "",
+  client_code: ""
 })
 const getTableData = () => {
   loading.value = true
-  getClientListApi({
+  getInvListApi({
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
     keyword: searchData.keyword || undefined,
-    payment_terms: searchData.payment_terms || undefined,
-    user_id: searchData.user_id || undefined
+    status: searchData.status,
+    client_code: searchData.client_code || undefined
   })
     .then(({ data }) => {
       paginationData.total = data.total
@@ -77,15 +69,20 @@ const resetSearch = () => {
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
 
-const router = useRouter()
-// 改
-const handleView = (row) => {
-  router.push({
-    path: "/invoice/invoiceitem",
-    query: {
-      id: row.id
-    }
+// 下载
+const getExportInv = (row) => {
+  exportInvApi({
+    id: row.id
   })
+    .then((data) => {
+      const downloadLink = document.createElement("a")
+      downloadLink.href = URL.createObjectURL(data)
+      downloadLink.download = `${row.inv_no}.xlsx`
+      downloadLink.click()
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 </script>
 
@@ -93,25 +90,32 @@ const handleView = (row) => {
   <div class="app-container">
     <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
-        <el-form-item prop="username" label="訂單">
+        <el-form-item prop="keyword" label="訂單">
           <el-input
             v-model="searchData.keyword"
             placeholder="請輸入客戶名稱、PI號，發票號，採購發票號"
             style="width: 300px"
           />
         </el-form-item>
-        <el-form-item prop="state" label="應收狀態">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+        <el-form-item prop="status" label="應收狀態">
+          <el-select v-model="searchData.status" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option label="未收" :value="0" />
+            <el-option label="已收" :value="1" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="state" label="客戶編碼">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+        <el-form-item prop="client_code" label="客戶編碼">
+          <el-select
+            v-model="searchData.client_code"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadClientData"
+            :loading="loadClient"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -122,22 +126,32 @@ const handleView = (row) => {
     </el-card>
     <el-card v-loading="loading" shadow="never">
       <div class="table-wrapper">
-        <el-table ref="tableRef" :data="tableData">
-          <el-table-column prop="client_name" label="銷售發票號" align="center" />
-          <el-table-column prop="username" label="客戶編碼" align="center" />
-          <el-table-column prop="advance_payment" label="金額" align="center" />
-          <el-table-column prop="advance_payment" label="附加金額" align="center" />
-          <el-table-column prop="advance_payment" label="其他費用" align="center" />
-          <el-table-column prop="advance_payment" label="應收狀態" align="center">
+        <el-table :data="tableData" border>
+          <el-table-column prop="inv_no" label="銷售發票號" align="center" />
+          <el-table-column prop="client_code" label="客戶編碼" align="center" />
+          <el-table-column prop="product_total_price" label="金額" align="center" />
+          <el-table-column prop="inv_fee" label="附加金額" align="center" />
+          <el-table-column prop="other_fee_price" label="其他費用" align="center" />
+          <el-table-column prop="status" label="應收狀態" align="center">
             <template #default="scope">
-              <el-tag type="success"> {{ scope.row.advance_payment }} 已收 </el-tag>
+              <el-tag type="danger" v-if="scope.row.status"> 未收 </el-tag>
+              <el-tag type="success" v-else> 已收 </el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="150" align="center">
+          <el-table-column fixed="right" label="操作" width="200" align="center">
             <template #default="scope">
-              <el-button type="success" text bg size="small" @click="handleView(scope.row)">查看</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button
+                type="success"
+                text
+                bg
+                size="small"
+                tag="router-link"
+                :to="`/invoice/invoiceitem?id=${scope.row.id}`"
+                >查看</el-button
+              >
+              <el-button type="warning" text bg size="small" @click="getExportInv(scope.row)">下载</el-button>
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

@@ -7,7 +7,7 @@ import { getToken, setToken } from "./cache/cookies"
 /** 退出登录并强制刷新页面（会重定向到登录页） */
 function logout() {
   useUserStoreHook().logout()
-  location.reload()
+  // location.reload()
 }
 
 // 刷新 Token 并重试请求
@@ -66,7 +66,8 @@ function createService() {
       // 如果没有 code, 代表这不是项目后端开发的 api
       if (code === undefined) {
         ElMessage.error("非本系统的接口")
-        return Promise.reject(new Error("非本系统的接口"))
+        return apiData
+        // return Promise.reject(new Error("非本系统的接口"))
       }
       switch (code) {
         case 200:
@@ -140,7 +141,7 @@ function createRequest(service: AxiosInstance) {
         Authorization: token ? `Bearer ${token}` : undefined,
         "Content-Type": "application/json"
       },
-      timeout: 5000,
+      timeout: 8000,
       baseURL: import.meta.env.VITE_BASE_API,
       data: {}
     }

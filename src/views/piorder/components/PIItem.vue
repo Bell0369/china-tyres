@@ -1,5 +1,5 @@
 <script setup>
-import { watch, defineEmits } from "vue"
+import { ref, watch, defineEmits } from "vue"
 import { EditPen } from "@element-plus/icons-vue"
 import { useUpdateQuantity } from "@/hooks/useUpdateQuantity"
 import { updatePiQuantityApi } from "@/api/order"
@@ -7,6 +7,7 @@ import { updatePiQuantityApi } from "@/api/order"
 defineOptions({
   name: "PIItem"
 })
+
 const { infoData, isStatus } = defineProps(["infoData", "isStatus"])
 
 // 修改柜量
@@ -19,10 +20,15 @@ const emits = defineEmits(["data-change"])
 watch([isQuantity], () => {
   emits("data-change")
 })
+
+const loading = ref(true)
+setTimeout(() => {
+  loading.value = false
+}, 1500)
 </script>
 
 <template>
-  <el-card shadow="never" class="search-wrapper">
+  <el-card v-loading="loading" shadow="never" class="search-wrapper">
     <div class="m-b">
       <div class="flex justify-between">
         <el-text tag="b" size="large">PI基本信息</el-text>
@@ -40,7 +46,16 @@ watch([isQuantity], () => {
     <el-descriptions :column="3" border>
       <el-descriptions-item label="訂單號">{{ infoData.order_no }}</el-descriptions-item>
       <el-descriptions-item label="PI號">{{ infoData.pi_no }}</el-descriptions-item>
-      <el-descriptions-item label="發貨計劃號">{{ infoData.delivery_plan_no }}</el-descriptions-item>
+      <el-descriptions-item label="發貨計劃號">
+        <el-text
+          v-for="item in infoData.delivery_plan_no"
+          :key="item.id"
+          type="primary"
+          style="padding-right: 10px; display: inline-block"
+        >
+          <router-link :to="`/delivery/deliveryitem?id=${item.id}}`">{{ item.delivery_plan_no }}</router-link>
+        </el-text>
+      </el-descriptions-item>
       <el-descriptions-item label="訂單總數量">{{ infoData.order_number }}</el-descriptions-item>
       <el-descriptions-item label="未生產數量">{{ infoData.unproduced }}</el-descriptions-item>
       <el-descriptions-item label="PI數量">{{ infoData.product_total_number }}</el-descriptions-item>

@@ -56,7 +56,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         name: "Dashboard",
         meta: {
           title: "首页",
-          svgIcon: "dashboard",
+          svgIcon: "home",
           name: "Home",
           affix: true
         }
@@ -71,234 +71,6 @@ export const constantRoutes: RouteRecordRaw[] = [
  * 必须带有 Name 属性
  */
 export const dynamicRoutes: RouteRecordRaw[] = [
-  {
-    path: "/product",
-    component: Layouts,
-    redirect: "/product/productlist",
-    name: "Product",
-    meta: {
-      title: "產品管理"
-    },
-    children: [
-      {
-        path: "productlist",
-        component: () => import("@/views/product/ProductList.vue"),
-        name: "ProductList",
-        meta: {
-          title: "產品管理",
-          svgIcon: "dashboard",
-          name: "Product",
-          keepAlive: true
-        }
-      },
-      {
-        path: "productitem",
-        component: () => import("@/views/product/ProductItem.vue"),
-        name: "ProductItem",
-        meta: {
-          title: "產品詳情",
-          name: "Product",
-          hidden: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/order",
-    component: Layouts,
-    redirect: "/order/orderlist",
-    name: "Order",
-    meta: {
-      title: "訂單管理"
-    },
-    children: [
-      {
-        path: "orderlist",
-        component: () => import("@/views/order/OrderList.vue"),
-        name: "OrderList",
-        meta: {
-          title: "訂單管理",
-          svgIcon: "dashboard",
-          keepAlive: true,
-          name: "Order"
-        }
-      },
-      {
-        path: "orderitem",
-        component: () => import("@/views/order/OrderItem.vue"),
-        name: "OrderItem",
-        meta: {
-          title: "訂單詳情",
-          hidden: true,
-          name: "Order"
-        }
-      },
-      {
-        path: "orderupload",
-        component: () => import("@/views/order/OrderUpload.vue"),
-        name: "OrderUpload",
-        meta: {
-          title: "上傳訂單",
-          hidden: true,
-          name: "Order"
-        }
-      }
-    ]
-  },
-  {
-    path: "/piorder",
-    component: Layouts,
-    redirect: "/piorder/piorderlist",
-    name: "PIOrder",
-    meta: {
-      title: "PI管理"
-    },
-    children: [
-      {
-        path: "piorderlist",
-        component: () => import("@/views/piorder/PIOrderList.vue"),
-        name: "PIOrderList",
-        meta: {
-          title: "PI管理",
-          svgIcon: "dashboard",
-          name: "PIOrder",
-          keepAlive: true
-        }
-      },
-      {
-        path: "piorderitem",
-        component: () => import("@/views/piorder/PIOrderItem.vue"),
-        name: "PIOrderItem",
-        meta: {
-          title: "PI詳情",
-          name: "PIOrder",
-          hidden: true
-        }
-      },
-      {
-        path: "piorderupload",
-        component: () => import("@/views/piorder/PIOrderUpload.vue"),
-        name: "PIOrderUpload",
-        meta: {
-          title: "上傳PI",
-          name: "PIOrder",
-          hidden: true
-        }
-      },
-      {
-        path: "pidelivery",
-        component: () => import("@/views/piorder/PIDelivery.vue"),
-        name: "PIDelivery",
-        meta: {
-          title: "PI發貨計劃",
-          name: "PIOrder",
-          hidden: true
-        }
-      },
-      {
-        path: "filedelivery",
-        component: () => import("@/views/piorder/FileDelivery.vue"),
-        name: "FileDelivery",
-        meta: {
-          title: "文件發貨計劃",
-          name: "PIOrder",
-          hidden: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/delivery",
-    component: Layouts,
-    redirect: "/delivery/deliverylist",
-    name: "Delivery",
-    meta: {
-      title: "發貨計劃"
-    },
-    children: [
-      {
-        path: "deliverylist",
-        component: () => import("@/views/delivery/DeliveryList.vue"),
-        name: "DeliveryList",
-        meta: {
-          title: "發貨計劃",
-          svgIcon: "dashboard",
-          name: "Delivery",
-          keepAlive: true
-        }
-      },
-      {
-        path: "deliveryitem",
-        component: () => import("@/views/delivery/DeliveryItem.vue"),
-        name: "DeliveryItem",
-        meta: {
-          title: "發貨計劃詳情",
-          name: "Delivery",
-          hidden: true
-        }
-      },
-      {
-        path: "deliveryupload",
-        component: () => import("@/views/delivery/DeliveryUpload.vue"),
-        name: "DeliveryUpload",
-        meta: {
-          title: "上傳發貨計劃",
-          name: "Delivery",
-          hidden: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/invoice",
-    component: Layouts,
-    redirect: "/invoice/invoicelist",
-    name: "Invoice",
-    meta: {
-      title: "銷售發票"
-    },
-    children: [
-      {
-        path: "invoicelist",
-        component: () => import("@/views/invoice/InvoiceList.vue"),
-        name: "InvoiceList",
-        meta: {
-          title: "銷售發票",
-          svgIcon: "dashboard",
-          name: "Invoice",
-          keepAlive: true
-        }
-      },
-      {
-        path: "invoiceitem",
-        component: () => import("@/views/invoice/InvoiceItem.vue"),
-        name: "InvoiceItem",
-        meta: {
-          title: "發票詳情",
-          name: "Invoice",
-          hidden: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/payment",
-    component: Layouts,
-    redirect: "/payment/paymentlist",
-    name: "Payment",
-    children: [
-      {
-        path: "paymentlist",
-        component: () => import("@/views/payment/PaymentList.vue"),
-        name: "PaymentList",
-        meta: {
-          title: "應收應付",
-          svgIcon: "dashboard",
-          keepAlive: true
-        }
-      }
-    ]
-  },
   {
     path: "/users",
     component: Layouts,
@@ -365,7 +137,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "ForemanList",
         meta: {
           title: "工廠管理",
-          svgIcon: "dashboard",
+          svgIcon: "factory",
           name: "Foreman",
           keepAlive: true
         }
@@ -377,6 +149,246 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "工廠詳情",
           name: "Foreman",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/order",
+    component: Layouts,
+    redirect: "/order/orderlist",
+    name: "Order",
+    meta: {
+      title: "訂單管理"
+    },
+    children: [
+      {
+        path: "orderlist",
+        component: () => import("@/views/order/OrderList.vue"),
+        name: "OrderList",
+        meta: {
+          title: "訂單管理",
+          svgIcon: "order",
+          keepAlive: true,
+          name: "Order"
+        }
+      },
+      {
+        path: "orderitem",
+        component: () => import("@/views/order/OrderItem.vue"),
+        name: "OrderItem",
+        meta: {
+          title: "訂單詳情",
+          hidden: true,
+          name: "Order"
+        }
+      },
+      {
+        path: "orderupload",
+        component: () => import("@/views/order/OrderUpload.vue"),
+        name: "OrderUpload",
+        meta: {
+          title: "上傳訂單",
+          hidden: true,
+          name: "Order"
+        }
+      }
+    ]
+  },
+  {
+    path: "/piorder",
+    component: Layouts,
+    redirect: "/piorder/piorderlist",
+    name: "PIOrder",
+    meta: {
+      title: "PI管理"
+    },
+    children: [
+      {
+        path: "piorderlist",
+        component: () => import("@/views/piorder/PIOrderList.vue"),
+        name: "PIOrderList",
+        meta: {
+          title: "PI管理",
+          svgIcon: "piorder",
+          name: "PIOrder",
+          keepAlive: true
+        }
+      },
+      {
+        path: "piorderitem",
+        component: () => import("@/views/piorder/PIOrderItem.vue"),
+        name: "PIOrderItem",
+        meta: {
+          title: "PI詳情",
+          name: "PIOrder",
+          hidden: true
+        }
+      },
+      {
+        path: "piorderupload",
+        component: () => import("@/views/piorder/PIOrderUpload.vue"),
+        name: "PIOrderUpload",
+        meta: {
+          title: "上傳PI",
+          name: "PIOrder",
+          hidden: true
+        }
+      },
+      {
+        path: "pidelivery",
+        component: () => import("@/views/piorder/PIDelivery.vue"),
+        name: "PIDelivery",
+        meta: {
+          title: "PI發貨計劃",
+          name: "PIOrder",
+          hidden: true
+        }
+      },
+      {
+        path: "filedelivery",
+        component: () => import("@/views/piorder/FileDelivery.vue"),
+        name: "FileDelivery",
+        meta: {
+          title: "文件發貨計劃",
+          name: "PIOrder",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/delivery",
+    component: Layouts,
+    redirect: "/delivery/deliverylist",
+    name: "Delivery",
+    meta: {
+      title: "發貨計劃"
+    },
+    children: [
+      {
+        path: "deliverylist",
+        component: () => import("@/views/delivery/DeliveryList.vue"),
+        name: "DeliveryList",
+        meta: {
+          title: "發貨計劃",
+          svgIcon: "delivery",
+          name: "Delivery",
+          keepAlive: true
+        }
+      },
+      {
+        path: "deliveryitem",
+        component: () => import("@/views/delivery/DeliveryItem.vue"),
+        name: "DeliveryItem",
+        meta: {
+          title: "發貨計劃詳情",
+          name: "Delivery",
+          hidden: true
+        }
+      },
+      {
+        path: "deliveryupload",
+        component: () => import("@/views/delivery/DeliveryUpload.vue"),
+        name: "DeliveryUpload",
+        meta: {
+          title: "上傳發貨計劃",
+          name: "Delivery",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/invoice",
+    component: Layouts,
+    redirect: "/invoice/invoicelist",
+    name: "Invoice",
+    meta: {
+      title: "銷售發票"
+    },
+    children: [
+      {
+        path: "invoicelist",
+        component: () => import("@/views/invoice/InvoiceList.vue"),
+        name: "InvoiceList",
+        meta: {
+          title: "銷售發票",
+          svgIcon: "inventory",
+          name: "Invoice",
+          keepAlive: true
+        }
+      },
+      {
+        path: "invoiceitem",
+        component: () => import("@/views/invoice/InvoiceItem.vue"),
+        name: "InvoiceItem",
+        meta: {
+          title: "發票詳情",
+          name: "Invoice",
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/payment",
+    component: Layouts,
+    redirect: "/payment/paymentlist",
+    name: "Payment",
+    meta: {
+      title: "應收應付",
+      svgIcon: "payment"
+    },
+    children: [
+      {
+        path: "paymentlist",
+        component: () => import("@/views/payment/PaymentList.vue"),
+        name: "PaymentList",
+        meta: {
+          title: "應收應付",
+          name: "Payment"
+        }
+      },
+      {
+        path: "prepayments",
+        component: () => import("@/views/payment/Prepayments.vue"),
+        name: "Prepayments",
+        meta: {
+          title: "預付款",
+          name: "Payment"
+        }
+      }
+    ]
+  },
+  {
+    path: "/product",
+    component: Layouts,
+    redirect: "/product/productlist",
+    name: "Product",
+    meta: {
+      title: "產品管理"
+    },
+    children: [
+      {
+        path: "productlist",
+        component: () => import("@/views/product/ProductList.vue"),
+        name: "ProductList",
+        meta: {
+          title: "產品管理",
+          svgIcon: "product",
+          name: "Product",
+          keepAlive: true
+        }
+      },
+      {
+        path: "productitem",
+        component: () => import("@/views/product/ProductItem.vue"),
+        name: "ProductItem",
+        meta: {
+          title: "產品詳情",
+          name: "Product",
           hidden: true
         }
       }
@@ -417,6 +429,27 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           name: "Configuration",
           title: "發貨方式"
+        }
+      }
+    ]
+  },
+  {
+    path: "/report",
+    component: Layouts,
+    redirect: "/report/index",
+    name: "Report",
+    meta: {
+      title: "統計報表"
+    },
+    children: [
+      {
+        path: "index",
+        component: () => import("@/views/report/index.vue"),
+        name: "ReportList",
+        meta: {
+          title: "統計報表",
+          svgIcon: "report",
+          name: "Report"
         }
       }
     ]

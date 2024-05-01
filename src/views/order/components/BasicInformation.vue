@@ -30,16 +30,16 @@ watch([isQuantity], () => {
       <el-descriptions :column="3" border>
         <el-descriptions-item label="訂單號" width="200px">{{ orderInfo.order_no }}</el-descriptions-item>
         <el-descriptions-item label="PI號" :span="2">
-          <el-link
-            v-for="item in orderInfo.pi_no"
-            :key="item"
-            herf="#"
+          <el-text
+            v-for="item in orderInfo.pi_info"
+            :key="item.id"
             type="primary"
             style="padding-right: 10px; display: inline-block"
-            >{{ item }}</el-link
           >
+            <router-link :to="`/piorder/piorderitem?id=${item.id}}`">{{ item.pi_no }}</router-link>
+          </el-text>
         </el-descriptions-item>
-        <el-descriptions-item label="訂單總數量" width="200px">{{ orderInfo.order_number_sum }}</el-descriptions-item>
+        <el-descriptions-item label="訂單總數量" width="200px">{{ orderInfo.number }}</el-descriptions-item>
         <el-descriptions-item label="未生產數量" width="200px">{{ orderInfo.unproduced }}</el-descriptions-item>
         <el-descriptions-item label="PI數量" width="200px">{{ orderInfo.pi_number }}</el-descriptions-item>
         <el-descriptions-item label="PI已發貨數">{{ orderInfo.pi_shipped }}</el-descriptions-item>
@@ -48,15 +48,13 @@ watch([isQuantity], () => {
           {{ orderInfo.quantity }}
           <EditPen @click="handleUpdateQuantity(orderInfo)" class="w4 h4 cursor-pointer hover:c-blue" />
         </el-descriptions-item>
-        <el-descriptions-item label="訂單總金額">{{ orderInfo.order_price_sum }}</el-descriptions-item>
-        <el-descriptions-item label="起運港">{{ orderInfo.start_harbor }}</el-descriptions-item>
-        <el-descriptions-item label="目的港">{{ orderInfo.end_harbor }}</el-descriptions-item>
-        <el-descriptions-item label="商品描述">{{ orderInfo.goods_description }}</el-descriptions-item>
+        <el-descriptions-item label="訂單總金額">{{ orderInfo.price }}</el-descriptions-item>
+        <el-descriptions-item label="起運港">{{ orderInfo.originating }}</el-descriptions-item>
+        <el-descriptions-item label="目的港">{{ orderInfo.destination }}</el-descriptions-item>
+        <el-descriptions-item label="商品描述">{{ orderInfo.destination }}</el-descriptions-item>
         <el-descriptions-item label="Remarks" :span="2">{{ orderInfo.remarks }}</el-descriptions-item>
         <el-descriptions-item label="Packing">{{ orderInfo.packing }}</el-descriptions-item>
-        <el-descriptions-item label="Terms of Pay ment" :span="2">{{
-          orderInfo.terms_of_payment
-        }}</el-descriptions-item>
+        <el-descriptions-item label="Terms of Pay ment" :span="2">{{ orderInfo.terms_payment }}</el-descriptions-item>
       </el-descriptions>
     </el-card>
   </div>

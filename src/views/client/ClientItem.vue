@@ -1,14 +1,14 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue"
+import { ref, reactive, onMounted, watch } from "vue"
 import { Tickets } from "@element-plus/icons-vue"
 import ClientProduct from "./ClientProduct.vue"
 import { useRoute } from "vue-router"
 import { Dialog } from "@/components/Dialog"
-import PrepayMents from "./components/PrepayMents.vue"
 import { getUserListApi, updateClientListApi, viewClientShowApi } from "@/api/users"
-import { useeDeliverTypeSelect, usePayMentSelect } from "@/hooks/useSelectOption.js"
+import { useeDeliverTypeSelect, usePayMentSelect } from "@/hooks/useSelectOption"
 import { ElMessage } from "element-plus"
 import AddressList from "@/views/componrnts/address/AddressList.vue"
+import PrepayMents from "@/views/componrnts/prepayments/PrepayMents.vue"
 
 defineOptions({
   name: "ClientItem"
@@ -17,29 +17,27 @@ defineOptions({
 const route = useRoute()
 
 const { eDeliverTypeOptions } = useeDeliverTypeSelect()
+
 const { PayMentOptions } = usePayMentSelect()
+
 // 員工列表
 const loading2 = ref(false)
 const userOptions = ref([])
 const remoteMethod = (query) => {
-  console.log(query)
-  if (query) {
-    loading2.value = true
-    getUserListApi({
-      keyword: query || undefined
+  loading2.value = true
+  getUserListApi({
+    keyword: query || undefined
+  })
+    .then(({ data }) => {
+      const list = data.data
+      userOptions.value = list
     })
-      .then(({ data }) => {
-        const list = data.data
-        console.log(list)
-        userOptions.value = list
-      })
-      .catch(() => {
-        userOptions.value = []
-      })
-      .finally(() => {
-        loading2.value = false
-      })
-  }
+    .catch(() => {
+      userOptions.value = []
+    })
+    .finally(() => {
+      loading2.value = false
+    })
 }
 
 const dialogVisible = ref(false)
@@ -56,7 +54,8 @@ const ruleForm = reactive({
   commission_ratio: "",
   is_commission: 0,
   is_deliver_project: 1,
-  is_check_deliver_project: 0
+  is_check_deliver_project: 0,
+  client_contact_id: null
 })
 
 const rules = reactive({
@@ -73,7 +72,9 @@ const rules = reactive({
 onMounted(() => {
   getClientShow()
 })
+
 // 基本信息
+const isProduct = ref(null)
 const getClientShow = () => {
   loading.value = true
   viewClientShowApi({
@@ -90,6 +91,8 @@ const getClientShow = () => {
     userOptions.value.push(obj)
     Object.assign(ruleForm, datas)
     loading.value = false
+
+    isProduct.value = datas.client_contact_id
   })
 }
 
@@ -107,6 +110,25 @@ const submitForm = (formEl) => {
     }
   })
 }
+
+// 監聽
+let isInit = false
+const isSubmitForm = ref(true)
+watch([ruleForm], () => {
+  if (!isInit) {
+    isInit = true
+    return
+  }
+  isSubmitForm.value = false
+})
+
+const updataContact = (value) => {
+  ruleForm.client_contact_id = value
+}
+
+const handleEditPayment = (value) => {
+  ruleForm.advance_payment = value
+}
 </script>
 
 <template>
@@ -115,7 +137,7 @@ const submitForm = (formEl) => {
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">客戶基本信息</el-text>
-          <el-button type="primary" @click="submitForm(ruleFormRef)">保存</el-button>
+          <el-button type="primary" @click="submitForm(ruleFormRef)" :disabled="isSubmitForm">保存</el-button>
         </div>
       </div>
       <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
@@ -203,14 +225,14 @@ const submitForm = (formEl) => {
     </el-card>
 
     <!-- 聯繫人信息 -->
-    <AddressList :userId="route.query.id" addressType="client" />
+    <address-list @updataContact="updataContact" :defaultId="ruleForm.client_contact_id" addressType="client" />
 
     <el-card shadow="never">
-      <ClientProduct :userId="route.query.id" />
+      <client-product :isProduct="isProduct" />
     </el-card>
 
     <Dialog v-model="dialogVisible" title="預付款">
-      <PrepayMents :rowId="dialogId" />
+      <prepay-ments isType="client" @handle-editPayment="handleEditPayment" :id="route.query.id" />
     </Dialog>
   </div>
 </template>

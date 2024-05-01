@@ -2,11 +2,13 @@
 import { ref, watch, reactive } from "vue"
 import { Search, Refresh } from "@element-plus/icons-vue"
 import { ElMessage } from "element-plus"
+import { useRoute } from "vue-router"
 import {
   getFactoryProductListApi,
-  deleteClientProductApi,
+  deleteFactoryProductApi,
   getFactoryProductShowApi,
-  updateFactoryAddProductApi
+  updateFactoryAddProductApi,
+  updateAllFactoryProductApi
 } from "@/api/users"
 import { getProductListApi, getProductShowApi } from "@/api/product"
 import { usePagination } from "@/hooks/usePagination"
@@ -15,13 +17,18 @@ import updatePrice from "@/views/componrnts/updatePrice/updatePrice.vue"
 
 const loading = ref(false)
 
+const route = useRoute()
+
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-const props = defineProps(["userId"])
+const props = defineProps({
+  isProduct: Number
+})
+// const props = defineProps(["userId"])
 
 // 删除
 const { handleDelete, isDeleted } = useDeleteList({
-  api: deleteClientProductApi,
+  api: deleteFactoryProductApi,
   text: "產品"
 })
 
@@ -39,7 +46,7 @@ const getTableData = () => {
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
     keyword: keyword.value || undefined,
-    id: props.userId
+    id: route.query.id
   })
     .then(({ data }) => {
       paginationData.total = data.total
@@ -106,10 +113,10 @@ const handleUpdate = (row) => {
       productForm.id = data.id
       // 默認選中
       productOptions.value.push({
-        id: data.id,
+        id: data.product_id,
         name: data.name
       })
-      productForm.product_id = data.id
+      productForm.product_id = data.product_id
 
       Object.assign(infoData, data)
     })
@@ -139,7 +146,7 @@ const productFormRef = ref()
 const productForm = reactive({
   product_id: "",
   price: "",
-  factory_id: props.userId
+  factory_id: route.query.id
 })
 
 const rules = reactive({
@@ -172,13 +179,21 @@ const submitProductSum = () => {
     ElMessage.error("請輸入金額/百分比")
     return
   }
-  childData.factory_id = props.userId
-  // updateAllClientProductApi(childData).then(() => {
-  //   ElMessage.success("操作成功")
-  //   dialogVisible2.value = false
-  //   getTableData()
-  // })
+  childData.factory_id = route.query.id
+  updateAllFactoryProductApi(childData).then(() => {
+    ElMessage.success("操作成功")
+    dialogVisible2.value = false
+    getTableData()
+  })
 }
+
+const defaultContact = ref(null)
+watch(
+  () => props.isProduct,
+  (newValue) => {
+    defaultContact.value = newValue
+  }
+)
 </script>
 
 <template>
@@ -187,8 +202,10 @@ const submitProductSum = () => {
       <div class="flex justify-between">
         <el-text tag="b" size="large">產品信息</el-text>
         <div>
-          <el-button type="primary" @click="dialogVisible2 = true">批量調整價格</el-button>
-          <el-button type="primary" @click="handleUpdate(0)">新增產品</el-button>
+          <el-button type="primary" @click="dialogVisible2 = true" :disabled="defaultContact === null"
+            >批量調整價格</el-button
+          >
+          <el-button type="primary" @click="handleUpdate(0)" :disabled="defaultContact === null">新增產品</el-button>
         </div>
       </div>
       <div class="m-t2">
@@ -208,7 +225,7 @@ const submitProductSum = () => {
         <el-table-column fixed="right" label="操作" width="150" align="center">
           <template #default="scope">
             <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row.id)">修改</el-button>
-            <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

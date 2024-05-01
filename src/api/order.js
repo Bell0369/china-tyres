@@ -10,7 +10,14 @@ export function getOrderListApi(params) {
   })
 }
 
-// 刪*
+// 刪
+export function deleteOrderApi(data) {
+  return request({
+    url: "order/deleteOrder",
+    method: "post",
+    data
+  })
+}
 
 // 修改柜量
 export function updateQuantityApi(data) {
@@ -52,6 +59,24 @@ export function getOrderDetailProductApi(params) {
   })
 }
 
+// 订单产品ETD时间查询options
+export function getEtdOptionsApi(params) {
+  return request({
+    url: "order/etdOptions",
+    method: "get",
+    params
+  })
+}
+
+// 订单产品ETD时间查询
+export function getEtdOrderProductSelectApi(params) {
+  return request({
+    url: "order/etdOrderProductSelect",
+    method: "get",
+    params
+  })
+}
+
 /** PI订单 */
 // 列表
 export function getPiListApi(params) {
@@ -62,12 +87,12 @@ export function getPiListApi(params) {
   })
 }
 
-// 刪*
-export function deletePiListApi(params) {
+// 刪
+export function deletePiListApi(data) {
   return request({
-    url: "order/piList",
-    method: "get",
-    params
+    url: "order/deletePi",
+    method: "post",
+    data
   })
 }
 
@@ -98,6 +123,15 @@ export function getPiProductDetailApi(params) {
     url: "order/piProductDetail",
     method: "get",
     params
+  })
+}
+
+// 修改PI数量
+export function updatePiNumberApi(data) {
+  return request({
+    url: "order/editPiNumber",
+    method: "post",
+    data
   })
 }
 
@@ -141,6 +175,24 @@ export function getDeliveryPlanListApi(params) {
   })
 }
 
+// 刪
+export function deleteDeliveryPlanApi(data) {
+  return request({
+    url: "delivery/deleteDeliveryPlan",
+    method: "post",
+    data
+  })
+}
+
+// 生成销售发票
+export function createInvApi(data) {
+  return request({
+    url: "delivery/createInv",
+    method: "post",
+    data
+  })
+}
+
 // 查詢發貨計劃號
 export function getDeliveryPlanNoApi(params) {
   return request({
@@ -177,5 +229,52 @@ export function getDeliveryPlanProductApi(params) {
     url: "delivery/deliveryPlanProduct",
     method: "get",
     params
+  })
+}
+
+/** 销售发票 */
+// 列表
+export function getInvListApi(params) {
+  return request({
+    url: "inv/invList",
+    method: "get",
+    params
+  })
+}
+
+// 导出發票
+export function exportInvApi(params) {
+  return request({
+    url: "inv/exportInv",
+    method: "get",
+    responseType: "blob",
+    params
+  })
+}
+
+// 刪
+export function deleteSellInvApi(data) {
+  return request({
+    url: "inv/deleteSellInv",
+    method: "post",
+    data
+  })
+}
+
+// 詳情
+export function getinvDetailApi(params) {
+  return request({
+    url: "inv/invDetail",
+    method: "get",
+    params
+  })
+}
+
+// 修改發票
+export function updateInvApi(data) {
+  return request({
+    url: "inv/editInv",
+    method: "post",
+    data
   })
 }

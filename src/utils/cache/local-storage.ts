@@ -58,3 +58,12 @@ export const setCachedViews = (views: string[]) => {
   localStorage.setItem(CacheKey.CACHED_VIEWS, JSON.stringify(views))
 }
 //#endregion
+
+//#region 记住密码
+export const getRememberMe = () => {
+  return localStorage.getItem("rememberMe")
+}
+export const setRememberMe = (views: object) => {
+  localStorage.setItem("rememberMe", JSON.stringify(views))
+}
+//#endregion

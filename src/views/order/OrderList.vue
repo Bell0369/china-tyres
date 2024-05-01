@@ -1,11 +1,10 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getOrderListApi, updateQuantityApi, deletePiListApi } from "@/api/order"
+import { getOrderListApi, updateQuantityApi, deleteOrderApi } from "@/api/order"
 import { ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh, EditPen } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
-import { useBrandSelect } from "@/hooks/useSelectOption"
-import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { useDeleteList } from "@/hooks/useDeleteList"
 import { useUpdateQuantity } from "@/hooks/useUpdateQuantity"
@@ -21,16 +20,16 @@ const { paginationData, handleCurrentChange, handleSizeChange } = usePagination(
 // 品牌
 const { brandOptions } = useBrandSelect()
 
-//工厂
-const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+//工厂代碼
+const factoryCodeOptions = useFactoryCodeSelect()
 
 // 客户
 const { loadClient, optionsClient, loadClientData } = useClientSelect()
 
 // 删除
 const { handleDelete, isDeleted } = useDeleteList({
-  api: deletePiListApi,
-  text: "PI"
+  api: deleteOrderApi,
+  text: "訂單"
 })
 
 // 修改柜量
@@ -126,21 +125,13 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
         <el-form-item prop="brand_code" label="品牌">
           <el-select v-model="searchData.brand_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.short" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="factory_code" label="工廠">
-          <el-select
-            v-model="searchData.factory_code"
-            filterable
-            remote
-            remote-show-suffix
-            :remote-method="loadFactoryData"
-            :loading="loadFactory"
-            style="width: 150px"
-          >
+        <el-form-item prop="factory_code" label="工廠代碼">
+          <el-select v-model="searchData.factory_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option v-for="item in factoryCodeOptions" :key="item.id" :label="item.name" :value="item.code" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -184,7 +175,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
                 >查看</el-button
               >
               <el-button type="warning" text bg size="small" @click="handleView(scope.row)">下载</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

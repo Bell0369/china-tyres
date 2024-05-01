@@ -1,14 +1,17 @@
 <script setup>
 import { reactive, ref, defineEmits } from "vue"
 import { getUserItemApi, updateUserItemApi } from "@/api/users"
-import { useSelectOptions } from "@/hooks/usSelectOptions"
+import { usePayMentSelect } from "@/hooks/useSelectOption"
 import { ElMessage } from "element-plus"
 
 defineOptions({
   name: "EditUser"
 })
 
-const { codeArr } = useSelectOptions()
+const loading = ref(false)
+
+// 部門
+const { roleOptions, codeArr } = usePayMentSelect()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -20,7 +23,7 @@ const ruleForm = reactive({
   email: "",
   sex: 0,
   status: 1,
-  role_id: 1,
+  role_id: "銷售部",
   remarks: ""
 })
 
@@ -102,24 +105,26 @@ const data = [
 
 const { rowId } = defineProps(["rowId"])
 if (rowId > 0) {
+  loading.value = true
   getUserItemApi({
     id: rowId
-  }).then(({ data }) => {
-    data.password = ""
-    Object.assign(ruleForm, data)
   })
+    .then(({ data }) => {
+      data.password = ""
+      Object.assign(ruleForm, data)
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 const emitEvents = defineEmits(["childEvent"])
 const submitForm = (formEl) => {
-  console.log(ruleForm)
   if (!formEl) return
   formEl.validate((valid, fields) => {
     if (valid) {
       updateUserItemApi(ruleForm).then(() => {
         ElMessage.success("操作成功")
         emitEvents("childEvent")
-        // dialogVisible.value = false
-        // getTableData()
       })
     } else {
       console.log("error submit!", fields)
@@ -130,7 +135,7 @@ const submitForm = (formEl) => {
 
 <template>
   <el-form label-position="left" label-width="80px" ref="ruleFormRef" :model="ruleForm" :rules="rules">
-    <div class="overflow-hidden">
+    <div v-loading="loading" class="overflow-hidden">
       <el-row :gutter="10">
         <el-col :span="12">
           <el-form-item label="用戶名稱" prop="username">
@@ -172,8 +177,7 @@ const submitForm = (formEl) => {
         <el-col :span="12">
           <el-form-item label="部門">
             <el-select v-model="ruleForm.role_id">
-              <el-option label="銷售部" :value="1" />
-              <el-option label="財務部" :value="2" />
+              <el-option v-for="item in roleOptions" :key="item.id" :label="item.name" :value="item.name" />
             </el-select>
           </el-form-item>
         </el-col>

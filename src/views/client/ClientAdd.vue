@@ -39,7 +39,7 @@ const ruleForm = reactive({
   client_encod: "",
   credit: "",
   payment_terms: "付款条件A",
-  deliver_type: "CTD",
+  deliver_type: 1,
   commission_ratio: "",
   is_commission: 0,
   is_deliver_project: 1,

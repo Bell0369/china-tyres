@@ -1,23 +1,37 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getFactoryListApi, deleteClientListApi, getUserListApi } from "@/api/users"
-import { ElMessage, ElMessageBox, ElButton } from "element-plus"
+import { getFactoryListApi, deleteFactoryApi, getUserListApi } from "@/api/users"
+import { ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
-import { useBrandSelect } from "@/hooks/useSelectOption.js"
+import { useBrandSelect } from "@/hooks/useSelectOption"
 import { Dialog } from "@/components/Dialog"
 import ForemanAdd from "./ForemanAdd.vue"
+import { useDeleteList } from "@/hooks/useDeleteList"
 
 defineOptions({
   name: "ForemanList"
 })
 
 const loading = ref(false)
+
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
+
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: deleteFactoryApi,
+  text: "工廠"
+})
+
+// 删除成功
+watch([isDeleted], () => {
+  getTableData()
+})
 
 //品牌
 const { brandOptions } = useBrandSelect()
+
 // 員工列表
 const loading2 = ref(false)
 const userOptions = ref([])
@@ -38,28 +52,6 @@ const remoteMethod = (query) => {
     })
 }
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`正在刪除用戶 ${row.client_name}，確認刪除？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      deleteClientListApi(row.id).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
-
 //#region 查
 const tableData = ref([])
 const searchFormRef = ref(null)
@@ -74,7 +66,6 @@ const getTableData = () => {
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
     keyword: searchData.keyword || undefined,
-    payment_terms: searchData.payment_terms || undefined,
     user_id: searchData.user_id || undefined
   })
     .then(({ data }) => {
@@ -134,7 +125,7 @@ const handleChildEvent = () => {
         <el-form-item prop="username" label="工廠名稱">
           <el-input v-model="searchData.keyword" placeholder="請輸入工廠名稱" style="width: 300px" />
         </el-form-item>
-        <el-form-item prop="payment_terms" label="品牌">
+        <el-form-item prop="payment_terms" label="品牌" style="display: none">
           <el-select v-model="searchData.payment_terms" style="width: 150px">
             <el-option label="全部" value="" />
             <el-option v-for="item in brandOptions" :label="item.name" :value="item.id" :key="item.id" />
@@ -183,7 +174,7 @@ const handleChildEvent = () => {
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">
               <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

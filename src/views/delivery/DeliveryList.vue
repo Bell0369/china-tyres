@@ -1,12 +1,11 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
-import { getDeliveryPlanListApi, deletePiListApi } from "@/api/order"
-import { ElButton } from "element-plus"
+import { getDeliveryPlanListApi, deleteDeliveryPlanApi, createInvApi } from "@/api/order"
+import { ElButton, ElMessage } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { useRouter } from "vue-router"
 import { usePagination } from "@/hooks/usePagination"
-import { useBrandSelect } from "@/hooks/useSelectOption"
-import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { useDeleteList } from "@/hooks/useDeleteList"
 
@@ -23,15 +22,15 @@ const { paginationData, handleCurrentChange, handleSizeChange } = usePagination(
 // 品牌
 const { brandOptions } = useBrandSelect()
 
-//工厂
-const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+//工厂代碼
+const factoryCodeOptions = useFactoryCodeSelect()
 
 // 客户
 const { loadClient, optionsClient, loadClientData } = useClientSelect()
 
 // 删除
 const { handleDelete, isDeleted } = useDeleteList({
-  api: deletePiListApi,
+  api: deleteDeliveryPlanApi,
   text: "發貨計劃"
 })
 
@@ -83,8 +82,24 @@ const handleSearch = () => {
 // 重置
 const resetSearch = () => {
   searchFormRef.value?.resetFields()
+  // orderType.value = 0
+  // searchData.is_check = undefined
+  // searchData.is_shipped = 0
   monthrangeData.value = ["", ""]
   handleSearch()
+}
+
+// 修改查詢狀態
+const orderType = ref(0)
+const updataOrderType = () => {
+  if (orderType.value === 2) {
+    searchData.is_check = 0
+    searchData.is_shipped = undefined
+  } else {
+    searchData.is_check = undefined
+    searchData.is_shipped = orderType.value
+  }
+  getTableData()
 }
 
 /** 监听分页参数的变化 */
@@ -98,6 +113,30 @@ const handleView = (row) => {
       id: row.id
     }
   })
+}
+
+// 生成发票
+const tableRef = ref(null)
+const CreateInvoice = () => {
+  const rows = tableRef.value.getSelectionRows()
+  if (rows.length > 0) {
+    const delivery_Arr = []
+    rows.forEach((item) => {
+      delivery_Arr.push(item.delivery_plan_no)
+    })
+    loading.value = true
+    createInvApi({
+      delivery_plan_no: delivery_Arr
+    })
+      .then((data) => {
+        console.log(data)
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  } else {
+    ElMessage.error("未选中需生成的订单")
+  }
 }
 </script>
 
@@ -135,21 +174,13 @@ const handleView = (row) => {
         <el-form-item prop="brand_code" label="品牌">
           <el-select v-model="searchData.brand_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.short" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="factory_code" label="工廠">
-          <el-select
-            v-model="searchData.factory_code"
-            filterable
-            remote
-            remote-show-suffix
-            :remote-method="loadFactoryData"
-            :loading="loadFactory"
-            style="width: 150px"
-          >
+        <el-form-item prop="factory_code" label="工廠代碼">
+          <el-select v-model="searchData.factory_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option v-for="item in factoryCodeOptions" :key="item.id" :label="item.name" :value="item.code" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -165,7 +196,7 @@ const handleView = (row) => {
             <router-link to="/delivery/deliveryupload">
               <el-button type="primary" :icon="CirclePlus">上傳裝箱單</el-button>
             </router-link>
-            <el-button class="ml" type="primary">銷售發票生成</el-button>
+            <el-button class="ml" type="primary" @click="CreateInvoice">銷售發票生成</el-button>
           </div>
           <div>
             <el-text size="large">未發貨PI總數量：</el-text>
@@ -174,14 +205,15 @@ const handleView = (row) => {
         </div>
       </div>
       <div class="mb5">
-        <el-radio-group v-model="searchData.is_shipped">
+        <el-radio-group v-model="orderType" fill="#29d" @change="updataOrderType">
           <el-radio-button label="未發貨" :value="0" />
           <el-radio-button label="已發貨" :value="1" />
           <el-radio-button label="待審批" :value="2" />
         </el-radio-group>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" border :data="tableData">
+        <el-table ref="tableRef" border :data="tableData" @selection-change="handleSelectionChange">
+          <el-table-column type="selection" width="55" align="center" />
           <el-table-column prop="delivery_plan_no" label="發貨計劃號" align="center" />
           <el-table-column prop="pi_no" label="PI號" align="center" />
           <el-table-column prop="client_code" label="客戶編碼" align="center" />
@@ -193,7 +225,7 @@ const handleView = (row) => {
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">
               <el-button type="success" text bg size="small" @click="handleView(scope.row)">查看</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

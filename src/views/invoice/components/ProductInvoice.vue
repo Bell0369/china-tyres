@@ -1,55 +1,80 @@
 <script setup>
-import { ref, reactive } from "vue"
-import { usePagination } from "@/hooks/usePagination"
+import { ref, defineProps, watch } from "vue"
 
 defineOptions({
-  name: "OrderProduct"
+  name: "ProductInvoice"
 })
 
-const { paginationData } = usePagination()
-
-//#region 查
-const searchFormRef = ref(null)
-const searchData = reactive({
-  keyword: "",
-  payment_terms: "",
-  data: ""
+const props = defineProps({
+  list: Object
 })
-const handleSearch = () => {
-  paginationData.currentPage === 1 ? getTableData() : (paginationData.currentPage = 1)
-}
-//#endregion
 
-// 重置
-const resetSearch = () => {
-  searchFormRef.value?.resetFields()
-  handleSearch()
-}
-
-const tableData = [
+const tableData = ref([])
+const tableDatas = ref([])
+watch(
+  () => props.list,
+  () => {
+    tableData.value = props.list
+    tableDatas.value = props.list
+  }
+)
+/*
+const data = [
   {
-    date: "PI10000",
-    family: [
+    pi_no_delivery_plan_no: "PI-kehubianma-1MV-202404-1",
+    item: [
       {
-        name: "Jerry"
+        product_name: "165/80R13 83T Ecodriver4",
+        number: 340,
+        unit_price: "336.00"
       },
       {
-        name: "Tyke"
+        product_name: "155/80R13 79T Ecodriver4",
+        number: 400,
+        unit_price: "336.00"
       }
     ]
   },
   {
-    date: "PI10000",
-    family: [
+    pi_no_delivery_plan_no: "PI-kehubianma-1MV-202404-2",
+    item: [
       {
-        name: "Jerry"
+        product_name: "165/80R13 83T Ecodriver4",
+        number: 340,
+        unit_price: "336.00"
       },
       {
-        name: "Tyke"
+        product_name: "155/80R13 79T Ecodriver4",
+        number: 400,
+        unit_price: "336.00"
       }
     ]
   }
 ]
+*/
+//#region 查
+const keyword = ref("")
+const handleSearch = () => {
+  const data = tableDatas.value
+  const results = []
+  data.forEach((obj) => {
+    const filteredItem = obj.item.filter((product) => product.product_name.includes(keyword.value))
+    if (filteredItem.length > 0) {
+      results.push({
+        ...obj,
+        item: filteredItem
+      })
+    }
+  })
+  console.log(results)
+  tableData.value = results
+}
+
+// 重置
+const resetSearch = () => {
+  keyword.value = ""
+  tableData.value = tableDatas.value
+}
 </script>
 
 <template>
@@ -58,9 +83,9 @@ const tableData = [
       <el-text tag="b" size="large">詳細信息</el-text>
     </div>
     <div>
-      <el-form ref="searchFormRef" :inline="true" :model="searchData">
-        <el-form-item prop="username" label="產品名稱">
-          <el-input v-model="searchData.keyword" placeholder="請輸入產品名稱" style="width: 300px" />
+      <el-form :inline="true">
+        <el-form-item label="產品名稱">
+          <el-input v-model="keyword" placeholder="請輸入產品名稱" style="width: 300px" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
@@ -72,22 +97,20 @@ const tableData = [
       <el-table-column type="expand">
         <template #default="props">
           <div class="px">
-            <el-table :data="props.row.family" border>
-              <el-table-column label="序號" prop="name" />
-              <el-table-column label="產品名稱" prop="name" />
-              <el-table-column label="數量" prop="name" />
-              <el-table-column label="價格" prop="name" />
-              <el-table-column label="金額" prop="name" />
-              <el-table-column label="櫃號" prop="name" />
-              <el-table-column label="鉛封號" prop="name" />
-              <el-table-column label="采購發票號" prop="name" />
+            <el-table :data="props.row.item">
+              <el-table-column label="序號" type="index" width="70" align="center" />
+              <el-table-column label="產品名稱" prop="product_name" />
+              <el-table-column label="數量" prop="number" />
+              <el-table-column label="價格" prop="unit_price" />
+              <el-table-column label="金額" prop="total_prices" />
+              <el-table-column label="櫃號" prop="container_no" />
+              <el-table-column label="鉛封號" prop="seal_no" />
+              <el-table-column label="采購發票號" prop="procurement_invoice_no" />
             </el-table>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="訂單號" prop="date" />
-      <el-table-column label="PI號" prop="date" />
-      <el-table-column label="發貨計劃號" prop="date" />
+      <el-table-column label="訂單號" prop="pi_no_delivery_plan_no" />
     </el-table>
   </div>
 </template>

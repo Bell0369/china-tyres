@@ -163,7 +163,7 @@ const filterTable = () => {
         <div class="flex justify-between">
           <el-text tag="b" size="large">信息核對</el-text>
           <div>
-            <el-text type="danger" style="padding-right: 15px">預付款：----</el-text>
+            <!-- <el-text type="danger" style="padding-right: 15px">預付款：----</el-text> -->
             <el-button type="primary" @click="submitForm(2)" :disabled="isSubmit">生成PI</el-button>
           </div>
         </div>

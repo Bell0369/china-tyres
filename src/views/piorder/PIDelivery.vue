@@ -90,7 +90,7 @@ const submitForm = () => {
     inputType: "textarea"
   })
     .then(({ value }) => {
-      ElMessage.success(value)
+      ElMessage.success(`备注${value}`)
       sendFormData()
     })
     .catch(() => {
@@ -117,7 +117,7 @@ const sendFormData = () => {
       id: item.id,
       product_name: item.product_name,
       brand_code: item.brand_code,
-      number: item.number
+      number: item.not_shipped_number
     }
     ruleForm.data_arr.push(data_arr)
   })
@@ -183,9 +183,10 @@ const sendFormData = () => {
         <el-table-column type="index" label="序號" width="80" align="center" />
         <el-table-column prop="product_name" label="產品名稱" align="center" />
         <el-table-column prop="unproduced" label="PI未分配發貨計劃數" align="center" />
-        <el-table-column prop="number" label="發貨數量" align="center" width="150">
+        <el-table-column prop="not_shipped_number" label="發貨數量" align="center" width="200">
           <template #default="scope">
-            <el-input v-model.number="scope.row.number" type="number" />
+            <el-input-number v-model.number="scope.row.not_shipped_number" :min="0" :max="scope.row.unproduced" />
+            <!-- <el-input v-model.number="scope.row.not_shipped_number" type="number" /> -->
           </template>
         </el-table-column>
       </el-table>

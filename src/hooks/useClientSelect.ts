@@ -19,7 +19,12 @@ export function useClientSelect() {
   const loadClientData = (query: string) => {
     loadClient.value = true
     keyword.value = query
-    getUserListThrottled()
+
+    if (query) {
+      getUserListThrottled()
+    } else {
+      remoteMethod()
+    }
   }
 
   /** 调用接口获取数据 */

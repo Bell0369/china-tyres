@@ -45,22 +45,65 @@ const check_remarks = ref("")
         <div class="m-b">
           <div class="flex justify-between">
             <el-text tag="b" size="large">發貨計劃基本信息</el-text>
-            <el-alert title="已發貨" type="success" effect="dark" :closable="false" show-icon style="width: auto" />
+            <!-- is_shipped:  0=未发货；1=已发货 -->
+            <!-- is_check: 0=待审核；1=已拒绝；2=已通过 -->
+            <el-alert
+              v-if="orderInfo4.is_check !== 2"
+              title="待审批"
+              type="error"
+              effect="dark"
+              :closable="false"
+              show-icon
+              style="width: auto"
+            />
+            <div v-else>
+              <el-alert
+                v-if="orderInfo4.is_shipped === 0"
+                title="未完全发货"
+                type="warning"
+                effect="dark"
+                :closable="false"
+                show-icon
+                style="width: auto"
+              />
+              <el-alert
+                v-else
+                title="已發貨"
+                type="success"
+                effect="dark"
+                :closable="false"
+                show-icon
+                style="width: auto"
+              />
+            </div>
           </div>
         </div>
         <el-descriptions :column="3" border>
-          <el-descriptions-item label="訂單號">{{ orderInfo1.order_no }}</el-descriptions-item>
+          <el-descriptions-item label="訂單號">
+            <el-text type="primary">
+              <router-link :to="`/order/orderitem?id=${orderInfo1.order_id}}`">{{ orderInfo1.order_no }}</router-link>
+            </el-text>
+          </el-descriptions-item>
           <el-descriptions-item label="PI號">{{ orderInfo1.pi_no }}</el-descriptions-item>
-          <el-descriptions-item label="發貨計劃號">{{ orderInfo1.delivery_plan_no }}</el-descriptions-item>
-          <el-descriptions-item label="關聯發貨計劃">
-            <el-link
-              v-for="item in orderInfo1.json_delivery_plan_no"
-              :key="item"
-              herf="#"
+          <el-descriptions-item label="發貨計劃號">
+            <el-text
+              v-for="item in orderInfo1.join_delivery_plan_no"
+              :key="item.id"
               type="primary"
               style="padding-right: 10px; display: inline-block"
-              >{{ item }}</el-link
             >
+              <router-link :to="`/piorder/piorderitem?id=${item.id}}`">{{ item.delivery_plan_no }}</router-link>
+            </el-text>
+          </el-descriptions-item>
+          <el-descriptions-item label="關聯發貨計劃">
+            <el-text
+              v-for="item in orderInfo1.json_delivery_plan_no"
+              :key="item.id"
+              type="primary"
+              style="padding-right: 10px; display: inline-block"
+            >
+              <router-link :to="`/piorder/piorderitem?id=${item.id}}`">{{ item.delivery_plan_no }}</router-link>
+            </el-text>
           </el-descriptions-item>
           <el-descriptions-item label="客戶編碼">{{ orderInfo1.client_code }}</el-descriptions-item>
           <el-descriptions-item label="採購發票號">{{ orderInfo1.procurement_invoice_no }}</el-descriptions-item>
@@ -91,7 +134,8 @@ const check_remarks = ref("")
           }}</el-descriptions-item>
         </el-descriptions>
       </div>
-      <div class="mt5">
+      <div class="mt5" v-if="orderInfo4.is_check !== 2">
+        <!-- is_check: 0=待审核；1=已拒绝；2=已通过 -->
         <div class="m-b">
           <el-text tag="b" size="large">審批</el-text>
         </div>

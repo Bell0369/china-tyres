@@ -1,46 +1,44 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
 import { getProductListApi } from "@/api/product"
-import { ElMessage, ElMessageBox, ElButton } from "element-plus"
+import { ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
 import { Dialog } from "@/components/Dialog"
 import EditProduct from "./EditProduct.vue"
-import { useBrandSelect } from "@/hooks/useSelectOption.js"
+import { useBrandSelect } from "@/hooks/useSelectOption"
+import { useFactorySelect } from "@/hooks/useFactorySelect"
+import { useClientSelect } from "@/hooks/useClientSelect"
+import { useDeleteList } from "@/hooks/useDeleteList"
 
 defineOptions({
   name: "ProductList"
 })
 
 const loading = ref(false)
+
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
 // 品牌
 const { brandOptions } = useBrandSelect()
 
-//#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm("確認刪除該品牌？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      console.log(row.id)
-      // deleteClientListApi(row.id).then(() => {
-      //   ElMessage.success("刪除成功")
-      //   getTableData()
-      // })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+//工厂
+const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
+
+// 客户
+const { loadClient, optionsClient, loadClientData } = useClientSelect()
+
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: getProductListApi,
+  text: "品牌"
+})
+
+// 删除/修改柜量 成功
+watch([isDeleted], () => {
+  getTableData()
+})
 
 //#region 查
 const tableData = ref([])
@@ -48,7 +46,8 @@ const searchFormRef = ref(null)
 const searchData = reactive({
   name: "",
   factory_id: "",
-  client_id: ""
+  client_id: "",
+  brand_id: ""
 })
 const getTableData = () => {
   loading.value = true
@@ -57,7 +56,8 @@ const getTableData = () => {
     page_size: paginationData.pageSize,
     name: searchData.name || undefined,
     factory_id: searchData.factory_id || undefined,
-    client_id: searchData.client_id || undefined
+    client_id: searchData.client_id || undefined,
+    brand_id: searchData.brand_id || undefined
   })
     .then(({ data }) => {
       paginationData.total = data.total
@@ -125,25 +125,39 @@ const handleChildEvent = () => {
   <div class="app-container">
     <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
-        <el-form-item prop="username" label="產品名稱">
+        <el-form-item prop="name" label="產品名稱">
           <el-input v-model="searchData.name" placeholder="請輸入產品名稱" style="width: 300px" />
         </el-form-item>
-        <el-form-item prop="state" label="客戶編碼">
-          <el-select v-model="searchData.client_id" style="width: 150px">
+        <el-form-item prop="client_id" label="客戶編碼">
+          <el-select
+            v-model="searchData.client_id"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadClientData"
+            :loading="loadClient"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="state" label="工廠名稱">
-          <el-select v-model="searchData.factory_id" style="width: 150px">
+        <el-form-item prop="factory_id" label="工廠名稱">
+          <el-select
+            v-model="searchData.factory_id"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadFactoryData"
+            :loading="loadFactory"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option label="付款条件A" value="付款条件A" />
-            <el-option label="付款条件B" value="付款条件B" />
+            <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="department" label="品牌">
-          <el-select v-model="searchData.client_id" style="width: 150px">
+        <el-form-item prop="brand_id" label="品牌">
+          <el-select v-model="searchData.brand_id" style="width: 150px">
             <el-option label="全部" value="" />
             <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
@@ -181,11 +195,14 @@ const handleChildEvent = () => {
             </template>
           </el-table-column>
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="200" align="center">
+          <el-table-column fixed="right" label="操作" width="130" align="center">
             <template #default="scope">
               <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row.id)">修改</el-button>
               <el-button type="success" text bg size="small" @click="handleView(scope.row)">查看</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)" style="display: none">
+                删除
+              </el-button>
             </template>
           </el-table-column>
         </el-table>

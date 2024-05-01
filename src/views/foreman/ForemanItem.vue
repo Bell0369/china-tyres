@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue"
+import { ref, reactive, onMounted, watch } from "vue"
 import { Tickets } from "@element-plus/icons-vue"
 import ForemanProduct from "./ForemanProduct.vue"
 import { useRoute } from "vue-router"
@@ -45,7 +45,8 @@ const ruleForm = reactive({
   name: "",
   factory_code: 1,
   factory_label_id: 1,
-  user_ids: []
+  user_ids: [],
+  factory_contact_id: null
 })
 
 const rules = reactive({
@@ -74,7 +75,9 @@ const submitInfo = async (formEl) => {
 onMounted(() => {
   getfactoryBasicInfo()
 })
+
 // 基本信息
+const isProduct = ref(null)
 const getfactoryBasicInfo = () => {
   loading.value = true
   getFactoryBasicInfoApi({
@@ -92,11 +95,33 @@ const getfactoryBasicInfo = () => {
     ruleForm.advance_payment = data.advance_payment
     ruleForm.id = data.id
     loading.value = false
+    ruleForm.factory_contact_id = data.factory_contact_id
+
+    isProduct.value = data.factory_contact_id
   })
 }
 
 // 預付款
 const dialogVisible = ref(false)
+
+// 監聽
+let isInit = false
+const isSubmitForm = ref(true)
+watch([ruleForm], () => {
+  if (!isInit) {
+    isInit = true
+    return
+  }
+  isSubmitForm.value = false
+})
+
+const updataContact = (value) => {
+  ruleForm.factory_contact_id = value
+}
+
+const handleEditPayment = (value) => {
+  ruleForm.advance_payment = value
+}
 </script>
 
 <template>
@@ -105,7 +130,7 @@ const dialogVisible = ref(false)
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">工廠基本信息</el-text>
-          <el-button type="primary" @click="submitInfo(ruleFormRef)">保存</el-button>
+          <el-button type="primary" @click="submitInfo(ruleFormRef)" :disabled="isSubmitForm">保存</el-button>
         </div>
       </div>
       <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
@@ -151,15 +176,15 @@ const dialogVisible = ref(false)
     </el-card>
 
     <!-- 聯繫人信息 -->
-    <AddressList :userId="route.query.id" addressType="factory" />
+    <AddressList @updataContact="updataContact" :defaultId="ruleForm.factory_contact_id" addressType="factory" />
 
     <!-- 產品信息 -->
     <el-card shadow="never">
-      <foreman-product :userId="route.query.id" />
+      <foreman-product :isProduct="isProduct" />
     </el-card>
 
     <Dialog v-model="dialogVisible" title="預付款">
-      <prepay-ments :rowId="dialogId" />
+      <prepay-ments isType="factory" @handle-editPayment="handleEditPayment" :id="route.query.id" />
     </Dialog>
   </div>
 </template>

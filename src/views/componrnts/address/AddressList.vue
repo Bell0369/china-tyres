@@ -1,21 +1,30 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue"
+import { ref, reactive, onMounted, watch, defineEmits } from "vue"
 import { Edit, Delete } from "@element-plus/icons-vue"
-import { getFactoryContactApi, getClientContactApi } from "@/api/users"
+import { useRoute } from "vue-router"
+import { getFactoryContactApi, getClientContactApi, deleteClientContactApi, deleteFactoryContactApi } from "@/api/users"
 import { Dialog } from "@/components/Dialog"
 import UpdateAddress from "./UpdateAddress.vue"
+import { useDeleteList } from "@/hooks/useDeleteList"
 
-const { userId, addressType } = defineProps(["userId", "addressType"])
+const props = defineProps({
+  defaultId: Number,
+  addressType: String
+})
+
+const addressType = props.addressType
 
 const loading = ref(false)
 
+const route = useRoute()
+
 // 联系人信息
 const ContactList = ref([])
-const getClientContact = () => {
+const getContact = () => {
   loading.value = true
   const api = addressType === "factory" ? getFactoryContactApi : getClientContactApi
   api({
-    id: userId
+    id: route.query.id
   })
     .then(({ data }) => {
       ContactList.value = data
@@ -25,8 +34,16 @@ const getClientContact = () => {
     })
 }
 
+const defaultContact = ref(0)
 onMounted(() => {
-  getClientContact()
+  getContact()
+  watch(
+    () => props.defaultId,
+    (newValue) => {
+      console.log(newValue)
+      defaultContact.value = newValue
+    }
+  )
 })
 
 const dialogVisible = ref(false)
@@ -45,8 +62,26 @@ const connectUpdate = (row) => {
 // 編輯完成
 const handleChildEvent = () => {
   dialogVisible.value = false
-  getClientContact()
+  getContact()
 }
+
+// 切換默認
+const emits = defineEmits(["updataContact"])
+const defaultAddress = (id) => {
+  defaultContact.value = id
+  emits("updataContact", id)
+}
+
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: addressType === "factory" ? deleteFactoryContactApi : deleteClientContactApi,
+  text: "聯繫人"
+})
+
+// 删除-成功
+watch([isDeleted], () => {
+  getContact()
+})
 </script>
 
 <template>
@@ -61,14 +96,18 @@ const handleChildEvent = () => {
       <el-row :gutter="20" v-if="ContactList.length > 0">
         <el-col :span="8" v-for="item in ContactList" :key="item.id">
           <div class="flex items-center mb">
-            <!-- class="bg-amber!" @click="defaultAddress(item.id)" -->
-            <el-card shadow="never">
+            <el-card
+              shadow="never"
+              @click="defaultAddress(item.id)"
+              class="cursor-pointer"
+              :class="defaultContact === item.id ? 'border-#409eff!' : ''"
+            >
               <el-text> {{ item.assemble }} </el-text>
             </el-card>
             <div class="m-l1">
               <Edit class="w6 h6 cursor-pointer" @click="connectUpdate(item)" />
               <br />
-              <Delete class="w6 h6 cursor-pointer" />
+              <Delete class="w6 h6 cursor-pointer" @click="handleDelete(item.id)" />
             </div>
           </div>
         </el-col>

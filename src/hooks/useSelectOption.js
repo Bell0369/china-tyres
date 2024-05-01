@@ -37,13 +37,35 @@ export function useeDeliverTypeSelect() {
 
 // 獲取付款條件
 export function usePayMentSelect() {
+  // 部門
+  const roleOptions = [
+    {
+      id: 1,
+      name: "銷售部"
+    },
+    {
+      id: 2,
+      name: "財務部"
+    },
+    {
+      id: 3,
+      name: "物流部"
+    },
+    {
+      id: 4,
+      name: "文件部"
+    }
+  ]
+
   // 區號
   const codeArr = ["86", "852", "1", "44", "91", "81", "49", "7", "82", "39", "33", "34", "61", "64", "52"]
 
   const PayMentOptions = ["付款条件A", "付款条件B", "付款条件C", "付款条件D"]
+
   return {
     PayMentOptions,
-    codeArr
+    codeArr,
+    roleOptions
   }
 }
 

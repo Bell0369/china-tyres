@@ -1,11 +1,12 @@
 <script setup>
 import { reactive, ref, watch } from "vue"
 import { getClientListApi, deleteClientListApi, getUserListApi } from "@/api/users"
-import { ElMessage, ElMessageBox, ElButton } from "element-plus"
+import { ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { useRouter } from "vue-router"
-import { usePayMentSelect } from "@/hooks/useSelectOption.js"
+import { usePayMentSelect } from "@/hooks/useSelectOption"
+import { useDeleteList } from "@/hooks/useDeleteList"
 import { Dialog } from "@/components/Dialog"
 import ClientAdd from "./ClientAdd.vue"
 
@@ -38,29 +39,20 @@ const remoteMethod = (query) => {
 }
 
 const loading = ref(false)
+
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
 //#region 删
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`正在刪除用戶 ${row.client_name}，確認刪除？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      deleteClientListApi(row.id).then(() => {
-        ElMessage.success("刪除成功")
-        getTableData()
-      })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-//#endregion
+// 删除
+const { handleDelete, isDeleted } = useDeleteList({
+  api: deleteClientListApi,
+  text: "工廠"
+})
+
+// 删除 成功
+watch([isDeleted], () => {
+  getTableData()
+})
 
 //#region 查
 const tableData = ref([])
@@ -175,10 +167,10 @@ const handleChildEvent = () => {
           <el-table-column prop="credit" label="信用額度" align="center" />
           <el-table-column prop="advance_payment" label="預付款" align="center" />
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="150" align="center">
+          <el-table-column fixed="right" label="操作" width="130" align="center">
             <template #default="scope">
               <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>

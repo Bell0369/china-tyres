@@ -57,9 +57,13 @@ onMounted(() => {
           <el-collapse>
             <el-collapse-item :title="orderReal.inv_number">
               <el-table border :data="orderReal.inv_list">
-                <el-table-column prop="name" label="編號" align="center" />
-                <el-table-column prop="name" label="數量" align="center" />
-                <el-table-column prop="name" label="ETD时间" align="center" />
+                <el-table-column prop="inv_no" label="編號" align="center" />
+                <el-table-column prop="inv_number" label="數量" align="center" />
+                <el-table-column prop="etd" label="ETD时间" align="center">
+                  <template #default="scope">
+                    <el-text v-for="item in scope.row.etd" :key="item">{{ item }}</el-text>
+                  </template>
+                </el-table-column>
               </el-table>
             </el-collapse-item>
           </el-collapse>
