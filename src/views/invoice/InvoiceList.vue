@@ -115,7 +115,12 @@ const getExportInv = (row) => {
             style="width: 150px"
           >
             <el-option label="全部" value="" />
-            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
+            <el-option
+              v-for="item in optionsClient"
+              :key="item.id"
+              :label="item.client_code"
+              :value="item.client_code"
+            />
           </el-select>
         </el-form-item>
         <el-form-item>

@@ -9,6 +9,8 @@ import { loginApi, getUserInfoApi } from "@/api/login"
 import { type LoginRequestData } from "@/api/login/types/login"
 // import routeSettings from "@/config/route"
 
+// const testList: string[] = ["/users", "/users/userlist", "client", "/client/clientlist", "/client/clientitem"]
+
 export const useUserStore = defineStore("user", () => {
   const token = ref<string>(getToken() || "")
   const roles = ref<string[]>([])
@@ -22,6 +24,7 @@ export const useUserStore = defineStore("user", () => {
     const { data } = await loginApi({ account, password })
     setToken(data.token)
     token.value = data.token
+    // roles.value = testList
   }
 
   /** 获取用户详情 */

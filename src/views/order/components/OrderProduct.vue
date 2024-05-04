@@ -110,7 +110,7 @@ const getEtdList = () => {
             style="width: 150px"
           >
             <el-option label="全部" value="" />
-            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
+            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_code" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item prop="brand_code" label="品牌">
@@ -170,7 +170,7 @@ const getEtdList = () => {
           <el-table :data="etdTableData" height="300">
             <el-table-column prop="product_name" label="產品名稱" />
             <el-table-column prop="delivery_plan_no" label="發貨計劃號" />
-            <el-table-column prop="reality_number" label="發貨數量" />
+            <el-table-column prop="reality_number" label="發貨數量" width="100" align="center" />
           </el-table>
         </div>
       </div>

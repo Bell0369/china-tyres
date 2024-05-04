@@ -4,7 +4,7 @@ import { ElMessage, ElMessageBox } from "element-plus"
 import { EditPen, Search, Refresh } from "@element-plus/icons-vue"
 import { useRoute } from "vue-router"
 import PIItem from "./components/PIItem.vue"
-import { getPiProductDetailApi, getPiBasicDetailApi, updatePiNumberApi } from "@/api/order"
+import { getPiProductDetailApi, getPiBasicDetailApi, updatePiNumberApi, accomplishPApi } from "@/api/order"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 
 defineOptions({
@@ -97,18 +97,28 @@ const resetSearch = () => {
 
 /**完成PI */
 const connectUpdate = () => {
-  ElMessageBox.confirm("有未完成發貨計劃，確定完成PI？", "警告", {
-    confirmButtonText: "確定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      ElMessage({
-        type: "success",
-        message: "已完成"
-      })
+  if (infoData.check_delivery_plan) {
+    ElMessageBox.confirm("有未完成發貨計劃，確定完成PI？", "警告", {
+      confirmButtonText: "確定",
+      cancelButtonText: "取消",
+      type: "warning"
     })
-    .catch(() => {})
+      .then(() => {
+        accomplishPI()
+      })
+      .catch(() => {})
+  } else {
+    accomplishPI()
+  }
+}
+
+const accomplishPI = () => {
+  accomplishPApi({
+    pi_no: infoData.pi_no
+  }).then(() => {
+    ElMessage.success("修改成功")
+    getInfoData()
+  })
 }
 
 const tagsViewStore = useTagsViewStore()
@@ -125,7 +135,7 @@ const closeTab = () => {
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">產品信息</el-text>
-          <el-button type="primary" @click="connectUpdate">完成PI</el-button>
+          <el-button v-if="infoData.status !== 1" type="primary" @click="connectUpdate">完成PI</el-button>
         </div>
       </div>
       <div class="mb">
@@ -135,7 +145,7 @@ const closeTab = () => {
             <el-button type="primary" :icon="Search" @click="searchTable">查詢</el-button>
             <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
           </div>
-          <div>
+          <div v-if="infoData.status !== 1">
             <el-text>創建發貨計劃： </el-text>
             <el-button
               type="success"
@@ -162,7 +172,11 @@ const closeTab = () => {
         <el-table-column prop="number" label="PI數量" align="center">
           <template #default="scope">
             {{ scope.row.number }}
-            <EditPen @click="handleUpdate(scope.row)" class="w4 h4 cursor-pointer hover:c-blue" />
+            <EditPen
+              v-if="infoData.status !== 1"
+              @click="handleUpdate(scope.row)"
+              class="w4 h4 cursor-pointer hover:c-blue"
+            />
           </template>
         </el-table-column>
         <el-table-column prop="shipped_number" label="已發貨數" align="center" />

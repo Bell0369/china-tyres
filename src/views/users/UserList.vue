@@ -7,7 +7,7 @@ import { usePagination } from "@/hooks/usePagination"
 import { Dialog } from "@/components/Dialog"
 import EditUser from "./EditUser.vue"
 import { useDeleteList } from "@/hooks/useDeleteList"
-import { usePayMentSelect } from "@/hooks/useSelectOption"
+import { useDepartmentSelect } from "@/hooks/useSelectOption"
 
 defineOptions({
   name: "UserList"
@@ -18,7 +18,7 @@ const loading = ref(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
 // 部門
-const { roleOptions } = usePayMentSelect()
+const { roleOptions } = useDepartmentSelect()
 
 // 删除
 const { handleDelete, isDeleted } = useDeleteList({

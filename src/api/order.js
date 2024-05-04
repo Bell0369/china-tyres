@@ -126,6 +126,15 @@ export function getPiProductDetailApi(params) {
   })
 }
 
+// 完成PI
+export function accomplishPApi(data) {
+  return request({
+    url: "order/accomplishPI",
+    method: "post",
+    data
+  })
+}
+
 // 修改PI数量
 export function updatePiNumberApi(data) {
   return request({
@@ -160,6 +169,15 @@ export function uploadPiQuantityPlanApi(data) {
 export function uploadPIDeliveryPlanApi(data) {
   return request({
     url: "order/PIDeliveryPlan",
+    method: "post",
+    data
+  })
+}
+
+// 申請審批
+export function deliveryPlanApplyCheckApi(data) {
+  return request({
+    url: "delivery/deliveryPlanApplyCheck",
     method: "post",
     data
   })

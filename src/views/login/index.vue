@@ -74,9 +74,8 @@ const handleLogin = () => {
 
 onMounted(() => {
   const info = JSON.parse(getRememberMe())
-  console.log(info)
-  remember.value = info.remember
-  if (info.remember) {
+  remember.value = info?.remember || null
+  if (info?.remember) {
     Object.assign(loginFormData, info.loginFormData)
   }
 })

@@ -1,10 +1,10 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { ElMessage } from "element-plus"
+import { ElMessage, ElMessageBox } from "element-plus"
 import { useRoute, useRouter } from "vue-router"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 import { useFactorySelect } from "@/hooks/useFactorySelect"
-import { uploadPiQuantityPlanApi } from "@/api/order"
+import { uploadPiQuantityPlanApi, deliveryPlanApplyCheckApi } from "@/api/order"
 import PIItem from "./components/PIItem.vue"
 import { UploadXlsx } from "@/components/UploadXlsx"
 
@@ -46,7 +46,8 @@ const orderCheck = ref([])
 const orderChecks = ref([])
 const orderCheck0 = ref([])
 const orderCheck1 = ref([])
-const submitForm = (Type) => {
+
+const sendFormData = (Type) => {
   // 重置表格数据
   orderCheck.value = []
   orderChecks.value = []
@@ -111,6 +112,35 @@ const filterTable = () => {
     orderCheck.value = orderCheck1.value
   } else {
     orderCheck.value = orderChecks.value
+  }
+}
+
+const submitForm = (Type) => {
+  if (Type === 1) {
+    sendFormData(1)
+  } else {
+    ElMessageBox.prompt("發貨計劃需要審批才能進行，是否繼續？", "發貨計劃", {
+      confirmButtonText: "確定",
+      cancelButtonText: "取消",
+      inputPlaceholder: "請輸入備註",
+      inputType: "textarea"
+    })
+      .then(({ value }) => {
+        deliveryPlanApplyCheckApi({
+          id: route.query.id,
+          apply_remarks: value
+        }).then((data) => {
+          if (data.code === 200) {
+            sendFormData(2)
+          }
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: "info",
+          message: "已取消"
+        })
+      })
   }
 }
 </script>

@@ -140,7 +140,7 @@ const filterTable = () => {
                 :remote-method="loadClientData"
                 :loading="loadClient"
               >
-                <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
+                <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_code" :value="item.id" />
               </el-select>
             </el-form-item>
           </el-col>

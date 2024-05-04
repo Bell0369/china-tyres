@@ -62,3 +62,12 @@ export function getCountriesAreaApi(params) {
     params
   })
 }
+
+// 部門列表
+export function getDepartmentApi(params) {
+  return request({
+    url: "auth/roleList",
+    method: "get",
+    params
+  })
+}

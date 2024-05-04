@@ -207,9 +207,11 @@ const submitForm = (Type) => {
         </div>
       </div>
       <div class="mb5">
-        <el-tag effect="dark" type="danger" class="mr">采購發票號：----</el-tag>
-        <el-tag effect="dark" type="success" class="mr">采装箱柜量(40'HQ)：----</el-tag>
-        <el-tag effect="dark" type="warning">采购成本：----</el-tag>
+        <el-tag effect="dark" type="danger" class="mr">
+          采購發票號：{{ infoData.procurement_invoice_no || " ----" }}
+        </el-tag>
+        <el-tag effect="dark" type="success" class="mr">采装箱柜量(40'HQ)：{{ infoData.quantity || " ----" }}</el-tag>
+        <el-tag effect="dark" type="warning">采购成本：{{ infoData.cost_price || " ----" }}</el-tag>
       </div>
       <el-table :data="listInfo" border>
         <el-table-column type="expand">
@@ -227,8 +229,6 @@ const submitForm = (Type) => {
           </template>
         </el-table-column>
         <el-table-column label="發貨計劃號" prop="delivery_plan_no" />
-        <el-table-column label="計劃裝貨量" prop="date" />
-        <el-table-column label="本次裝貨量" prop="date" />
       </el-table>
       <div class="mt5" v-show="orderCheck.length !== 0">
         <el-text tag="b" size="large">異常</el-text>

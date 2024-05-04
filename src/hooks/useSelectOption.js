@@ -1,5 +1,5 @@
 import { ref, onMounted } from "vue"
-import { getBrandListApi, getDeliveryListApi, getFactoryListApi } from "@/api/selects"
+import { getBrandListApi, getDeliveryListApi, getFactoryListApi, getDepartmentApi } from "@/api/selects"
 
 // 獲取品牌
 export function useBrandSelect() {
@@ -37,26 +37,6 @@ export function useeDeliverTypeSelect() {
 
 // 獲取付款條件
 export function usePayMentSelect() {
-  // 部門
-  const roleOptions = [
-    {
-      id: 1,
-      name: "銷售部"
-    },
-    {
-      id: 2,
-      name: "財務部"
-    },
-    {
-      id: 3,
-      name: "物流部"
-    },
-    {
-      id: 4,
-      name: "文件部"
-    }
-  ]
-
   // 區號
   const codeArr = ["86", "852", "1", "44", "91", "81", "49", "7", "82", "39", "33", "34", "61", "64", "52"]
 
@@ -64,8 +44,7 @@ export function usePayMentSelect() {
 
   return {
     PayMentOptions,
-    codeArr,
-    roleOptions
+    codeArr
   }
 }
 
@@ -82,4 +61,21 @@ export function useFactoryCodeSelect() {
   })
 
   return factoryCodeOptions
+}
+
+// 獲取部門
+export function useDepartmentSelect() {
+  const roleOptions = ref([])
+  const getDataList = () => {
+    getDepartmentApi().then(({ data }) => {
+      roleOptions.value = data
+    })
+  }
+  onMounted(() => {
+    getDataList()
+  })
+
+  return {
+    roleOptions
+  }
 }

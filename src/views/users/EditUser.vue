@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, defineEmits } from "vue"
 import { getUserItemApi, updateUserItemApi } from "@/api/users"
-import { usePayMentSelect } from "@/hooks/useSelectOption"
+import { usePayMentSelect, useDepartmentSelect } from "@/hooks/useSelectOption"
 import { ElMessage } from "element-plus"
 
 defineOptions({
@@ -11,7 +11,8 @@ defineOptions({
 const loading = ref(false)
 
 // 部門
-const { roleOptions, codeArr } = usePayMentSelect()
+const { roleOptions } = useDepartmentSelect()
+const { codeArr } = usePayMentSelect()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -23,7 +24,7 @@ const ruleForm = reactive({
   email: "",
   sex: 0,
   status: 1,
-  role_id: "銷售部",
+  role_id: 1,
   remarks: ""
 })
 
@@ -177,7 +178,7 @@ const submitForm = (formEl) => {
         <el-col :span="12">
           <el-form-item label="部門">
             <el-select v-model="ruleForm.role_id">
-              <el-option v-for="item in roleOptions" :key="item.id" :label="item.name" :value="item.name" />
+              <el-option v-for="item in roleOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
         </el-col>

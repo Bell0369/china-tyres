@@ -44,6 +44,7 @@ watch([isDeleted, isQuantity], () => {
 
 //查
 const tableData = ref([])
+const notShipped = ref(0)
 
 const monthrangeData = ref(["", ""])
 
@@ -67,6 +68,7 @@ const getTableData = () => {
     .then(({ data }) => {
       paginationData.total = data.total
       tableData.value = data.data
+      notShipped.value = data.not_shipped
     })
     .catch(() => {
       tableData.value = []
@@ -119,7 +121,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
             style="width: 150px"
           >
             <el-option label="全部" value="" />
-            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
+            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_code" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item prop="brand_code" label="品牌">
@@ -146,7 +148,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-button type="primary" :icon="CirclePlus" tag="router-link" to="/piorder/piorderupload">上傳PI</el-button>
           <div>
             <el-text>未發貨PI總數量：</el-text>
-            <el-text size="large" type="danger">XXXX</el-text>
+            <el-text size="large" type="danger">{{ notShipped }}</el-text>
           </div>
         </div>
       </div>

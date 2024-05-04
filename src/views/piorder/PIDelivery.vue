@@ -1,11 +1,16 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue"
+import { ref, reactive, onMounted, computed } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
 import { Refresh, Search } from "@element-plus/icons-vue"
 import { useRoute, useRouter } from "vue-router"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 import { useFactorySelect } from "@/hooks/useFactorySelect"
-import { getPiProductDetailApi, getPiBasicDetailApi, uploadPIDeliveryPlanApi } from "@/api/order"
+import {
+  getPiProductDetailApi,
+  getPiBasicDetailApi,
+  uploadPIDeliveryPlanApi,
+  deliveryPlanApplyCheckApi
+} from "@/api/order"
 import PIItem from "./components/PIItem.vue"
 
 defineOptions({
@@ -71,14 +76,19 @@ const resetSearch = () => {
   tableData.value = listTableData.value
 }
 
+// 選中變化
+const rows = ref([])
+const handleSelectionChange = (newSelection) => {
+  rows.value = newSelection
+}
+
 // 審批
 const submitForm = () => {
-  const rows = tableRef.value.getSelectionRows()
   if (ruleForm.factory_id === "") {
     ElMessage.error("請選擇工廠")
     return
   }
-  if (rows.length === 0) {
+  if (rows.value.length === 0) {
     ElMessage.error("請勾選產品")
     return false
   }
@@ -90,8 +100,15 @@ const submitForm = () => {
     inputType: "textarea"
   })
     .then(({ value }) => {
-      ElMessage.success(`备注${value}`)
-      sendFormData()
+      // ElMessage.success(`备注${value}`)
+      deliveryPlanApplyCheckApi({
+        id: route.query.id,
+        apply_remarks: value
+      }).then((data) => {
+        if (data.code === 200) {
+          sendFormData()
+        }
+      })
     })
     .catch(() => {
       ElMessage({
@@ -102,6 +119,7 @@ const submitForm = () => {
 }
 
 const tableRef = ref()
+
 //
 const ruleForm = reactive({
   type: 2,
@@ -111,8 +129,7 @@ const ruleForm = reactive({
 })
 
 const sendFormData = () => {
-  const rows = tableRef.value.getSelectionRows()
-  rows.forEach((item) => {
+  rows.value.forEach((item) => {
     const data_arr = {
       id: item.id,
       product_name: item.product_name,
@@ -128,6 +145,17 @@ const sendFormData = () => {
     }
   })
 }
+
+// 一个计算属性 ref
+const Numbers = computed(() => {
+  return tableData.value.reduce((unproduced, item) => unproduced + item.unproduced, 0)
+})
+const ShipNumber = computed(() => {
+  return rows.value.reduce((unproduced, item) => unproduced + item.not_shipped_number, 0)
+})
+const PiNumber = computed(() => {
+  return Numbers.value - ShipNumber.value
+})
 </script>
 
 <template>
@@ -173,8 +201,12 @@ const sendFormData = () => {
             <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
           </div>
           <div class="line-height-5">
-            <div><el-text>PI發貨數量：</el-text><el-text type="danger">XXX </el-text></div>
-            <div><el-text>計劃發貨數量：</el-text><el-text type="primary">XXX </el-text></div>
+            <div>
+              <el-text>PI未發貨數量：</el-text><el-text type="danger"> {{ PiNumber }} </el-text>
+            </div>
+            <div>
+              <el-text>計劃發貨數量：</el-text><el-text type="primary">{{ ShipNumber }} </el-text>
+            </div>
           </div>
         </div>
       </div>

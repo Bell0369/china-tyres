@@ -9,6 +9,7 @@ defineOptions({
 })
 
 const { infoData, isStatus } = defineProps(["infoData", "isStatus"])
+console.log("PI詳情--", isStatus)
 
 // 修改柜量
 const { handleUpdateQuantity, isQuantity } = useUpdateQuantity({
@@ -32,8 +33,9 @@ setTimeout(() => {
     <div class="m-b">
       <div class="flex justify-between">
         <el-text tag="b" size="large">PI基本信息</el-text>
+        <!-- status: 0 未完成， 1  已完成 -->
         <el-alert
-          v-show="isStatus === 1"
+          v-show="infoData.status === 1"
           title="已完成"
           type="success"
           effect="dark"
