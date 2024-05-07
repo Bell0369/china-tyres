@@ -67,3 +67,21 @@ export const setRememberMe = (views: object) => {
   localStorage.setItem("rememberMe", JSON.stringify(views))
 }
 //#endregion
+
+// 路由權限
+export const getRoles = () => {
+  const authority = localStorage.getItem("authority")
+  return JSON.parse(authority)
+}
+export const setRoles = (views: string[]) => {
+  localStorage.setItem("authority", JSON.stringify(views))
+}
+
+// 按鈕權限
+export const getButtonAuthorities = () => {
+  const authority = localStorage.getItem("button-authority")
+  return JSON.parse(authority)
+}
+export const setButtonAuthorities = (views: string[]) => {
+  localStorage.setItem("button-authority", JSON.stringify(views))
+}

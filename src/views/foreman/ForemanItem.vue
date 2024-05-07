@@ -130,7 +130,13 @@ const handleEditPayment = (value) => {
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">工廠基本信息</el-text>
-          <el-button type="primary" @click="submitInfo(ruleFormRef)" :disabled="isSubmitForm">保存</el-button>
+          <el-button
+            v-permission="['addFactory']"
+            type="primary"
+            @click="submitInfo(ruleFormRef)"
+            :disabled="isSubmitForm"
+            >保存</el-button
+          >
         </div>
       </div>
       <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
@@ -152,7 +158,11 @@ const handleEditPayment = (value) => {
           <el-col :span="6">
             <el-form-item label="預付款">
               <span class="color-red">{{ ruleForm.advance_payment }}</span>
-              <Tickets class="w6 h6 m-l-2 color-blue cursor-pointer" @click="dialogVisible = true" />
+              <Tickets
+                v-permission="['factoryAdvancePayment']"
+                class="w6 h6 m-l-2 color-blue cursor-pointer"
+                @click="dialogVisible = true"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="15">

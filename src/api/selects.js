@@ -10,11 +10,20 @@ export function getFactoryListApi(params) {
   })
 }
 //  加
-export function addFactoryListApi(params) {
+export function addFactoryListApi(data) {
   return request({
     url: "config/addFactoryCode",
-    method: "get",
-    params
+    method: "post",
+    data
+  })
+}
+
+// 刪
+export function deleteFactoryCodeApi(data) {
+  return request({
+    url: "config/deleteFactoryCode",
+    method: "post",
+    data
   })
 }
 
@@ -28,11 +37,11 @@ export function getBrandListApi(params) {
   })
 }
 //  加
-export function addBrandListApi(params) {
+export function addBrandListApi(data) {
   return request({
     url: "config/addBrand",
     method: "post",
-    params
+    data
   })
 }
 
@@ -45,12 +54,32 @@ export function getDeliveryListApi(params) {
     params
   })
 }
+
 //  加
-export function addDeliveryListApi(params) {
+export function addDeliveryListApi(data) {
   return request({
     url: "config/addDeliveryMethod",
     method: "post",
+    data
+  })
+}
+
+/** 付款條件配置 */
+//  查
+export function getPaymentTermsApi(params) {
+  return request({
+    url: "config/paymentTerms",
+    method: "get",
     params
+  })
+}
+
+//  加
+export function addPaymentTermsApi(data) {
+  return request({
+    url: "config/addPaymentTerms",
+    method: "post",
+    data
   })
 }
 

@@ -11,7 +11,7 @@ import {
   uploadPIDeliveryPlanApi,
   deliveryPlanApplyCheckApi
 } from "@/api/order"
-import PIItem from "./components/PIItem.vue"
+import ItemInfo from "./components/ItemInfo.vue"
 
 defineOptions({
   name: "PIDelivery"
@@ -184,7 +184,7 @@ const PiNumber = computed(() => {
       </el-form>
     </el-card>
 
-    <PIItem :infoData="infoData" />
+    <item-info :infoData="infoData" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">

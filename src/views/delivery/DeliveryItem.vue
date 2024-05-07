@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive } from "vue"
 import { useRoute } from "vue-router"
-import { getDeliveryPlanDetailsApi } from "@/api/order"
+import { getDeliveryPlanDetailsApi, getDeliveryPlanCheckApi, deliveryPlanApplyCheckApi } from "@/api/order"
 import ProductDelivery from "./components/ProductDelivery.vue"
 
 defineOptions({
@@ -36,6 +36,27 @@ onMounted(() => {
 
 // 備註
 const check_remarks = ref("")
+
+// 審批審核
+const submitReview = (type) => {
+  getDeliveryPlanCheckApi({
+    id: route.query.id,
+    check_remarks: check_remarks.value,
+    is_check: type
+  }).then(() => {
+    getOrderDetail()
+  })
+}
+
+// 申請審核
+const submitApply = () => {
+  deliveryPlanApplyCheckApi({
+    id: route.query.id,
+    check_remarks: check_remarks.value
+  }).then(() => {
+    getOrderDetail()
+  })
+}
 </script>
 
 <template>
@@ -134,7 +155,7 @@ const check_remarks = ref("")
           }}</el-descriptions-item>
         </el-descriptions>
       </div>
-      <div class="mt5" v-if="orderInfo4.is_check !== 2">
+      <div class="mt5" v-if="orderInfo4.is_check !== 2" v-permission="['deliveryPlanCheck']">
         <!-- is_check: 0=待审核；1=已拒绝；2=已通过 -->
         <div class="m-b">
           <el-text tag="b" size="large">審批</el-text>
@@ -145,10 +166,13 @@ const check_remarks = ref("")
               備註：<el-text type="danger">{{ orderInfo4.check_remarks }}</el-text>
             </div>
           </template>
-          <el-input v-model="check_remarks" :rows="4" type="textarea" placeholder="請輸入審批備註" />
+          <el-input v-model="check_remarks" :rows="4" type="textarea" placeholder="請輸入備註" />
           <div class="mt">
-            <el-button type="danger">拒絕</el-button>
-            <el-button type="primary">通過</el-button>
+            <el-button type="danger" @click="submitReview(1)">拒絕</el-button>
+            <el-button type="primary" @click="submitReview(2)">通過</el-button>
+          </div>
+          <div class="mt">
+            <el-button type="primary" @click="submitApply">提交</el-button>
           </div>
         </el-card>
       </div>

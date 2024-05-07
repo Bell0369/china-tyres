@@ -183,6 +183,15 @@ export function deliveryPlanApplyCheckApi(data) {
   })
 }
 
+// 審批審核
+export function getDeliveryPlanCheckApi(data) {
+  return request({
+    url: "delivery/deliveryPlanCheck",
+    method: "post",
+    data
+  })
+}
+
 /** 發貨計劃 */
 // 列表
 export function getDeliveryPlanListApi(params) {
@@ -294,5 +303,68 @@ export function updateInvApi(data) {
     url: "inv/editInv",
     method: "post",
     data
+  })
+}
+
+/** 應收應付 */
+// 應收
+export function getClientProceedsApi(params) {
+  return request({
+    url: "receipt/clientProceeds",
+    method: "get",
+    params
+  })
+}
+// 應付
+export function getFactoryCopeApi(params) {
+  return request({
+    url: "receipt/factoryCope",
+    method: "get",
+    params
+  })
+}
+
+// 客户or工厂添加金额
+export function AddPriceApi(data) {
+  return request({
+    url: "receipt/addPrice",
+    method: "post",
+    data
+  })
+}
+
+// 添加金额记录列表
+export function getAddPayRecordApi(params) {
+  return request({
+    url: "receipt/addPayRecord",
+    method: "get",
+    params
+  })
+}
+
+// 客户or工厂确认收款
+export function getConfirmReceiptApi(data) {
+  return request({
+    url: "receipt/confirmReceipt",
+    method: "post",
+    data
+  })
+}
+
+/** 预付款 */
+// 客户
+export function getClientAdvancePaymentApi(params) {
+  return request({
+    url: "receipt/clientAdvancePayment",
+    method: "get",
+    params
+  })
+}
+// 工厂
+export function getFactoryAdvancePaymentApi(params) {
+  return request({
+    url: "receipt/factoryAdvancePayment",
+    method: "get",
+    params
   })
 }

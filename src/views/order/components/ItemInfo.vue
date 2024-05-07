@@ -46,7 +46,11 @@ watch([isQuantity], () => {
         <el-descriptions-item label="PI未發貨數">{{ orderInfo.pi_not_shipped }}</el-descriptions-item>
         <el-descriptions-item label="預計櫃量(40'HQ)">
           {{ orderInfo.quantity }}
-          <EditPen @click="handleUpdateQuantity(orderInfo)" class="w4 h4 cursor-pointer hover:c-blue" />
+          <EditPen
+            v-permission="['editQuantity']"
+            @click="handleUpdateQuantity(orderInfo)"
+            class="w4 h4 cursor-pointer hover:c-blue"
+          />
         </el-descriptions-item>
         <el-descriptions-item label="訂單總金額">{{ orderInfo.price }}</el-descriptions-item>
         <el-descriptions-item label="起運港">{{ orderInfo.originating }}</el-descriptions-item>

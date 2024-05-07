@@ -82,3 +82,24 @@ export const isLicensePlate = (str: string) => {
     /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领][A-HJ-NP-Z][A-HJ-NP-Z0-9]{4,5}[A-HJ-NP-Z0-9挂学警港澳]$/
   return reg.test(str)
 }
+
+// 只能输入正数，且保留两位小数
+export const validateNumberMin = (value: string) => {
+  value = value.replace(/[^\d.]/g, "") // 移除非数字和小数点
+  value = value.replace(/^\./, "") // 移除开头的小数点
+  value = value.replace(/\.{2,}/g, ".") // 限制只能输入一个小数点
+  value = value.replace(/^(\d+\.\d{0,2}).*$/, "$1") // 限制最多两位小数
+  value = value.replace(/^0+(\d.*)$/, "$1") // 移除开头的多余零
+  return value
+}
+
+// %:只能输入1-100，且保留两位小数
+export const validateNumberMinMax = (value: string) => {
+  value = value.replace(/[^\d.]/g, "") // 移除非数字和小数点
+  value = value.replace(/^\./, "") // 移除开头的小数点
+  value = value.replace(/\.{2,}/g, ".") // 限制只能输入一个小数点
+  value = value.replace(/^(\d+\.\d{0,2}).*$/, "$1") // 限制最多两位小数
+  value = value.replace(/^0+(\d.*)$/, "$1") // 移除开头的多余零
+  if (Number(value) > 100) value = "100"
+  return value
+}

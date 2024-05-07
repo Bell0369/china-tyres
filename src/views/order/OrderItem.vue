@@ -2,8 +2,8 @@
 import { ref, reactive, onMounted } from "vue"
 import { useRoute } from "vue-router"
 import { getOrderDetailApi } from "@/api/order"
-import OrderProduct from "./components/OrderProduct.vue"
-import BasicInformation from "./components/BasicInformation.vue"
+import OrderProduct from "./OrderProduct.vue"
+import ItemInfo from "./components/ItemInfo.vue"
 
 defineOptions({
   name: "OrderItem"
@@ -34,7 +34,7 @@ onMounted(() => {
 
 <template>
   <div class="app-container" v-loading="loading">
-    <BasicInformation :orderInfo="orderInfo" @data-change="getOrderDetail" />
+    <item-info :orderInfo="orderInfo" @data-change="getOrderDetail" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">

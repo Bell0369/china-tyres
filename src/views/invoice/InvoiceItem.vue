@@ -135,7 +135,7 @@ const submitForm = (formEl) => {
         <div class="m-b">
           <div class="flex justify-between">
             <el-text tag="b" size="large">發票額外費用</el-text>
-            <el-button type="primary" @click="submitForm(formRef)">保存</el-button>
+            <el-button v-permission="['editInv']" type="primary" @click="submitForm(formRef)">保存</el-button>
           </div>
         </div>
         <div>

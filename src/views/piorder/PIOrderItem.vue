@@ -3,7 +3,7 @@ import { ref, onMounted, reactive } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
 import { EditPen, Search, Refresh } from "@element-plus/icons-vue"
 import { useRoute } from "vue-router"
-import PIItem from "./components/PIItem.vue"
+import ItemInfo from "./components/ItemInfo.vue"
 import { getPiProductDetailApi, getPiBasicDetailApi, updatePiNumberApi, accomplishPApi } from "@/api/order"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 
@@ -129,13 +129,15 @@ const closeTab = () => {
 
 <template>
   <div class="app-container">
-    <PIItem :infoData="infoData" :isStatus="1" @data-change="getInfoData" />
+    <item-info :infoData="infoData" :isStatus="1" @data-change="getInfoData" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">產品信息</el-text>
-          <el-button v-if="infoData.status !== 1" type="primary" @click="connectUpdate">完成PI</el-button>
+          <el-button v-permission="['accomplishPI']" v-if="infoData.status !== 1" type="primary" @click="connectUpdate"
+            >完成PI</el-button
+          >
         </div>
       </div>
       <div class="mb">
@@ -145,7 +147,7 @@ const closeTab = () => {
             <el-button type="primary" :icon="Search" @click="searchTable">查詢</el-button>
             <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
           </div>
-          <div v-if="infoData.status !== 1">
+          <div v-permission="['uploadDeliveryPlan']" v-if="infoData.status !== 1">
             <el-text>創建發貨計劃： </el-text>
             <el-button
               type="success"
@@ -173,6 +175,7 @@ const closeTab = () => {
           <template #default="scope">
             {{ scope.row.number }}
             <EditPen
+              v-permission="['editPiNumber']"
               v-if="infoData.status !== 1"
               @click="handleUpdate(scope.row)"
               class="w4 h4 cursor-pointer hover:c-blue"

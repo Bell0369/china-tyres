@@ -19,6 +19,15 @@ export function updateUserStatusApi(data) {
   })
 }
 
+// 獲取權限集
+export function getAuthAllTreeApi(params) {
+  return request({
+    url: "auth/authAllTree",
+    method: "get",
+    params
+  })
+}
+
 // 删
 export function deleteUserListApi(data) {
   return request({

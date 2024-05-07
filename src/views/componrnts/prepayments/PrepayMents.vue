@@ -28,14 +28,11 @@ const prepayForm = computed(() => {
   return form
 })
 
-// const prepayForm = reactive({
-//   client_id: route.query.id,
-//   price: null,
-//   invoice: ""
-// })
-
 const rules = reactive({
-  price: [{ required: true, message: "請輸入金额", trigger: "blur" }],
+  price: [
+    { required: true, message: "請輸入金额", trigger: "blur" },
+    { pattern: /^([1-9]\d*|0)(\.\d+)?$/, message: "請輸入有效金额", trigger: "blur" }
+  ],
   invoice: [{ required: true, message: "請輸入流水單號", trigger: "blur" }]
 })
 
@@ -49,6 +46,7 @@ const submitForm = (formEl) => {
         ElMessage.success("操作成功")
         prepayFormRef.value?.resetFields()
         getTableData()
+        emit("handleListPayment", advancePayment.value)
       })
     } else {
       console.log("error submit!", fields)
@@ -111,7 +109,7 @@ const getTableData = () => {
           <el-table :data="tableData" height="300">
             <el-table-column prop="price" :label="types === 1 ? '添加金額' : '扣除金額'" />
             <el-table-column prop="invoice" :label="types === 1 ? '銀行水單' : '銷售發票號'" />
-            <el-table-column prop="created_at" :label="types === 1 ? '添加時間' : '扣除時間'" />
+            <el-table-column prop="created_at" :label="types === 1 ? '添加時間' : '扣除時間'" sortable />
           </el-table>
         </div>
         <div class="flex justify-between m-t5 items-center">

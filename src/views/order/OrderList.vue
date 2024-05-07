@@ -146,7 +146,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
       </el-form>
     </el-card>
     <el-card v-loading="loading" shadow="never">
-      <div class="toolbar-wrapper">
+      <div v-permission="['uploadOrder']" class="toolbar-wrapper">
         <router-link to="/order/orderupload">
           <el-button type="primary" :icon="CirclePlus">上傳訂單</el-button>
         </router-link>
@@ -158,7 +158,11 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-table-column prop="quantity" label="櫃量(40'HQ)" align="center">
             <template #default="scope">
               {{ scope.row.quantity }}
-              <EditPen @click="handleUpdateQuantity(scope.row)" class="w4 h4 cursor-pointer hover:c-blue" />
+              <EditPen
+                v-permission="['editQuantity']"
+                @click="handleUpdateQuantity(scope.row)"
+                class="w4 h4 cursor-pointer hover:c-blue"
+              />
             </template>
           </el-table-column>
           <el-table-column prop="price" label="訂單金額" align="center" />
@@ -171,6 +175,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-table-column fixed="right" label="操作" width="200" align="center">
             <template #default="scope">
               <el-button
+                v-permission="['orderDetail']"
                 type="success"
                 text
                 bg
@@ -180,7 +185,15 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
                 >查看</el-button
               >
               <el-button type="warning" text bg size="small" @click="handleView(scope.row)">下载</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+              <el-button
+                v-permission="['deleteOrder']"
+                type="danger"
+                text
+                bg
+                size="small"
+                @click="handleDelete(scope.row.id)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>

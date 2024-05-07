@@ -1,6 +1,6 @@
 <script setup>
-import { reactive, ref, watch } from "vue"
-import { getUserListApi, deleteUserListApi, updateUserStatusApi } from "@/api/users"
+import { reactive, ref, watch, onMounted } from "vue"
+import { getUserListApi, deleteUserListApi, updateUserStatusApi, getAuthAllTreeApi } from "@/api/users"
 import { ElButton, ElMessage } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
@@ -86,6 +86,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
 
 // 修改狀態
 const updatSatus = (row, index) => {
+  if (row.id === 1) return
   loadingStates.value[index] = true
   updateUserStatusApi({
     id: row.id,
@@ -125,6 +126,33 @@ const handleChildEvent = () => {
   dialogVisible.value = false
   getTableData()
 }
+
+// 權限集
+const authAllTree = ref([])
+const getAuthAllTree = () => {
+  getAuthAllTreeApi().then(({ data }) => {
+    // Object.assign(authAllTree, data)
+    const simplifiedPermissions = data.map((permission) => {
+      const item = permission.item || []
+      const simplifiedItem = item.map((item) => ({
+        id: item.id,
+        title: item.title + item.id,
+        authority: item.authority
+      }))
+      return {
+        id: permission.id,
+        title: permission.title + permission.id,
+        authority: permission.authority,
+        item: simplifiedItem
+      }
+    })
+    authAllTree.value = simplifiedPermissions
+  })
+}
+
+onMounted(() => {
+  getAuthAllTree()
+})
 </script>
 
 <template>
@@ -156,7 +184,9 @@ const handleChildEvent = () => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <el-button type="primary" :icon="CirclePlus" @click="handleUpdate(0)">新增用戶</el-button>
+          <el-button v-permission="['addUser']" type="primary" :icon="CirclePlus" @click="handleUpdate(0)"
+            >新增用戶</el-button
+          >
           <!-- <el-button type="danger" :icon="Delete" @click="toggleSelection()">批量刪除</el-button> -->
         </div>
       </div>
@@ -165,12 +195,14 @@ const handleChildEvent = () => {
           <!-- <el-table-column type="selection" width="50" /> -->
           <el-table-column prop="username" label="用戶名稱" align="center" />
           <el-table-column prop="account" label="登錄號" align="center" />
+          <el-table-column prop="role_name" label="部門" align="center" />
           <el-table-column prop="sex" label="性別" width="100" align="center" />
           <el-table-column prop="phone" label="電話" align="center" />
           <el-table-column prop="email" label="Email" align="center" />
           <el-table-column prop="user_status" label="状态" width="100" align="center">
             <template #default="scope">
               <el-switch
+                :disabled="scope.row.id === 1"
                 v-model="scope.row.user_status"
                 :active-value="1"
                 :inactive-value="0"
@@ -183,8 +215,26 @@ const handleChildEvent = () => {
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">
-              <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row.id)">修改</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+              <el-button
+                :disabled="scope.row.id === 1"
+                v-permission="['addUser', 'getOneUser']"
+                type="primary"
+                text
+                bg
+                size="small"
+                @click="handleUpdate(scope.row.id)"
+                >修改</el-button
+              >
+              <el-button
+                :disabled="scope.row.id === 1"
+                v-permission="['deleteUser']"
+                type="danger"
+                text
+                bg
+                size="small"
+                @click="handleDelete(scope.row.id)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>
@@ -203,8 +253,8 @@ const handleChildEvent = () => {
       </div>
     </el-card>
 
-    <Dialog v-model="dialogVisible" :title="dialogTitle">
-      <EditUser :rowId="userId" @childEvent="handleChildEvent" />
+    <Dialog v-model="dialogVisible" :title="dialogTitle" width="800px">
+      <EditUser :authAllTree="authAllTree" :rowId="userId" @childEvent="handleChildEvent" />
     </Dialog>
   </div>
 </template>

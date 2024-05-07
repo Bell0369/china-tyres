@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, defineEmits } from "vue"
+import { reactive, ref, defineEmits, onMounted, watch } from "vue"
 import { getUserItemApi, updateUserItemApi } from "@/api/users"
 import { usePayMentSelect, useDepartmentSelect } from "@/hooks/useSelectOption"
 import { ElMessage } from "element-plus"
@@ -8,11 +8,31 @@ defineOptions({
   name: "EditUser"
 })
 
-const loading = ref(false)
+const { rowId, authAllTree } = defineProps(["rowId", "authAllTree"])
+
+const loading = ref(true)
 
 // 部門
 const { roleOptions } = useDepartmentSelect()
+// 區號
 const { codeArr } = usePayMentSelect()
+
+// 部門權限
+// const authority1 = ref([])
+const authority = reactive({})
+watch(roleOptions, () => {
+  roleOptions.value.map((item) => {
+    authority[item.id] = item.permission_ids
+  })
+  if (rowId === 0) {
+    setTimeout(() => {
+      authority[1].forEach((item) => {
+        treeRef.value.setChecked(item, true, false)
+      })
+      loading.value = false
+    }, 300)
+  }
+})
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -65,64 +85,47 @@ const rules = reactive({
   ]
 })
 
+const treeRef = ref()
 const defaultProps = {
-  children: "children",
-  label: "label"
+  children: "item",
+  label: "title"
 }
-const data = [
-  {
-    id: 1,
-    label: "用戶管理"
-  },
-  {
-    id: 2,
-    label: "工廠管理",
-    children: [
-      {
-        id: 5,
-        label: "添加工廠"
-      },
-      {
-        id: 6,
-        label: "修改工廠"
-      }
-    ]
-  },
-  {
-    id: 3,
-    label: "訂單管理",
-    children: [
-      {
-        id: 7,
-        label: "查看訂單"
-      },
-      {
-        id: 8,
-        label: "上傳訂單"
-      }
-    ]
-  }
-]
 
-const { rowId } = defineProps(["rowId"])
-if (rowId > 0) {
-  loading.value = true
-  getUserItemApi({
-    id: rowId
+onMounted(() => {
+  if (rowId > 0) {
+    getUserItemApi({
+      id: rowId
+    })
+      .then(({ data }) => {
+        data.password = ""
+        Object.assign(ruleForm, data)
+        setTimeout(() => {
+          data.permission_ids.forEach((item) => {
+            treeRef.value.setChecked(item, true, false)
+          })
+        }, 500)
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  }
+})
+
+// 切換部門
+const updateRoles = () => {
+  console.log(authority[ruleForm.role_id])
+  treeRef.value.setCheckedKeys([], false)
+  authority[ruleForm.role_id].forEach((item) => {
+    treeRef.value.setChecked(item, true, false)
   })
-    .then(({ data }) => {
-      data.password = ""
-      Object.assign(ruleForm, data)
-    })
-    .finally(() => {
-      loading.value = false
-    })
 }
+
 const emitEvents = defineEmits(["childEvent"])
 const submitForm = (formEl) => {
   if (!formEl) return
   formEl.validate((valid, fields) => {
     if (valid) {
+      ruleForm.permission_ids = treeRef.value.getHalfCheckedKeys().concat(treeRef.value.getCheckedKeys())
       updateUserItemApi(ruleForm).then(() => {
         ElMessage.success("操作成功")
         emitEvents("childEvent")
@@ -153,12 +156,12 @@ const submitForm = (formEl) => {
         </el-col>
         <el-col :span="12">
           <el-form-item label="登錄賬號" prop="account">
-            <el-input v-model="ruleForm.account" />
+            <el-input v-model="ruleForm.account" autocomplete="off" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="登錄密碼" prop="password">
-            <el-input type="password" v-model="ruleForm.password" />
+            <el-input type="password" v-model="ruleForm.password" autocomplete="off" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -177,7 +180,7 @@ const submitForm = (formEl) => {
         </el-col>
         <el-col :span="12">
           <el-form-item label="部門">
-            <el-select v-model="ruleForm.role_id">
+            <el-select v-model="ruleForm.role_id" @change="updateRoles">
               <el-option v-for="item in roleOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
@@ -188,8 +191,8 @@ const submitForm = (formEl) => {
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="權限分配" prop="resource">
-            <el-tree :data="data" show-checkbox node-key="id" :props="defaultProps" />
+          <el-form-item label="權限分配">
+            <el-tree ref="treeRef" :data="authAllTree" show-checkbox node-key="id" :props="defaultProps" />
           </el-form-item>
         </el-col>
         <el-col :span="24">

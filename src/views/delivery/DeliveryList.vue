@@ -200,10 +200,12 @@ const CreateInvoice = () => {
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <div>
-            <router-link to="/delivery/deliveryupload">
+            <router-link v-permission="['uploadPackingList']" to="/delivery/deliveryupload">
               <el-button type="primary" :icon="CirclePlus">上傳裝箱單</el-button>
             </router-link>
-            <el-button class="ml" type="primary" @click="CreateInvoice">銷售發票生成</el-button>
+            <el-button v-permission="['createInv']" class="ml" type="primary" @click="CreateInvoice"
+              >銷售發票生成</el-button
+            >
           </div>
           <div>
             <el-text size="large">未發貨總數量：</el-text>
@@ -231,8 +233,24 @@ const CreateInvoice = () => {
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">
-              <el-button type="success" text bg size="small" @click="handleView(scope.row)">查看</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+              <el-button
+                v-permission="['deliveryPlanDetails']"
+                type="success"
+                text
+                bg
+                size="small"
+                @click="handleView(scope.row)"
+                >查看</el-button
+              >
+              <el-button
+                v-permission="['deleteDeliveryPlan']"
+                type="danger"
+                text
+                bg
+                size="small"
+                @click="handleDelete(scope.row.id)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>

@@ -3,7 +3,7 @@ import { ref, reactive } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 import { ElMessage } from "element-plus"
-import PIItem from "./components/PIItem.vue"
+import UploadInfo from "./components/UploadInfo.vue"
 import { useOrderSelet } from "@/hooks/useOrderSelet"
 import { UploadXlsx } from "@/components/UploadXlsx"
 import { uploadPiApi } from "@/api/order"
@@ -156,7 +156,7 @@ const filterTable = () => {
       </div>
     </el-card>
 
-    <PIItem :infoData="infoData" v-show="isorderInfo" />
+    <upload-info :infoData="infoData" v-show="isorderInfo" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">

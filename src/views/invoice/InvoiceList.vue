@@ -147,6 +147,7 @@ const getExportInv = (row) => {
           <el-table-column fixed="right" label="操作" width="200" align="center">
             <template #default="scope">
               <el-button
+                v-permission="['invDetail']"
                 type="success"
                 text
                 bg
@@ -155,8 +156,24 @@ const getExportInv = (row) => {
                 :to="`/invoice/invoiceitem?id=${scope.row.id}`"
                 >查看</el-button
               >
-              <el-button type="warning" text bg size="small" @click="getExportInv(scope.row)">下载</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+              <el-button
+                v-permission="['exportInv']"
+                type="warning"
+                text
+                bg
+                size="small"
+                @click="getExportInv(scope.row)"
+                >下载</el-button
+              >
+              <el-button
+                v-permission="['deleteSellInv']"
+                type="danger"
+                text
+                bg
+                size="small"
+                @click="handleDelete(scope.row.id)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>

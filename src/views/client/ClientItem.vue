@@ -1,14 +1,15 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from "vue"
 import { Tickets } from "@element-plus/icons-vue"
-import ClientProduct from "./ClientProduct.vue"
+import { ElMessage } from "element-plus"
 import { useRoute } from "vue-router"
+import ClientProduct from "./ClientProduct.vue"
 import { Dialog } from "@/components/Dialog"
 import { getUserListApi, updateClientListApi, viewClientShowApi } from "@/api/users"
 import { useeDeliverTypeSelect, usePayMentSelect } from "@/hooks/useSelectOption"
-import { ElMessage } from "element-plus"
 import AddressList from "@/views/componrnts/address/AddressList.vue"
 import PrepayMents from "@/views/componrnts/prepayments/PrepayMents.vue"
+import { validateNumberMin, validateNumberMinMax } from "@/utils/validate"
 
 defineOptions({
   name: "ClientItem"
@@ -48,10 +49,10 @@ const ruleForm = reactive({
   user_id: "",
   name: "",
   client_encod: "",
-  credit: "",
-  payment_terms: "",
+  credit: undefined,
+  payment_terms_id: "",
   deliver_type: 1,
-  commission_ratio: "",
+  commission_ratio: undefined,
   is_commission: 0,
   is_deliver_project: 1,
   is_check_deliver_project: 0,
@@ -60,12 +61,11 @@ const ruleForm = reactive({
 
 const rules = reactive({
   name: [{ required: true, message: "請輸入客戶名稱", trigger: "blur" }],
-  credit: [{ required: true, message: "請輸入信用額度", trigger: "blur" }],
+  payment_terms_id: [{ required: true, message: "請選擇付款條件", trigger: "blur" }],
   client_encod: [
     { required: true, message: "請輸入客戶編碼", trigger: "blur" },
     { pattern: /^[^\u4e00-\u9fa5]+$/, message: "不能含有漢字", trigger: "blur" }
-  ],
-  commission_ratio: [{ required: true, message: "請輸入傭金比例", trigger: "blur" }]
+  ]
 })
 
 /**获取数据 */
@@ -137,7 +137,13 @@ const handleEditPayment = (value) => {
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">客戶基本信息</el-text>
-          <el-button type="primary" @click="submitForm(ruleFormRef)" :disabled="isSubmitForm">保存</el-button>
+          <el-button
+            v-permission="['addClient']"
+            type="primary"
+            @click="submitForm(ruleFormRef)"
+            :disabled="isSubmitForm"
+            >保存</el-button
+          >
         </div>
       </div>
       <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
@@ -162,14 +168,18 @@ const handleEditPayment = (value) => {
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="信用額度" prop="credit">
-              <el-input v-model="ruleForm.credit" type="number" />
+            <el-form-item label="信用額度">
+              <el-input
+                v-model="ruleForm.credit"
+                type="number"
+                @input="ruleForm.credit = validateNumberMin(ruleForm.credit)"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="付款條件">
-              <el-select v-model="ruleForm.payment_terms">
-                <el-option v-for="(item, index) in PayMentOptions" :label="item" :value="item" :key="index" />
+            <el-form-item label="付款條件" prop="payment_terms_id">
+              <el-select v-model="ruleForm.payment_terms_id">
+                <el-option v-for="item in PayMentOptions" :label="item.name" :value="item.id" :key="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -186,8 +196,14 @@ const handleEditPayment = (value) => {
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="佣金比例" prop="commission_ratio">
-              <el-input v-model="ruleForm.commission_ratio" type="number" />
+            <el-form-item label="佣金比例">
+              <el-input
+                v-model="ruleForm.commission_ratio"
+                type="number"
+                @input="ruleForm.commission_ratio = validateNumberMinMax(ruleForm.commission_ratio)"
+              >
+                <template #append>%</template>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="6">
@@ -216,8 +232,12 @@ const handleEditPayment = (value) => {
           </el-col>
           <el-col :span="6">
             <el-form-item label="預付款">
-              <span class="color-red">{{ ruleForm.advance_payment }}</span>
-              <Tickets class="w6 h6 m-l-2 color-blue cursor-pointer" @click="dialogVisible = true" />
+              <span class="color-red">{{ ruleForm.advance_payment || 0 }}</span>
+              <Tickets
+                v-permission="['clientAdvancePayment-1']"
+                class="w6 h6 m-l-2 color-blue cursor-pointer"
+                @click="dialogVisible = true"
+              />
             </el-form-item>
           </el-col>
         </el-row>

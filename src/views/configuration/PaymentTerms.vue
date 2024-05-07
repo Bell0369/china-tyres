@@ -1,10 +1,10 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue"
-import { getBrandListApi, addBrandListApi } from "@/api/selects"
+import { getPaymentTermsApi, addPaymentTermsApi } from "@/api/selects"
 import { ElMessage } from "element-plus"
 
 defineOptions({
-  name: "Brand"
+  name: "PaymentTerms"
 })
 
 const loading = ref(false)
@@ -15,7 +15,7 @@ const tableData = ref([])
 
 const getTableData = () => {
   loading.value = true
-  getBrandListApi({})
+  getPaymentTermsApi({})
     .then(({ data }) => {
       tableData.value = data
     })
@@ -31,38 +31,13 @@ onMounted(() => {
   getTableData()
 })
 
-//#region 删
-/*
-const handleDelete = (row) => {
-  ElMessageBox.confirm(`確認刪除該品牌？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning"
-  })
-    .then(() => {
-      console.log(row.id)
-      // deleteFactoryApi(row.id).then(() => {
-      //   ElMessage.success("刪除成功")
-      // })
-    })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
-      })
-    })
-}
-*/
-//#endregion
-
 /** 新增，編輯 */
 const dialogVisible = ref(false)
 
 const formRef = ref()
 const formDataTitle = ref("")
 const formData = reactive({
-  name: "",
-  short: ""
+  name: ""
 })
 
 /** 彈框 */
@@ -80,17 +55,16 @@ const handleUpdate = (row) => {
 }
 
 const rules = reactive({
-  name: [{ required: true, message: "請輸入品牌名稱", trigger: "blur" }],
-  short: [{ required: true, message: "請輸入名稱簡寫", trigger: "blur" }]
+  name: [{ required: true, message: "請輸入付款條件", trigger: "blur" }]
 })
 
 const submitForm = (formRef) => {
   if (!formRef) return
   formRef.validate((valid) => {
     if (valid) {
-      addBrandListApi(formData).then(() => {
-        ElMessage.success("添加成功")
+      addPaymentTermsApi(formData).then(() => {
         dialogVisible.value = false
+        ElMessage.success("添加成功")
         getTableData()
       })
     } else {
@@ -101,17 +75,16 @@ const submitForm = (formRef) => {
 </script>
 <template>
   <div class="app-container">
-    <el-card v-loading="loading" shadow="never" class="mb8">
+    <el-card v-loading="loading" shadow="never">
       <div class="pb5">
         <div class="flex justify-between mb5">
-          <el-text tag="b" size="large">品牌</el-text>
+          <el-text tag="b" size="large">付款條件</el-text>
           <div>
             <el-button type="primary" @click="handleUpdate(0)">添加</el-button>
           </div>
         </div>
         <el-table border ref="tableRef" :data="tableData">
           <el-table-column prop="name" label="名稱" />
-          <el-table-column prop="short" label="簡寫" />
           <el-table-column label="操作">
             <template #default="scope">
               <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
@@ -125,11 +98,8 @@ const submitForm = (formRef) => {
     <!-- 新增/修改 -->
     <el-dialog v-model="dialogVisible" :title="formDataTitle" width="30%" destroy-on-close>
       <el-form ref="formRef" :model="formData" :rules="rules">
-        <el-form-item label="名稱" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="簡寫" prop="short">
-          <el-input v-model="formData.short" placeholder="请输入" />
+        <el-form-item label="付款條件" prop="name">
+          <el-input v-model="formData.name" />
         </el-form-item>
       </el-form>
       <template #footer>

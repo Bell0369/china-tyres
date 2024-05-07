@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue"
 import { getDeliveryListApi, addDeliveryListApi } from "@/api/selects"
-import { ElMessage, ElMessageBox } from "element-plus"
+import { ElMessage } from "element-plus"
 
 defineOptions({
   name: "Brand"
@@ -32,6 +32,7 @@ onMounted(() => {
 })
 
 //#region 删
+/*
 const handleDelete = (row) => {
   ElMessageBox.confirm(`確認刪除該發貨方式？`, "提示", {
     confirmButtonText: "确定",
@@ -51,6 +52,7 @@ const handleDelete = (row) => {
       })
     })
 }
+*/
 //#endregion
 
 /** 新增，編輯 */
@@ -84,15 +86,12 @@ const submitForm = (formRef) => {
   if (!formRef) return
   formRef.validate((valid) => {
     if (valid) {
-      addDeliveryListApi(formData)
-        .then(() => {
-          ElMessage.success("添加成功")
-          dialogVisible.value = false
-          getTableData()
-        })
-        .finally(() => {
-          loading.value = false
-        })
+      loading.value = true
+      addDeliveryListApi(formData).then(() => {
+        dialogVisible.value = false
+        ElMessage.success("添加成功")
+        getTableData()
+      })
     } else {
       return false
     }
@@ -114,7 +113,7 @@ const submitForm = (formRef) => {
           <el-table-column label="操作">
             <template #default="scope">
               <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <!-- <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button> -->
             </template>
           </el-table-column>
         </el-table>

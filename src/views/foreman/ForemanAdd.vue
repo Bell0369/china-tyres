@@ -21,7 +21,6 @@ const remoteMethod = (query) => {
   })
     .then(({ data }) => {
       const list = data.data
-      console.log(list)
       userOptions.value = list
     })
     .catch(() => {
@@ -52,7 +51,6 @@ const submitInfo = async (formEl) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log(ruleForm)
       updateFactoryApi(ruleForm).then(() => {
         ElMessage.success("操作成功")
         emitEvents("childEvent")

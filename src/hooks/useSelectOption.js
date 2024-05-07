@@ -1,5 +1,11 @@
 import { ref, onMounted } from "vue"
-import { getBrandListApi, getDeliveryListApi, getFactoryListApi, getDepartmentApi } from "@/api/selects"
+import {
+  getBrandListApi,
+  getDeliveryListApi,
+  getFactoryListApi,
+  getDepartmentApi,
+  getPaymentTermsApi
+} from "@/api/selects"
 
 // 獲取品牌
 export function useBrandSelect() {
@@ -40,7 +46,16 @@ export function usePayMentSelect() {
   // 區號
   const codeArr = ["86", "852", "1", "44", "91", "81", "49", "7", "82", "39", "33", "34", "61", "64", "52"]
 
-  const PayMentOptions = ["付款条件A", "付款条件B", "付款条件C", "付款条件D"]
+  // const PayMentOptions = ["付款条件A", "付款条件B", "付款条件C", "付款条件D"]
+  const PayMentOptions = ref([])
+  const getPaymentTerms = () => {
+    getPaymentTermsApi().then(({ data }) => {
+      PayMentOptions.value = data
+    })
+  }
+  onMounted(() => {
+    getPaymentTerms()
+  })
 
   return {
     PayMentOptions,

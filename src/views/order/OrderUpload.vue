@@ -6,7 +6,7 @@ import { useTagsViewStore } from "@/store/modules/tags-view"
 import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { uploadOrderApi } from "@/api/order"
-import BasicInformation from "./components/BasicInformation.vue"
+import UploadInfo from "./components/UploadInfo.vue"
 import { UploadXlsx } from "@/components/UploadXlsx"
 
 defineOptions({
@@ -170,7 +170,7 @@ const filterTable = () => {
       </div>
     </el-card>
 
-    <BasicInformation :orderInfo="orderInfo" v-show="isorderInfo" />
+    <upload-info :orderInfo="orderInfo" v-show="isorderInfo" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">

@@ -145,7 +145,14 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
-          <el-button type="primary" :icon="CirclePlus" tag="router-link" to="/piorder/piorderupload">上傳PI</el-button>
+          <el-button
+            v-permission="['uploadPi']"
+            type="primary"
+            :icon="CirclePlus"
+            tag="router-link"
+            to="/piorder/piorderupload"
+            >上傳PI</el-button
+          >
           <div>
             <el-text>未發貨PI總數量：</el-text>
             <el-text size="large" type="danger">{{ notShipped }}</el-text>
@@ -160,7 +167,11 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-table-column prop="quantity" label="櫃量(40'HQ)" align="center">
             <template #default="scope">
               {{ scope.row.quantity }}
-              <EditPen @click="handleUpdateQuantity(scope.row)" class="w4 h4 cursor-pointer hover:c-blue" />
+              <EditPen
+                v-permission="['PiEditQuantity']"
+                @click="handleUpdateQuantity(scope.row)"
+                class="w4 h4 cursor-pointer hover:c-blue"
+              />
             </template>
           </el-table-column>
           <el-table-column prop="product_total_number" label="PI數量" align="center" />
@@ -177,6 +188,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-table-column fixed="right" label="操作" width="130" align="center">
             <template #default="scope">
               <el-button
+                v-permission="['piBasicDetail']"
                 type="success"
                 text
                 bg
@@ -185,7 +197,15 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
                 :to="`/piorder/piorderitem?id=${scope.row.id}`"
                 >查看</el-button
               >
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+              <el-button
+                v-permission="['deletePi']"
+                type="danger"
+                text
+                bg
+                size="small"
+                @click="handleDelete(scope.row.id)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>

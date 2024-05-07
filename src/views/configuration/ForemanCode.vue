@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue"
-import { getFactoryListApi, addFactoryListApi } from "@/api/selects"
+import { getFactoryListApi, addFactoryListApi, deleteFactoryCodeApi } from "@/api/selects"
 import { ElMessage, ElMessageBox } from "element-plus"
 
 defineOptions({
@@ -39,10 +39,12 @@ const handleDelete = (row) => {
     type: "warning"
   })
     .then(() => {
-      console.log(row.id)
-      // deleteFactoryApi(row.id).then(() => {
-      //   ElMessage.success("刪除成功")
-      // })
+      deleteFactoryCodeApi({
+        code: row.code
+      }).then(() => {
+        ElMessage.success("刪除成功")
+        getTableData()
+      })
     })
     .catch(() => {
       ElMessage({
@@ -86,15 +88,11 @@ const submitForm = (formRef) => {
   if (!formRef) return
   formRef.validate((valid) => {
     if (valid) {
-      addFactoryListApi(formData)
-        .then(() => {
-          ElMessage.success("添加成功")
-          dialogVisible.value = false
-          getTableData()
-        })
-        .finally(() => {
-          loading.value = false
-        })
+      addFactoryListApi(formData).then(() => {
+        ElMessage.success("添加成功")
+        dialogVisible.value = false
+        getTableData()
+      })
     } else {
       return false
     }

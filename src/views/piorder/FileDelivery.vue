@@ -5,7 +5,7 @@ import { useRoute, useRouter } from "vue-router"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 import { useFactorySelect } from "@/hooks/useFactorySelect"
 import { uploadPiQuantityPlanApi, deliveryPlanApplyCheckApi } from "@/api/order"
-import PIItem from "./components/PIItem.vue"
+import FileInfo from "./components/FileInfo.vue"
 import { UploadXlsx } from "@/components/UploadXlsx"
 
 defineOptions({
@@ -179,7 +179,7 @@ const submitForm = (Type) => {
       </div>
     </el-card>
 
-    <PIItem :infoData="infoData" v-show="isorderInfo" />
+    <file-info :infoData="infoData" v-show="isorderInfo" />
 
     <el-card v-loading="loading" shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">

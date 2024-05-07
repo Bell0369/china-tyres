@@ -154,7 +154,9 @@ const handleChildEvent = () => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <el-button type="primary" :icon="CirclePlus" @click="dialogVisible = true">新增工廠</el-button>
+          <el-button v-permission="['addFactory']" type="primary" :icon="CirclePlus" @click="dialogVisible = true"
+            >新增工廠</el-button
+          >
         </div>
       </div>
       <div class="table-wrapper">
@@ -173,8 +175,24 @@ const handleChildEvent = () => {
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">
-              <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+              <el-button
+                v-permission="['addFactory', 'factoryBasicInfo']"
+                type="primary"
+                text
+                bg
+                size="small"
+                @click="handleUpdate(scope.row)"
+                >修改</el-button
+              >
+              <el-button
+                v-permission="['deleteFactory']"
+                type="danger"
+                text
+                bg
+                size="small"
+                @click="handleDelete(scope.row.id)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>

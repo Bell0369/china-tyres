@@ -1,8 +1,9 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { getUserListApi, updateClientListApi } from "@/api/users"
-import { useeDeliverTypeSelect, usePayMentSelect } from "@/hooks/useSelectOption.js"
 import { ElMessage } from "element-plus"
+import { getUserListApi, updateClientListApi } from "@/api/users"
+import { useeDeliverTypeSelect, usePayMentSelect } from "@/hooks/useSelectOption"
+import { validateNumberMin, validateNumberMinMax } from "@/utils/validate"
 
 defineOptions({
   name: "ClientItem"
@@ -37,10 +38,10 @@ const ruleForm = reactive({
   user_id: null,
   name: "",
   client_encod: "",
-  credit: "",
-  payment_terms: "付款条件A",
+  credit: undefined,
+  payment_terms_id: "",
   deliver_type: 1,
-  commission_ratio: "",
+  commission_ratio: undefined,
   is_commission: 0,
   is_deliver_project: 1,
   is_check_deliver_project: 0
@@ -48,9 +49,8 @@ const ruleForm = reactive({
 
 const rules = reactive({
   name: [{ required: true, message: "請輸入客戶名稱", trigger: "blur" }],
-  credit: [{ required: true, message: "請輸入信用額度", trigger: "blur" }],
+  payment_terms_id: [{ required: true, message: "請選擇付款條件", trigger: "blur" }],
   client_encod: [{ required: true, message: "請輸入客戶編碼", trigger: "blur" }],
-  commission_ratio: [{ required: true, message: "請輸入傭金比例", trigger: "blur" }],
   user_id: [{ required: true, message: "請選所屬員工", trigger: "blur" }]
 })
 
@@ -97,13 +97,17 @@ const submitForm = (formEl) => {
         </el-col>
         <el-col :span="12">
           <el-form-item label="信用額度" prop="credit">
-            <el-input v-model="ruleForm.credit" />
+            <el-input
+              v-model="ruleForm.credit"
+              type="number"
+              @input="ruleForm.credit = validateNumberMin(ruleForm.credit)"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="付款條件">
-            <el-select v-model="ruleForm.payment_terms">
-              <el-option v-for="(item, index) in PayMentOptions" :label="item" :value="item" :key="index" />
+          <el-form-item label="付款條件" prop="payment_terms_id">
+            <el-select v-model="ruleForm.payment_terms_id">
+              <el-option v-for="item in PayMentOptions" :label="item.name" :value="item.id" :key="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -121,7 +125,13 @@ const submitForm = (formEl) => {
         </el-col>
         <el-col :span="12">
           <el-form-item label="佣金比例" prop="commission_ratio">
-            <el-input v-model="ruleForm.commission_ratio" />
+            <el-input
+              v-model="ruleForm.commission_ratio"
+              type="number"
+              @input="ruleForm.commission_ratio = validateNumberMinMax(ruleForm.commission_ratio)"
+            >
+              <template #append>%</template>
+            </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">

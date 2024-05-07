@@ -1,511 +1,424 @@
-import { type RouteRecordRaw, createRouter } from "vue-router"
-import { history, flatMultiLevelRoutes } from "./helper"
-import routeSettings from "@/config/route"
-
-const Layouts = () => import("@/layouts/index.vue")
-
-/**
- * 常驻路由
- * 除了 redirect/403/404/login 等隐藏页面，其他页面建议设置 Name 属性
- */
-export const constantRoutes: RouteRecordRaw[] = [
-  {
-    path: "/redirect",
-    component: Layouts,
-    meta: {
-      hidden: true
-    },
-    children: [
-      {
-        path: ":path(.*)",
-        component: () => import("@/views/redirect/index.vue")
-      }
-    ]
-  },
-  {
-    path: "/403",
-    component: () => import("@/views/error-page/403.vue"),
-    meta: {
-      hidden: true
-    }
-  },
-  {
-    path: "/404",
-    component: () => import("@/views/error-page/404.vue"),
-    meta: {
-      hidden: true
-    },
-    alias: "/:pathMatch(.*)*"
-  },
-  {
-    path: "/login",
-    component: () => import("@/views/login/index.vue"),
-    meta: {
-      hidden: true
-    }
-  },
-  {
-    path: "/",
-    component: Layouts,
-    redirect: "/dashboard",
-    name: "Home",
-    children: [
-      {
-        path: "dashboard",
-        component: () => import("@/views/dashboard/index.vue"),
-        name: "Dashboard",
-        meta: {
-          title: "首页",
-          svgIcon: "home",
-          name: "Home",
-          affix: true
-        }
-      },
-      {
-        path: "updatepassword",
-        component: () => import("@/views/dashboard/UpdatePassword.vue"),
-        name: "UpdatePassword",
-        meta: {
-          title: "修改密碼",
-          hidden: true
-        }
-      }
-    ]
-  }
-]
-
-/**
- * 动态路由
- * 用来放置有权限 (Roles 属性) 的路由
- * 必须带有 Name 属性
- */
-export const dynamicRoutes: RouteRecordRaw[] = [
+export const routesList = [
   {
     path: "/users",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/users/userlist",
     name: "User",
     meta: {
-      roles: ["userList"]
+      authority: "User"
     },
     children: [
       {
         path: "userlist",
-        component: () => import("@/views/users/UserList.vue"),
+        component: "users/UserList",
         name: "UserList",
         meta: {
           title: "用戶管理",
           svgIcon: "user",
           name: "User",
-          keepAlive: true
+          keepAlive: true,
+          authority: "UserList"
         }
       }
     ]
   },
   {
     path: "/client",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/client/clientlist",
     name: "Client",
     meta: {
       title: "客戶管理",
-      roles: ["clientList"]
+      authority: "Client"
     },
     children: [
       {
         path: "clientlist",
-        component: () => import("@/views/client/ClientList.vue"),
+        component: "client/ClientList",
         name: "ClientList",
         meta: {
           title: "客戶管理",
           svgIcon: "client",
           name: "Client",
-          keepAlive: true
+          keepAlive: true,
+          authority: "ClientList"
         }
       },
       {
         path: "clientitem",
-        component: () => import("@/views/client/ClientItem.vue"),
+        component: "client/ClientItem",
         name: "ClientItem",
         meta: {
           title: "客戶詳情",
           name: "Client",
-          hidden: true
+          hidden: true,
+          authority: "ClientItem"
         }
       }
     ]
   },
   {
     path: "/foreman",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/foreman/foremanlist",
     name: "Foreman",
     meta: {
       title: "工廠管理",
-      roles: ["factoryList"]
+      authority: "Foreman"
     },
     children: [
       {
         path: "foremanlist",
-        component: () => import("@/views/foreman/ForemanList.vue"),
+        component: "foreman/ForemanList",
         name: "ForemanList",
         meta: {
           title: "工廠管理",
           svgIcon: "factory",
           name: "Foreman",
-          keepAlive: true
+          keepAlive: true,
+          authority: "ForemanList"
         }
       },
       {
         path: "foremanitem",
-        component: () => import("@/views/foreman/ForemanItem.vue"),
+        component: "foreman/ForemanItem",
         name: "ForemanItem",
         meta: {
           title: "工廠詳情",
           name: "Foreman",
-          hidden: true
+          hidden: true,
+          authority: "ForemanItem"
         }
       }
     ]
   },
   {
     path: "/order",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/order/orderlist",
     name: "Order",
     meta: {
       title: "訂單管理",
-      roles: ["orderList"]
+      authority: "Orders"
     },
     children: [
       {
         path: "orderlist",
-        component: () => import("@/views/order/OrderList.vue"),
+        component: "order/OrderList",
         name: "OrderList",
         meta: {
           title: "訂單管理",
           svgIcon: "order",
           keepAlive: true,
-          name: "Order"
+          name: "Order",
+          authority: "OrdersList"
         }
       },
       {
         path: "orderitem",
-        component: () => import("@/views/order/OrderItem.vue"),
+        component: "order/OrderItem",
         name: "OrderItem",
         meta: {
           title: "訂單詳情",
           hidden: true,
-          name: "Order"
+          name: "Order",
+          authority: "OrdersItem"
         }
       },
       {
         path: "orderupload",
-        component: () => import("@/views/order/OrderUpload.vue"),
+        component: "order/OrderUpload",
         name: "OrderUpload",
         meta: {
           title: "上傳訂單",
           hidden: true,
-          name: "Order"
+          name: "Order",
+          authority: "OrdersUpload"
         }
       }
     ]
   },
   {
     path: "/piorder",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/piorder/piorderlist",
     name: "PIOrder",
     meta: {
       title: "PI管理",
-      roles: ["piList"]
+      authority: "PIOrder"
     },
     children: [
       {
         path: "piorderlist",
-        component: () => import("@/views/piorder/PIOrderList.vue"),
+        component: "piorder/PIOrderList",
         name: "PIOrderList",
         meta: {
           title: "PI管理",
           svgIcon: "piorder",
           name: "PIOrder",
-          keepAlive: true
+          keepAlive: true,
+          authority: "PIOrderList"
         }
       },
       {
         path: "piorderitem",
-        component: () => import("@/views/piorder/PIOrderItem.vue"),
+        component: "piorder/PIOrderItem",
         name: "PIOrderItem",
         meta: {
           title: "PI詳情",
           name: "PIOrder",
-          hidden: true
+          hidden: true,
+          authority: "PIOrderItem"
         }
       },
       {
         path: "piorderupload",
-        component: () => import("@/views/piorder/PIOrderUpload.vue"),
+        component: "piorder/PIOrderUpload",
         name: "PIOrderUpload",
         meta: {
           title: "上傳PI",
           name: "PIOrder",
-          hidden: true
+          hidden: true,
+          authority: "PIOrderUpload"
         }
       },
       {
         path: "pidelivery",
-        component: () => import("@/views/piorder/PIDelivery.vue"),
+        component: "piorder/PIDelivery",
         name: "PIDelivery",
         meta: {
           title: "PI發貨計劃",
           name: "PIOrder",
-          hidden: true
+          hidden: true,
+          authority: "PIDelivery"
         }
       },
       {
         path: "filedelivery",
-        component: () => import("@/views/piorder/FileDelivery.vue"),
+        component: "piorder/FileDelivery",
         name: "FileDelivery",
         meta: {
           title: "文件發貨計劃",
           name: "PIOrder",
-          hidden: true
+          hidden: true,
+          authority: "FileDelivery"
         }
       }
     ]
   },
   {
     path: "/delivery",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/delivery/deliverylist",
     name: "Delivery",
     meta: {
       title: "發貨計劃",
-      roles: ["deliveryPlanList"]
+      authority: "Delivery"
     },
     children: [
       {
         path: "deliverylist",
-        component: () => import("@/views/delivery/DeliveryList.vue"),
+        component: "delivery/DeliveryList",
         name: "DeliveryList",
         meta: {
           title: "發貨計劃",
           svgIcon: "delivery",
           name: "Delivery",
-          keepAlive: true
+          keepAlive: true,
+          authority: "DeliveryList"
         }
       },
       {
         path: "deliveryitem",
-        component: () => import("@/views/delivery/DeliveryItem.vue"),
+        component: "delivery/DeliveryItem",
         name: "DeliveryItem",
         meta: {
           title: "發貨計劃詳情",
           name: "Delivery",
-          hidden: true
+          hidden: true,
+          authority: "DeliveryItem"
         }
       },
       {
         path: "deliveryupload",
-        component: () => import("@/views/delivery/DeliveryUpload.vue"),
+        component: "delivery/DeliveryUpload",
         name: "DeliveryUpload",
         meta: {
           title: "上傳發貨計劃",
           name: "Delivery",
-          hidden: true
+          hidden: true,
+          authority: "DeliveryUpload"
         }
       }
     ]
   },
   {
     path: "/invoice",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/invoice/invoicelist",
     name: "Invoice",
     meta: {
       title: "銷售發票",
-      roles: ["invList"]
+      authority: "Invoice"
     },
     children: [
       {
         path: "invoicelist",
-        component: () => import("@/views/invoice/InvoiceList.vue"),
+        component: "invoice/InvoiceList",
         name: "InvoiceList",
         meta: {
           title: "銷售發票",
           svgIcon: "inventory",
           name: "Invoice",
-          keepAlive: true
+          keepAlive: true,
+          authority: "InvoiceList"
         }
       },
       {
         path: "invoiceitem",
-        component: () => import("@/views/invoice/InvoiceItem.vue"),
+        component: "invoice/InvoiceItem",
         name: "InvoiceItem",
         meta: {
           title: "發票詳情",
           name: "Invoice",
-          hidden: true
+          hidden: true,
+          authority: "InvoiceItem"
         }
       }
     ]
   },
   {
     path: "/payment",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/payment/paymentlist",
     name: "Payment",
     meta: {
       title: "應收應付",
       svgIcon: "payment",
-      roles: ["clientProceeds"]
+      authority: "Payment"
     },
     children: [
       {
         path: "paymentlist",
-        component: () => import("@/views/payment/PaymentList.vue"),
+        component: "payment/PaymentList",
         name: "PaymentList",
         meta: {
           title: "應收應付",
-          name: "Payment"
+          name: "Payment",
+          authority: "PaymentList"
         }
       },
       {
         path: "prepayments",
-        component: () => import("@/views/payment/Prepayments.vue"),
+        component: "payment/Prepayments",
         name: "Prepayments",
         meta: {
           title: "預付款",
-          name: "Payment"
+          name: "Payment",
+          authority: "Prepayments"
         }
       }
     ]
   },
   {
     path: "/product",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/product/productlist",
     name: "Product",
     meta: {
       title: "產品管理",
-      roles: ["productList"]
+      authority: "Product"
     },
     children: [
       {
         path: "productlist",
-        component: () => import("@/views/product/ProductList.vue"),
+        component: "product/ProductList",
         name: "ProductList",
         meta: {
           title: "產品管理",
           svgIcon: "product",
           name: "Product",
-          keepAlive: true
+          keepAlive: true,
+          authority: "ProductList"
         }
       },
       {
         path: "productitem",
-        component: () => import("@/views/product/ProductItem.vue"),
+        component: "product/ProductItem",
         name: "ProductItem",
         meta: {
           title: "產品詳情",
           name: "Product",
-          hidden: true
+          hidden: true,
+          authority: "ProductItem"
         }
       }
     ]
   },
   {
     path: "/configuration",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/configuration/foremancode",
     name: "Configuration",
     meta: {
       title: "配置項",
       svgIcon: "dashboard",
-      roles: ["config"]
+      authority: "Configuration"
     },
     children: [
       {
         path: "foremancode",
-        component: () => import("@/views/configuration/ForemanCode.vue"),
+        component: "configuration/ForemanCode",
         name: "ForemanCode",
         meta: {
           name: "Configuration",
-          title: "工廠代碼"
+          title: "工廠代碼",
+          authority: "ForemanCode"
         }
       },
       {
         path: "brand",
-        component: () => import("@/views/configuration/Brand.vue"),
+        component: "configuration/Brand",
         name: "Brand",
         meta: {
           name: "Configuration",
-          title: "品牌"
+          title: "品牌",
+          authority: "Brand"
         }
       },
       {
         path: "shipping",
-        component: () => import("@/views/configuration/Shipping.vue"),
+        component: "configuration/Shipping",
         name: "Shipping",
         meta: {
           name: "Configuration",
-          title: "發貨方式"
-        }
-      },
-      {
-        path: "paymentterms",
-        component: () => import("@/views/configuration/PaymentTerms.vue"),
-        name: "PaymentTerms",
-        meta: {
-          name: "Configuration",
-          title: "付款條件"
+          title: "發貨方式",
+          authority: "Shipping"
         }
       }
     ]
   },
   {
     path: "/report",
-    component: Layouts,
+    component: "Layouts",
     redirect: "/report/index",
     name: "Report",
     meta: {
       title: "統計報表",
-      roles: ["report"]
+      authority: "Report"
     },
     children: [
       {
         path: "index",
-        component: () => import("@/views/report/index.vue"),
+        component: "report/index",
         name: "ReportList",
         meta: {
-          title: "統計報表",
+          title: "統計報表2",
           svgIcon: "report",
-          name: "Report"
+          name: "Report",
+          authority: "ReportList"
         }
       }
     ]
   }
 ]
-
-const router = createRouter({
-  history,
-  routes: routeSettings.thirdLevelRouteCache ? flatMultiLevelRoutes(constantRoutes) : constantRoutes
-})
-
-/** 重置路由 */
-export function resetRouter() {
-  // 注意：所有动态路由路由必须带有 Name 属性，否则可能会不能完全重置干净
-  try {
-    router.getRoutes().forEach((route) => {
-      const { name, meta } = route
-      if (name && meta.roles?.length) {
-        router.hasRoute(name) && router.removeRoute(name)
-      }
-    })
-  } catch {
-    // 强制刷新浏览器也行，只是交互体验不是很好
-    window.location.reload()
-  }
-}
-
-export default router

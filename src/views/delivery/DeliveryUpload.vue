@@ -7,7 +7,7 @@ import { getDeliveryPlanNoApi, uploadPackingListApi } from "@/api/order"
 import { useOrderSelet } from "@/hooks/useOrderSelet"
 import { useeDeliverTypeSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { UploadXlsx } from "@/components/UploadXlsx"
-import PIItem from "../piorder/components/PIItem.vue"
+import UploadInfo from "./components/UploadInfo.vue"
 
 defineOptions({
   name: "DeliveryUoload"
@@ -197,7 +197,7 @@ const submitForm = (Type) => {
       </el-row>
     </el-card>
 
-    <PIItem :infoData="infoData" v-show="isorderInfo" />
+    <upload-info :infoData="infoData" v-show="isorderInfo" />
 
     <el-card shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">

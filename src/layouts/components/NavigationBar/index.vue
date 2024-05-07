@@ -35,6 +35,11 @@ const logout = () => {
   userStore.logout()
   router.push("/login")
 }
+
+// 修改密碼
+const updatePaw = () => {
+  router.push("/updatepassword")
+}
 </script>
 
 <template>
@@ -59,6 +64,9 @@ const logout = () => {
         </div>
         <template #dropdown>
           <el-dropdown-menu>
+            <el-dropdown-item @click="updatePaw">
+              <span style="display: block">修改密碼</span>
+            </el-dropdown-item>
             <el-dropdown-item @click="logout">
               <span style="display: block">退出登录</span>
             </el-dropdown-item>

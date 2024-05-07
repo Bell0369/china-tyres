@@ -53,6 +53,12 @@ const resolvePath = (routePath: string) => {
   }
 }
 
+// const hasPermission = (name) => {
+//   const routeRoles = ["用戶管理", "客戶管理"]
+//   return routeRoles.includes(name)
+//   v-show="hasPermission(theOnlyOneChild.meta.title)"
+// }
+
 const route = useRoute()
 </script>
 

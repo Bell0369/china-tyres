@@ -59,7 +59,7 @@ const tableData = ref([])
 const searchFormRef = ref(null)
 const searchData = reactive({
   keyword: "",
-  payment_terms: "",
+  payment_terms_id: "",
   user_id: ""
 })
 const getTableData = () => {
@@ -68,7 +68,7 @@ const getTableData = () => {
     page: paginationData.currentPage,
     page_size: paginationData.pageSize,
     keyword: searchData.keyword || undefined,
-    payment_terms: searchData.payment_terms || undefined,
+    payment_terms_id: searchData.payment_terms || undefined,
     user_id: searchData.user_id || undefined
   })
     .then(({ data }) => {
@@ -123,10 +123,10 @@ const handleChildEvent = () => {
         <el-form-item prop="keyword" label="用户名">
           <el-input v-model="searchData.keyword" placeholder="請輸入客戶名稱、電話" style="width: 300px" />
         </el-form-item>
-        <el-form-item prop="payment_terms" label="付款條件">
-          <el-select v-model="searchData.payment_terms" style="width: 150px">
+        <el-form-item prop="payment_terms_id" label="付款條件">
+          <el-select v-model="searchData.payment_terms_id" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option v-for="(item, index) in PayMentOptions" :label="item" :value="item" :key="index" />
+            <el-option v-for="item in PayMentOptions" :label="item.name" :value="item.id" :key="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item prop="user_id" label="所屬員工">
@@ -152,7 +152,9 @@ const handleChildEvent = () => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div>
-          <el-button @click="dialogVisible = true" type="primary" :icon="CirclePlus">新增客戶</el-button>
+          <el-button v-permission="['addClient']" @click="dialogVisible = true" type="primary" :icon="CirclePlus">
+            新增客戶
+          </el-button>
         </div>
       </div>
       <div class="table-wrapper">
@@ -169,7 +171,15 @@ const handleChildEvent = () => {
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
           <el-table-column fixed="right" label="操作" width="130" align="center">
             <template #default="scope">
-              <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-button
+                type="primary"
+                v-permission="['addClient', 'clientShow']"
+                text
+                bg
+                size="small"
+                @click="handleUpdate(scope.row)"
+                >修改</el-button
+              >
               <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>

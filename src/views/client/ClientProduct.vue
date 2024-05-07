@@ -183,10 +183,10 @@ watch(
       <div class="flex justify-between">
         <el-text size="large" tag="b">產品信息</el-text>
         <div>
-          <el-button type="primary" @click="dialogVisible2 = true" :disabled="defaultContact === null"
+          <el-button type="primary" @click="dialogVisible2 = true" :disabled="defaultContact === 0"
             >批量調整價格</el-button
           >
-          <el-button type="primary" @click="handleUpdate(0)" :disabled="defaultContact === null">新增產品</el-button>
+          <el-button type="primary" @click="handleUpdate(0)" :disabled="defaultContact === 0">新增產品</el-button>
         </div>
       </div>
       <div class="mt2">
