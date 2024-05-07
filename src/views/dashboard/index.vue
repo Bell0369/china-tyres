@@ -17,7 +17,7 @@ const value = ref(new Date())
         <el-descriptions-item label="電話">{{ userinfo.phone }}</el-descriptions-item>
         <el-descriptions-item label="部門">{{ userinfo.account }}</el-descriptions-item>
         <el-descriptions-item label="性別">
-          <el-tag size="small">{{ userinfo.sex }}</el-tag>
+          {{ userinfo.sex ? (userinfo.sex === 1 ? "男" : "女") : "未知" }}
         </el-descriptions-item>
         <el-descriptions-item label="備註">{{ userinfo.remarks }} </el-descriptions-item>
       </el-descriptions>

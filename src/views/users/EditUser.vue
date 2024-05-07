@@ -97,7 +97,7 @@ onMounted(() => {
       id: rowId
     })
       .then(({ data }) => {
-        data.password = ""
+        // data.password = ""
         Object.assign(ruleForm, data)
         setTimeout(() => {
           data.permission_ids.forEach((item) => {

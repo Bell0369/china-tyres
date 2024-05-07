@@ -2,7 +2,7 @@
 import { reactive, ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { useUserStore } from "@/store/modules/user"
-import { type FormInstance, type FormRules, ElMessage } from "element-plus"
+import { type FormInstance, type FormRules } from "element-plus"
 import { User, Lock } from "@element-plus/icons-vue"
 import { type LoginRequestData } from "@/api/login/types/login"
 import Owl from "./components/Owl.vue"
@@ -61,9 +61,8 @@ const handleLogin = () => {
 
           router.push({ path: "/" })
         })
-        .catch((res) => {
+        .catch(() => {
           loginFormData.password = ""
-          ElMessage.error(res.message)
         })
         .finally(() => {
           loading.value = false

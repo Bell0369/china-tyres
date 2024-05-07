@@ -4,6 +4,7 @@ import App from "@/App.vue"
 import store from "@/store"
 import router from "@/router"
 import "@/router/permission"
+import echarts from "@/utils/echart"
 // load
 import { loadSvg } from "@/icons"
 import { loadPlugins } from "@/plugins"
@@ -23,6 +24,9 @@ loadPlugins(app)
 loadSvg(app)
 /** 加载自定义指令 */
 loadDirectives(app)
+
+// app.config.globalProperties.$echarts = echarts // vue3的挂载方式（一个用于注册能够被应用内所有组件实例访问到的全局属性的对象。）
+app.provide("$echarts", echarts) // vue3采用provide, inject方式使用
 
 app.use(store).use(router)
 router.isReady().then(() => {

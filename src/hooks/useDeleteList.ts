@@ -21,14 +21,13 @@ export function useDeleteList(props: FetchSelectProps) {
       .then(() => {
         api({
           id: id
+        }).then(() => {
+          ElMessage.success("刪除成功")
+          isDeleted.value = id
         })
-          .then(() => {
-            ElMessage.success("刪除成功")
-            isDeleted.value = id
-          })
-          .catch(() => {
-            ElMessage.error("刪除失败")
-          })
+        // .catch(() => {
+        //   ElMessage.error("刪除失败")
+        // })
       })
       .catch(() => {
         ElMessage({

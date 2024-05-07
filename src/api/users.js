@@ -63,11 +63,11 @@ export function getClientListApi(params) {
   })
 }
 // 刪
-export function deleteClientListApi(params) {
+export function deleteClientListApi(data) {
   return request({
-    url: "client/clientList",
-    method: "get",
-    params
+    url: "client/deleteClient",
+    method: "post",
+    data
   })
 }
 // 改
@@ -96,7 +96,7 @@ export function getClientProductApi(params) {
     params
   })
 }
-// 刪 *
+// 刪
 export function deleteClientProductApi(data) {
   return request({
     url: "client/deleteClientProduct",

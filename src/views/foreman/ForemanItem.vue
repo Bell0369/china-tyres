@@ -157,7 +157,7 @@ const handleEditPayment = (value) => {
           <el-col :span="1" />
           <el-col :span="6">
             <el-form-item label="預付款">
-              <span class="color-red">{{ ruleForm.advance_payment }}</span>
+              <span class="color-red">{{ ruleForm.advance_payment || 0 }}</span>
               <Tickets
                 v-permission="['factoryAdvancePayment']"
                 class="w6 h6 m-l-2 color-blue cursor-pointer"

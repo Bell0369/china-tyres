@@ -466,21 +466,30 @@ export const dynamicRoutes: RouteRecordRaw[] = [
   {
     path: "/report",
     component: Layouts,
-    redirect: "/report/index",
+    redirect: "/report/statistics",
     name: "Report",
     meta: {
       title: "統計報表",
+      svgIcon: "report",
       roles: ["report"]
     },
     children: [
       {
-        path: "index",
-        component: () => import("@/views/report/index.vue"),
-        name: "ReportList",
+        path: "statistics",
+        component: () => import("@/views/report/Statistics.vue"),
+        name: "Statistics",
         meta: {
           title: "統計報表",
-          svgIcon: "report",
           name: "Report"
+        }
+      },
+      {
+        path: "export",
+        component: () => import("@/views/report/Export.vue"),
+        name: "Export",
+        meta: {
+          name: "Report",
+          title: "數據導出"
         }
       }
     ]
