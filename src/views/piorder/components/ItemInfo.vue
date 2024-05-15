@@ -46,7 +46,11 @@ setTimeout(() => {
       </div>
     </div>
     <el-descriptions :column="3" border>
-      <el-descriptions-item label="訂單號">{{ infoData.order_no }}</el-descriptions-item>
+      <el-descriptions-item label="訂單號">
+        <el-text type="primary">
+          <router-link :to="`/order/orderitem?id=${infoData.order_id}`">{{ infoData.order_no }}</router-link>
+        </el-text>
+      </el-descriptions-item>
       <el-descriptions-item label="PI號">{{ infoData.pi_no }}</el-descriptions-item>
       <el-descriptions-item label="發貨計劃號">
         <el-text
@@ -55,14 +59,14 @@ setTimeout(() => {
           type="primary"
           style="padding-right: 10px; display: inline-block"
         >
-          <router-link :to="`/delivery/deliveryitem?id=${item.id}}`">{{ item.delivery_plan_no }}</router-link>
+          <router-link :to="`/delivery/deliveryitem?id=${item.id}`">{{ item.delivery_plan_no }}</router-link>
         </el-text>
       </el-descriptions-item>
       <el-descriptions-item label="訂單總數量">{{ infoData.order_number }}</el-descriptions-item>
       <el-descriptions-item label="PI數量">{{ infoData.product_total_number }}</el-descriptions-item>
       <el-descriptions-item label="PI已發貨數">{{ infoData.shipped }}</el-descriptions-item>
       <el-descriptions-item label="PI未發貨數">{{ infoData.not_shipped }}</el-descriptions-item>
-      <el-descriptions-item label="PI總金額">XXX</el-descriptions-item>
+      <el-descriptions-item label="PI總金額">{{ infoData.total_price }}</el-descriptions-item>
       <el-descriptions-item label="櫃量(40'HQ)">
         {{ infoData.quantity }}
         <EditPen

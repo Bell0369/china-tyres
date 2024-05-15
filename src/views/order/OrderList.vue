@@ -1,13 +1,14 @@
 <script setup>
-import { reactive, ref, watch } from "vue"
-import { getOrderListApi, updateQuantityApi, deleteOrderApi } from "@/api/order"
-import { ElButton } from "element-plus"
+import { reactive, ref, watch, onActivated } from "vue"
+import { ElButton, ElMessage } from "element-plus"
 import { Search, CirclePlus, Refresh, EditPen } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
+import { getOrderListApi, updateQuantityApi, deleteOrderApi } from "@/api/order"
 import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { useDeleteList } from "@/hooks/useDeleteList"
 import { useUpdateQuantity } from "@/hooks/useUpdateQuantity"
+import { handleActivated } from "@/utils/tagsclose"
 
 defineOptions({
   name: "OrderList"
@@ -29,7 +30,7 @@ const { loadClient, optionsClient, loadClientData } = useClientSelect()
 // 删除
 const { handleDelete, isDeleted } = useDeleteList({
   api: deleteOrderApi,
-  text: "訂單"
+  text: "訂單？刪除訂單會連帶刪除PI、出貨計畫、發票等數據"
 })
 
 // 修改柜量
@@ -89,6 +90,15 @@ const resetSearch = () => {
 
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
+
+onActivated(() => {
+  if (handleActivated()) getTableData()
+})
+
+// 下载
+const handleUpload = (row) => {
+  ElMessage.info(`该功能暂未开通-${row.id}`)
+}
 </script>
 
 <template>
@@ -184,7 +194,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
                 :to="`/order/orderitem?id=${scope.row.id}`"
                 >查看</el-button
               >
-              <el-button type="warning" text bg size="small" @click="handleView(scope.row)">下载</el-button>
+              <el-button type="warning" text bg size="small" @click="handleUpload(scope.row)">下载</el-button>
               <el-button
                 v-permission="['deleteOrder']"
                 type="danger"

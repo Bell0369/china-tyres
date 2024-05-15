@@ -18,40 +18,7 @@ watch(
     tableDatas.value = props.list
   }
 )
-/*
-const data = [
-  {
-    pi_no_delivery_plan_no: "PI-kehubianma-1MV-202404-1",
-    item: [
-      {
-        product_name: "165/80R13 83T Ecodriver4",
-        number: 340,
-        unit_price: "336.00"
-      },
-      {
-        product_name: "155/80R13 79T Ecodriver4",
-        number: 400,
-        unit_price: "336.00"
-      }
-    ]
-  },
-  {
-    pi_no_delivery_plan_no: "PI-kehubianma-1MV-202404-2",
-    item: [
-      {
-        product_name: "165/80R13 83T Ecodriver4",
-        number: 340,
-        unit_price: "336.00"
-      },
-      {
-        product_name: "155/80R13 79T Ecodriver4",
-        number: 400,
-        unit_price: "336.00"
-      }
-    ]
-  }
-]
-*/
+
 //#region 查
 const keyword = ref("")
 const handleSearch = () => {
@@ -110,7 +77,7 @@ const resetSearch = () => {
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="訂單號" prop="pi_no_delivery_plan_no" />
+      <el-table-column label="發貨計劃號" prop="pi_no_delivery_plan_no" />
     </el-table>
   </div>
 </template>

@@ -15,6 +15,8 @@ const route = useRoute()
 
 const loading = ref(false)
 
+const showContent = ref(false)
+
 // 查-基本信息
 const infoData = reactive({})
 const getInfoData = () => {
@@ -22,6 +24,7 @@ const getInfoData = () => {
     id: route.query.id
   }).then(({ data }) => {
     Object.assign(infoData, data)
+    showContent.value = data.status ? false : true
   })
 }
 
@@ -97,7 +100,7 @@ const resetSearch = () => {
 
 /**完成PI */
 const connectUpdate = () => {
-  if (infoData.check_delivery_plan) {
+  if (infoData.delivery_plan_is_shipped) {
     ElMessageBox.confirm("有未完成發貨計劃，確定完成PI？", "警告", {
       confirmButtonText: "確定",
       cancelButtonText: "取消",
@@ -108,7 +111,15 @@ const connectUpdate = () => {
       })
       .catch(() => {})
   } else {
-    accomplishPI()
+    ElMessageBox.confirm("確定完成PI？", "提示", {
+      confirmButtonText: "確定",
+      cancelButtonText: "取消",
+      type: "warning"
+    })
+      .then(() => {
+        accomplishPI()
+      })
+      .catch(() => {})
   }
 }
 
@@ -135,7 +146,7 @@ const closeTab = () => {
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">產品信息</el-text>
-          <el-button v-permission="['accomplishPI']" v-if="infoData.status !== 1" type="primary" @click="connectUpdate"
+          <el-button v-permission="['accomplishPI']" v-if="showContent" type="primary" @click="connectUpdate"
             >完成PI</el-button
           >
         </div>
@@ -147,7 +158,7 @@ const closeTab = () => {
             <el-button type="primary" :icon="Search" @click="searchTable">查詢</el-button>
             <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
           </div>
-          <div v-permission="['uploadDeliveryPlan']" v-if="infoData.status !== 1">
+          <div v-permission="['uploadDeliveryPlan']" v-if="showContent">
             <el-text>創建發貨計劃： </el-text>
             <el-button
               type="success"
@@ -176,12 +187,12 @@ const closeTab = () => {
             {{ scope.row.number }}
             <EditPen
               v-permission="['editPiNumber']"
-              v-if="infoData.status !== 1"
               @click="handleUpdate(scope.row)"
               class="w4 h4 cursor-pointer hover:c-blue"
             />
           </template>
         </el-table-column>
+        <el-table-column prop="unproduced" label="PI未分配發貨計劃數" align="center" />
         <el-table-column prop="shipped_number" label="已發貨數" align="center" />
         <el-table-column prop="not_shipped_number" label="未發貨數" align="center" />
         <el-table-column prop="last_undone_number" label="最终末完成数" align="center" />

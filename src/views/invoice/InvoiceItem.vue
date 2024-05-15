@@ -5,6 +5,7 @@ import { useRoute } from "vue-router"
 import { getinvDetailApi, updateInvApi } from "@/api/order"
 import ProductInvoice from "./components/ProductInvoice.vue"
 import { ElMessage } from "element-plus"
+import { validateNumberMin } from "@/utils/validate"
 
 const route = useRoute()
 
@@ -96,7 +97,7 @@ const submitForm = (formEl) => {
     <el-card v-loading="loading" shadow="never" class="search-wrapper">
       <div>
         <div class="m-b">
-          <el-text tag="b" size="large">發貨計劃基本信息</el-text>
+          <el-text tag="b" size="large">銷售發票基本信息</el-text>
         </div>
         <el-descriptions :column="4" border>
           <el-descriptions-item label="訂單號" :span="2">{{ invDate.order_no }}</el-descriptions-item>
@@ -121,8 +122,8 @@ const submitForm = (formEl) => {
             </el-text>
           </el-descriptions-item>
           <el-descriptions-item label="採購發票號" :span="2">
-            <el-text v-for="item in invDate.procurement_invoice_no" :key="item.id">
-              {{ item }}
+            <el-text v-for="(item, index) in invDate.procurement_invoice_no" :key="item.id">
+              {{ index === 0 ? "" : "," }} {{ item }}
             </el-text>
           </el-descriptions-item>
           <el-descriptions-item label="發票總金額">{{ invDate.product_total_price }}</el-descriptions-item>
@@ -164,7 +165,11 @@ const submitForm = (formEl) => {
                     trigger: 'blur'
                   }"
                 >
-                  <el-input v-model="domain.price" type="number" />
+                  <el-input
+                    v-model="domain.price"
+                    type="number"
+                    @input="domain.price = validateNumberMin(domain.price)"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="2">
@@ -191,7 +196,11 @@ const submitForm = (formEl) => {
               </el-col>
               <el-col :span="6">
                 <el-form-item label="費用金額">
-                  <el-input v-model="otherFee.other_fee_price" type="number" />
+                  <el-input
+                    v-model="otherFee.other_fee_price"
+                    type="number"
+                    @input="otherFee.other_fee_price = validateNumberMin(otherFee.other_fee_price)"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>

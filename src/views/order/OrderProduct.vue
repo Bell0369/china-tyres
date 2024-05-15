@@ -116,7 +116,7 @@ const getEtdList = () => {
         <el-form-item prop="brand_code" label="品牌">
           <el-select v-model="searchData.brand_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.short" />
+            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.name" />
           </el-select>
         </el-form-item>
         <el-form-item prop="factory_code" label="工廠代碼">
@@ -140,7 +140,7 @@ const getEtdList = () => {
               <el-table-column type="index" label="序號" width="80px" align="center" />
               <el-table-column label="產品名稱" prop="product_name" />
               <el-table-column label="訂單數量" prop="order_product_number" />
-              <el-table-column label="PI數量" prop="number" />
+              <el-table-column :label="props.row.pi_no ? 'PI數量' : '未分配PI数量'" prop="number" />
               <el-table-column label="PI已發貨數量" prop="shipped_number" />
               <el-table-column label="PI未發貨數量" prop="not_shipped_number" />
               <el-table-column label="單價" prop="unit_price" />
@@ -149,7 +149,11 @@ const getEtdList = () => {
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="編號" prop="pi_no" />
+      <el-table-column label="編號" prop="pi_no">
+        <template #default="scope">
+          {{ scope.row.pi_no ? scope.row.pi_no : "未分配PI" }}
+        </template>
+      </el-table-column>
     </el-table>
 
     <!-- etd -->

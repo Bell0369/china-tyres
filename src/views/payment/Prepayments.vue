@@ -3,8 +3,6 @@ import { reactive, ref, watch } from "vue"
 import { ElButton } from "element-plus"
 import { Search, Refresh, Tickets } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
-import { useFactoryCodeSelect } from "@/hooks/useSelectOption"
-import { useClientSelect } from "@/hooks/useClientSelect"
 import { getClientAdvancePaymentApi, getFactoryAdvancePaymentApi } from "@/api/order"
 import { Dialog } from "@/components/Dialog"
 import PrepayMents from "@/views/componrnts/prepayments/PrepayMents.vue"
@@ -17,20 +15,12 @@ const loading = ref(false)
 
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-//工厂代碼
-const factoryCodeOptions = useFactoryCodeSelect()
-
-// 客户
-const { loadClient, optionsClient, loadClientData } = useClientSelect()
-
 // 修改查詢狀態
 const orderType = ref(0)
 const updataOrderType = () => {
-  if (orderType.value) {
-    searchData.client_id = undefined
-  } else {
-    searchData.factory_id = undefined
-  }
+  Object.keys(searchData).forEach((key) => {
+    searchData[key] = undefined
+  })
   handleSearch()
 }
 
@@ -47,18 +37,16 @@ const showPrepay = (id) => {
 //#region 查
 const tableData = ref([])
 
-const monthrangeData = ref(["", ""])
-
-const searchFormRef = ref(null)
 const searchData = reactive({
-  client_id: "" || undefined,
-  factory_id: "" || undefined
+  keyword: undefined,
+  start_credit: undefined,
+  end_credit: undefined,
+  start_advance_payment: undefined,
+  end_advance_payment: undefined
 })
 const getTableData = () => {
   loading.value = true
   const page = {
-    start_date: monthrangeData.value[0] || undefined,
-    end_date: monthrangeData.value[1] || undefined,
     page: paginationData.currentPage,
     page_size: paginationData.pageSize
   }
@@ -83,17 +71,15 @@ const handleSearch = () => {
 
 // 重置
 const resetSearch = () => {
-  searchFormRef.value?.resetFields()
-  monthrangeData.value = ["", ""]
+  Object.keys(searchData).forEach((key) => {
+    searchData[key] = undefined
+  })
   handleSearch()
 }
 
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
 
-// watch(dialogVisible, (value) => {
-//   value ? "" : getTableData()
-// })
 const handleListPayment = () => {
   getTableData()
 }
@@ -102,36 +88,19 @@ const handleListPayment = () => {
 <template>
   <div class="app-container">
     <el-card shadow="never" class="search-wrapper">
-      <el-form ref="searchFormRef" :inline="true" :model="searchData">
-        <el-form-item>
-          <el-date-picker
-            v-model="monthrangeData"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="開始日期"
-            end-placeholder="結束日期"
-            value-format="YYYY-MM-DD"
-          />
+      <el-form :inline="true" :model="searchData">
+        <el-form-item :label="orderType ? '工廠名稱' : '客戶名稱'">
+          <el-input v-model="searchData.keyword" placeholder="" style="width: 270px" />
         </el-form-item>
-        <el-form-item prop="client_id" label="客戶名稱" v-show="orderType === 0">
-          <el-select
-            v-model="searchData.client_id"
-            filterable
-            remote
-            remote-show-suffix
-            :remote-method="loadClientData"
-            :loading="loadClient"
-            style="width: 150px"
-          >
-            <el-option label="全部" value="" />
-            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_name" :value="item.id" />
-          </el-select>
+        <el-form-item label="信用額度" v-show="orderType === 0">
+          <el-input v-model="searchData.start_credit" type="number" style="width: 150px" />
+          <span class="mx">-</span>
+          <el-input v-model="searchData.end_credit" type="number" style="width: 150px" />
         </el-form-item>
-        <el-form-item prop="factory_id" label="工廠名稱" v-show="orderType === 1">
-          <el-select v-model="searchData.factory_id" style="width: 150px">
-            <el-option label="全部" value="" />
-            <el-option v-for="item in factoryCodeOptions" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
+        <el-form-item label="預付金額" v-show="orderType === 1">
+          <el-input v-model="searchData.start_advance_payment" type="number" style="width: 150px" />
+          <span class="mx">-</span>
+          <el-input v-model="searchData.end_advance_payment" type="number" style="width: 150px" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">查詢</el-button>
@@ -160,7 +129,7 @@ const handleListPayment = () => {
                 <Tickets
                   v-permission="['clientAdvancePayment']"
                   class="w6 h6 m-l-2 color-blue cursor-pointer"
-                  @click="showPrepay(scope.row.client_id)"
+                  @click="showPrepay(scope.row.id)"
                 />
               </template>
             </el-table-column>
@@ -176,7 +145,7 @@ const handleListPayment = () => {
                 <Tickets
                   v-permission="['clientAdvancePayment']"
                   class="w6 h6 m-l-2 color-blue cursor-pointer"
-                  @click="showPrepay(scope.row.factory_id)"
+                  @click="showPrepay(scope.row.id)"
                 />
               </template>
             </el-table-column>

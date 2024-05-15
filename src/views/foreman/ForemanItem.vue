@@ -19,11 +19,13 @@ const route = useRoute()
 // 工廠代碼
 const factoryCodeOptions = useFactoryCodeSelect()
 
-// 員工列表
 const loading = ref(false)
+
+// 員工列表
+const userLoading = ref(false)
 const userOptions = ref([])
 const remoteMethod = (query) => {
-  loading.value = true
+  userLoading.value = true
   getUserListApi({
     keyword: query || undefined
   })
@@ -35,7 +37,7 @@ const remoteMethod = (query) => {
       userOptions.value = []
     })
     .finally(() => {
-      loading.value = false
+      userLoading.value = false
     })
 }
 
@@ -91,7 +93,7 @@ const getfactoryBasicInfo = () => {
       })
     })
     ruleForm.name = data.name
-    ruleForm.factory_code = data.factory_code
+    ruleForm.factory_code = data.factory_code_id + ""
     ruleForm.advance_payment = data.advance_payment
     ruleForm.id = data.id
     loading.value = false
@@ -173,7 +175,7 @@ const handleEditPayment = (value) => {
                 remote
                 remote-show-suffix
                 :remote-method="remoteMethod"
-                :loading="loading"
+                :loading="userLoading"
                 multiple
                 placeholder="請選擇員工"
               >

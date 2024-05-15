@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, watch } from "vue"
 import { getDeliveryPlanProductApi } from "@/api/order"
 import { Search } from "@element-plus/icons-vue"
 
@@ -7,16 +7,17 @@ const loading = ref(false)
 
 const props = defineProps(["userId"])
 
+const keyword = ref("")
 //#region 查
 const tableData = ref([])
-const listTableData = ref([])
 const getTableData = () => {
   loading.value = true
   getDeliveryPlanProductApi({
-    id: props.userId
+    id: props.userId,
+    product_name: keyword.value || undefined
   })
     .then(({ data }) => {
-      tableData.value = listTableData.value = data
+      tableData.value = data
     })
     .catch(() => {
       tableData.value = []
@@ -30,26 +31,19 @@ onMounted(() => {
   getTableData()
 })
 
-// 查询产品信息
-const keyword = ref("")
-const searchTable = () => {
-  const searchTerm = keyword.value.trim().toLowerCase()
-  if (searchTerm === "") {
-    tableData.value = listTableData.value
-    return tableData.value
-  }
-
-  tableData.value = listTableData.value.filter((item) => {
-    const productName = item.brand_code.toLowerCase()
-    return productName.includes(searchTerm)
-  })
-}
-
 // 重置
 const resetSearch = () => {
   keyword.value = ""
-  tableData.value = listTableData.value
+  getTableData()
 }
+
+// 页面跳转
+watch(
+  () => props.userId,
+  () => {
+    getTableData()
+  }
+)
 </script>
 
 <template>
@@ -60,7 +54,7 @@ const resetSearch = () => {
       </div>
       <div class="m-t2">
         <el-input v-model="keyword" placeholder="請輸入產品名稱" style="width: 300px" class="pr" />
-        <el-button type="primary" :icon="Search" @click="searchTable">查詢</el-button>
+        <el-button type="primary" :icon="Search" @click="getTableData">查詢</el-button>
         <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
       </div>
     </div>

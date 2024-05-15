@@ -71,6 +71,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
 
 // 下载
 const getExportInv = (row) => {
+  loading.value = true
   exportInvApi({
     id: row.id
   })
@@ -91,11 +92,7 @@ const getExportInv = (row) => {
     <el-card shadow="never" class="search-wrapper">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="keyword" label="訂單">
-          <el-input
-            v-model="searchData.keyword"
-            placeholder="請輸入客戶名稱、PI號，發票號，採購發票號"
-            style="width: 300px"
-          />
+          <el-input v-model="searchData.keyword" placeholder="請輸入PI號，發票號" style="width: 300px" />
         </el-form-item>
         <el-form-item prop="status" label="應收狀態">
           <el-select v-model="searchData.status" style="width: 150px">
@@ -139,7 +136,7 @@ const getExportInv = (row) => {
           <el-table-column prop="other_fee_price" label="其他費用" align="center" />
           <el-table-column prop="status" label="應收狀態" align="center">
             <template #default="scope">
-              <el-tag type="danger" v-if="scope.row.status"> 未收 </el-tag>
+              <el-tag type="danger" v-if="scope.row.status === 0"> 未收 </el-tag>
               <el-tag type="success" v-else> 已收 </el-tag>
             </template>
           </el-table-column>

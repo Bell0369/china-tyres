@@ -40,7 +40,7 @@ const ruleForm = reactive({
   client_encod: "",
   credit: undefined,
   payment_terms_id: "",
-  deliver_type: 1,
+  deliver_type: null,
   commission_ratio: undefined,
   is_commission: 0,
   is_deliver_project: 1,
@@ -50,7 +50,11 @@ const ruleForm = reactive({
 const rules = reactive({
   name: [{ required: true, message: "請輸入客戶名稱", trigger: "blur" }],
   payment_terms_id: [{ required: true, message: "請選擇付款條件", trigger: "blur" }],
-  client_encod: [{ required: true, message: "請輸入客戶編碼", trigger: "blur" }],
+  client_encod: [
+    { required: true, message: "請輸入客戶編碼", trigger: "blur" },
+    { pattern: /^[^\u4e00-\u9fa5]+$/, message: "不能含有漢字", trigger: "blur" }
+  ],
+  deliver_type: [{ required: true, message: "請選擇發貨類型", trigger: "blur" }],
   user_id: [{ required: true, message: "請選所屬員工", trigger: "blur" }]
 })
 
@@ -96,12 +100,8 @@ const submitForm = (formEl) => {
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="信用額度" prop="credit">
-            <el-input
-              v-model="ruleForm.credit"
-              type="number"
-              @input="ruleForm.credit = validateNumberMin(ruleForm.credit)"
-            />
+          <el-form-item label="客戶編碼" prop="client_encod">
+            <el-input v-model="ruleForm.client_encod" placeholder="請輸入客戶名稱" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -112,12 +112,16 @@ const submitForm = (formEl) => {
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="客戶編碼" prop="client_encod">
-            <el-input v-model="ruleForm.client_encod" placeholder="請輸入客戶名稱" />
+          <el-form-item label="信用額度" prop="credit">
+            <el-input
+              v-model="ruleForm.credit"
+              type="number"
+              @input="ruleForm.credit = validateNumberMin(ruleForm.credit)"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="發貨類型">
+          <el-form-item label="發貨類型" prop="deliver_type">
             <el-select v-model="ruleForm.deliver_type">
               <el-option v-for="item in eDeliverTypeOptions" :label="item.name" :value="item.id" :key="item.id" />
             </el-select>

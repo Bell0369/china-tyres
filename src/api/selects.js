@@ -100,3 +100,12 @@ export function getDepartmentApi(params) {
     params
   })
 }
+
+// 銷售總體概況
+export function getStatisticSalesVolumeApi(params) {
+  return request({
+    url: "report/statisticSalesVolume",
+    method: "get",
+    params
+  })
+}

@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, watch } from "vue"
+import { reactive, ref, watch, onActivated } from "vue"
 import { Search, CirclePlus, Refresh, EditPen } from "@element-plus/icons-vue"
 import { getPiListApi, deletePiListApi, updatePiQuantityApi } from "@/api/order"
 import { usePagination } from "@/hooks/usePagination"
@@ -7,6 +7,7 @@ import { useDeleteList } from "@/hooks/useDeleteList"
 import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { useUpdateQuantity } from "@/hooks/useUpdateQuantity"
+import { handleActivated } from "@/utils/tagsclose"
 
 defineOptions({
   name: "PIOrderList"
@@ -91,6 +92,10 @@ const resetSearch = () => {
 
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
+
+onActivated(() => {
+  if (handleActivated()) getTableData()
+})
 </script>
 
 <template>
@@ -121,13 +126,18 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
             style="width: 150px"
           >
             <el-option label="全部" value="" />
-            <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_code" :value="item.id" />
+            <el-option
+              v-for="item in optionsClient"
+              :key="item.id"
+              :label="item.client_code"
+              :value="item.client_code"
+            />
           </el-select>
         </el-form-item>
         <el-form-item prop="brand_code" label="品牌">
           <el-select v-model="searchData.brand_code" style="width: 150px">
             <el-option label="全部" value="" />
-            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.name" />
           </el-select>
         </el-form-item>
         <el-form-item prop="factory_code" label="工廠代碼">
@@ -161,8 +171,8 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
       </div>
       <div class="table-wrapper">
         <el-table border :data="tableData">
-          <el-table-column prop="order_no" label="PI號" align="center" />
-          <el-table-column prop="pi_no" label="訂單號" align="center" />
+          <el-table-column prop="pi_no" label="PI號" align="center" />
+          <el-table-column prop="order_no" label="訂單號" align="center" />
           <el-table-column prop="client_code" label="客戶編碼" align="center" />
           <el-table-column prop="quantity" label="櫃量(40'HQ)" align="center">
             <template #default="scope">
@@ -178,7 +188,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
           <el-table-column prop="shipped" label="已發貨數" align="center" />
           <el-table-column prop="not_shipped" label="未發貨數" align="center" />
           <el-table-column prop="total_price" label="PI總金額" align="center" />
-          <el-table-column prop="status" label="是否完成" align="center">
+          <el-table-column prop="status" label="是否完成" align="center" width="100">
             <template #default="scope">
               <el-tag type="success" v-if="scope.row.status">已完成</el-tag>
               <el-tag type="danger" v-else>未完成</el-tag>

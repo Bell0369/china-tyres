@@ -28,7 +28,7 @@ const toggleSidebar = () => {
   appStore.toggleSidebar(false)
 }
 
-const username = (userStore.userinfo as { username: string }).username
+const account = (userStore.userinfo as { account: string }).account
 
 /** 登出 */
 const logout = () => {
@@ -60,7 +60,7 @@ const updatePaw = () => {
       <el-dropdown class="right-menu-item">
         <div class="right-menu-avatar">
           <el-avatar :icon="UserFilled" :size="30" />
-          <span>{{ username }}</span>
+          <span>{{ account }}</span>
         </div>
         <template #dropdown>
           <el-dropdown-menu>

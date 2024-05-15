@@ -1,12 +1,12 @@
 <script setup>
 import { ref, reactive } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { useTagsViewStore } from "@/store/modules/tags-view"
 import { ElMessage } from "element-plus"
 import UploadInfo from "./components/UploadInfo.vue"
 import { useOrderSelet } from "@/hooks/useOrderSelet"
 import { UploadXlsx } from "@/components/UploadXlsx"
 import { uploadPiApi } from "@/api/order"
+import { redirectTo } from "@/utils/tagsclose"
 
 defineOptions({
   name: "PIOrderUpload"
@@ -20,7 +20,6 @@ const { loadOrder, optionsOrder, loadOrderData } = useOrderSelet()
 // tag
 const route = useRoute()
 const router = useRouter()
-const tagsViewStore = useTagsViewStore()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -90,9 +89,7 @@ const submitForm = (Type) => {
             Object.assign(infoData, data.piBasicInfo)
             isorderInfo.value = true
           } else {
-            tagsViewStore.delVisitedView(route)
-            router.go(-1)
-            // router.replace("/piorder/piorderitem")
+            redirectTo(router, route, "/piorder/piorderlist")
           }
         })
         .finally(() => {

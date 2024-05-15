@@ -310,7 +310,7 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/delivery/DeliveryUpload.vue"),
         name: "DeliveryUpload",
         meta: {
-          title: "上傳發貨計劃",
+          title: "上傳裝箱單",
           name: "Delivery",
           hidden: true
         }
@@ -367,7 +367,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "PaymentList",
         meta: {
           title: "應收應付",
-          name: "Payment"
+          name: "Payment",
+          keepAlive: true
         }
       },
       {
@@ -376,7 +377,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         name: "Prepayments",
         meta: {
           title: "預付款",
-          name: "Payment"
+          name: "Payment",
+          keepAlive: true
         }
       }
     ]

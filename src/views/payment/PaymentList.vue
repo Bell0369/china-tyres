@@ -8,6 +8,7 @@ import { useClientSelect } from "@/hooks/useClientSelect"
 import { usePagination } from "@/hooks/usePagination"
 import { Dialog } from "@/components/Dialog"
 import addPayRecord from "./components/addPayRecord.vue"
+import PrepayMents from "@/views/componrnts/prepayments/PrepayMents.vue"
 
 defineOptions({
   name: "PaymentList"
@@ -96,6 +97,13 @@ const handleAddPrice = (id) => {
   prepayType.value = orderType.value ? 2 : 1
 }
 
+const dialogVisible2 = ref(false)
+const showPrepay = (id) => {
+  prepayType.value = orderType.value ? "factory" : "client"
+  dialogVisible2.value = true
+  prepayId.value = id
+}
+
 //#region
 const handleReceipt = (id, type) => {
   const text = type === 1 ? "確認收款？" : "確認付款？"
@@ -124,9 +132,12 @@ const handleReceipt = (id, type) => {
     })
 }
 
-watch(dialogVisible, (value) => {
-  value ? "" : getTableData()
-})
+// watch(dialogVisible, (value) => {
+//   value ? "" : getTableData()
+// })
+const handleListPayment = () => {
+  getTableData()
+}
 </script>
 
 <template>
@@ -214,7 +225,7 @@ watch(dialogVisible, (value) => {
                 <span class="inline-block align-mid">{{ scope.row.paicl_price }}</span>
                 <Tickets
                   v-permission="['addPrice']"
-                  @click="handleAddPrice(scope.row.id)"
+                  @click="showPrepay(scope.row.client_id)"
                   class="color-blue cursor-pointer w5 h5 inline-block align-mid"
                 />
               </template>
@@ -231,7 +242,7 @@ watch(dialogVisible, (value) => {
               <template #default="scope">
                 <el-button
                   v-permission="['addPrice']"
-                  v-show="Number(scope.row.uncollected_price !== 0)"
+                  :disabled="scope.row.status"
                   type="primary"
                   text
                   bg
@@ -241,6 +252,7 @@ watch(dialogVisible, (value) => {
                 >
                 <el-button
                   v-permission="['confirmReceipt']"
+                  :disabled="scope.row.status"
                   type="danger"
                   text
                   bg
@@ -267,7 +279,7 @@ watch(dialogVisible, (value) => {
                 <span class="inline-block align-mid">{{ scope.row.actually_price }}</span>
                 <Tickets
                   v-permission="['addPrice']"
-                  @click="handleAddPrice(scope.row.id)"
+                  @click="showPrepay(scope.row.factory_id)"
                   class="color-blue cursor-pointer w5 h5 inline-block align-mid"
                 />
               </template>
@@ -284,7 +296,7 @@ watch(dialogVisible, (value) => {
               <template #default="scope">
                 <el-button
                   v-permission="['addPrice']"
-                  v-show="Number(scope.row.unpaid_price) !== 0"
+                  :disabled="scope.row.status"
                   type="primary"
                   text
                   bg
@@ -294,6 +306,7 @@ watch(dialogVisible, (value) => {
                 >
                 <el-button
                   v-permission="['confirmReceipt']"
+                  :disabled="scope.row.status"
                   type="danger"
                   text
                   bg
@@ -322,7 +335,11 @@ watch(dialogVisible, (value) => {
     </el-card>
 
     <Dialog v-model="dialogVisible" title="添加金額">
-      <addPayRecord :isType="prepayType" :id="prepayId" />
+      <add-payRecord :isType="prepayType" :id="prepayId" @handle-listPayment="handleListPayment" />
+    </Dialog>
+
+    <Dialog v-model="dialogVisible2" title="預付款">
+      <prepay-ments :isType="prepayType" :id="prepayId" @handle-listPayment="handleListPayment" />
     </Dialog>
   </div>
 </template>

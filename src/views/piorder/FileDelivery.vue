@@ -2,11 +2,11 @@
 import { ref, reactive } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
 import { useRoute, useRouter } from "vue-router"
-import { useTagsViewStore } from "@/store/modules/tags-view"
 import { useFactorySelect } from "@/hooks/useFactorySelect"
 import { uploadPiQuantityPlanApi, deliveryPlanApplyCheckApi } from "@/api/order"
 import FileInfo from "./components/FileInfo.vue"
 import { UploadXlsx } from "@/components/UploadXlsx"
+import { redirectTo } from "@/utils/tagsclose"
 
 defineOptions({
   name: "FileDelivery"
@@ -20,7 +20,6 @@ const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
 // tag
 const route = useRoute()
 const router = useRouter()
-const tagsViewStore = useTagsViewStore()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -36,6 +35,29 @@ const rules = reactive({
 // 上传文件
 const setUploadXlsx = (value) => {
   ruleForm.file = value
+}
+
+const apply_remarks = ref("")
+const submitForm = (Type) => {
+  if (infoData.is_check_deliver_project) {
+    ElMessageBox.prompt("發貨計劃需要審批才能進行，是否繼續？", "發貨計劃", {
+      confirmButtonText: "確定",
+      cancelButtonText: "取消",
+      inputPlaceholder: "請輸入備註",
+      inputType: "textarea",
+      inputPattern: /^[\s\S]*.*[^\s][\s\S]*$/,
+      inputErrorMessage: "請輸入備註"
+    })
+      .then(({ value }) => {
+        apply_remarks.value = value
+        sendFormData(Type)
+      })
+      .catch(() => {
+        ElMessage.info("已取消")
+      })
+  } else {
+    sendFormData(Type)
+  }
 }
 
 const isSubmit = ref(true)
@@ -90,8 +112,16 @@ const sendFormData = (Type) => {
               isSubmit.value = true
             }
           } else {
-            tagsViewStore.delVisitedView(route)
-            router.replace("/delivery/deliverylist")
+            if (infoData.is_check_deliver_project) {
+              deliveryPlanApplyCheckApi({
+                id: data.delivery_plan_id,
+                apply_remarks: apply_remarks.value
+              }).then(() => {
+                redirectTo(router, route, "/delivery/deliverylist")
+              })
+            } else {
+              redirectTo(router, route, "/delivery/deliverylist")
+            }
           }
         })
         .finally(() => {
@@ -112,35 +142,6 @@ const filterTable = () => {
     orderCheck.value = orderCheck1.value
   } else {
     orderCheck.value = orderChecks.value
-  }
-}
-
-const submitForm = (Type) => {
-  if (Type === 1) {
-    sendFormData(1)
-  } else {
-    ElMessageBox.prompt("發貨計劃需要審批才能進行，是否繼續？", "發貨計劃", {
-      confirmButtonText: "確定",
-      cancelButtonText: "取消",
-      inputPlaceholder: "請輸入備註",
-      inputType: "textarea"
-    })
-      .then(({ value }) => {
-        deliveryPlanApplyCheckApi({
-          id: route.query.id,
-          apply_remarks: value
-        }).then((data) => {
-          if (data.code === 200) {
-            sendFormData(2)
-          }
-        })
-      })
-      .catch(() => {
-        ElMessage({
-          type: "info",
-          message: "已取消"
-        })
-      })
   }
 }
 </script>

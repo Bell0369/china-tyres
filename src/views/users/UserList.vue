@@ -8,6 +8,7 @@ import { Dialog } from "@/components/Dialog"
 import EditUser from "./EditUser.vue"
 import { useDeleteList } from "@/hooks/useDeleteList"
 import { useDepartmentSelect } from "@/hooks/useSelectOption"
+import { checkPermission } from "@/utils/permission"
 
 defineOptions({
   name: "UserList"
@@ -86,7 +87,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
 
 // 修改狀態
 const updatSatus = (row, index) => {
-  if (row.id === 1) return
+  if (row.id === 1 || !checkPermission(["editStatus"])) return
   loadingStates.value[index] = true
   updateUserStatusApi({
     id: row.id,
@@ -202,7 +203,7 @@ onMounted(() => {
           <el-table-column prop="user_status" label="状态" width="100" align="center">
             <template #default="scope">
               <el-switch
-                :disabled="scope.row.id === 1"
+                :disabled="scope.row.id === 1 || !checkPermission(['editStatus'])"
                 v-model="scope.row.user_status"
                 :active-value="1"
                 :inactive-value="0"

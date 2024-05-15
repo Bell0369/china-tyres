@@ -10,7 +10,8 @@ import {
   TooltipComponent,
   GridComponent,
   DatasetComponent,
-  TransformComponent
+  TransformComponent,
+  LegendComponent
 } from "echarts/components"
 
 // 标签自动布局，全局过渡动画等特性
@@ -26,6 +27,7 @@ echarts.use([
   GridComponent,
   DatasetComponent,
   TransformComponent,
+  LegendComponent,
   BarChart,
   LabelLayout,
   UniversalTransition,

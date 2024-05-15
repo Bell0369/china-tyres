@@ -3,7 +3,6 @@ import { ref, reactive, onMounted, computed } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
 import { Refresh, Search } from "@element-plus/icons-vue"
 import { useRoute, useRouter } from "vue-router"
-import { useTagsViewStore } from "@/store/modules/tags-view"
 import { useFactorySelect } from "@/hooks/useFactorySelect"
 import {
   getPiProductDetailApi,
@@ -12,6 +11,7 @@ import {
   deliveryPlanApplyCheckApi
 } from "@/api/order"
 import ItemInfo from "./components/ItemInfo.vue"
+import { redirectTo } from "@/utils/tagsclose"
 
 defineOptions({
   name: "PIDelivery"
@@ -25,7 +25,6 @@ const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
 // tag
 const route = useRoute()
 const router = useRouter()
-const tagsViewStore = useTagsViewStore()
 
 // 查-基本信息
 const infoData = reactive({})
@@ -45,7 +44,8 @@ const getTableData = () => {
   getPiProductDetailApi({
     id: route.query.id
   }).then(({ data }) => {
-    tableData.value = listTableData.value = data
+    const filteredData = data.filter((item) => item.unproduced !== 0)
+    tableData.value = listTableData.value = filteredData
     loading.value = false
   })
 }
@@ -83,6 +83,7 @@ const handleSelectionChange = (newSelection) => {
 }
 
 // 審批
+const apply_remarks = ref("")
 const submitForm = () => {
   if (ruleForm.factory_id === "") {
     ElMessage.error("請選擇工廠")
@@ -93,33 +94,28 @@ const submitForm = () => {
     return false
   }
 
-  ElMessageBox.prompt("發貨計劃需要審批才能進行，是否繼續？", "發貨計劃", {
-    confirmButtonText: "確定",
-    cancelButtonText: "取消",
-    inputPlaceholder: "請輸入備註",
-    inputType: "textarea"
-  })
-    .then(({ value }) => {
-      // ElMessage.success(`备注${value}`)
-      deliveryPlanApplyCheckApi({
-        id: route.query.id,
-        apply_remarks: value
-      }).then((data) => {
-        if (data.code === 200) {
-          sendFormData()
-        }
-      })
+  if (infoData.is_check_deliver_project) {
+    ElMessageBox.prompt("發貨計劃需要審批才能進行，是否繼續？", "發貨計劃", {
+      confirmButtonText: "確定",
+      cancelButtonText: "取消",
+      inputPlaceholder: "請輸入備註",
+      inputType: "textarea",
+      inputPattern: /^[\s\S]*.*[^\s][\s\S]*$/,
+      inputErrorMessage: "請輸入備註"
     })
-    .catch(() => {
-      ElMessage({
-        type: "info",
-        message: "已取消"
+      .then(({ value }) => {
+        apply_remarks.value = value
+        sendFormData()
       })
-    })
+      .catch(() => {
+        ElMessage.info("已取消")
+      })
+  } else {
+    sendFormData()
+  }
 }
 
 const tableRef = ref()
-
 //
 const ruleForm = reactive({
   type: 2,
@@ -138,12 +134,23 @@ const sendFormData = () => {
     }
     ruleForm.data_arr.push(data_arr)
   })
-  uploadPIDeliveryPlanApi(ruleForm).then((data) => {
-    if (data.code === 200) {
-      tagsViewStore.delVisitedView(route)
-      router.replace("/delivery/deliverylist")
-    }
-  })
+  loading.value = true
+  uploadPIDeliveryPlanApi(ruleForm)
+    .then(({ data }) => {
+      if (infoData.is_check_deliver_project) {
+        deliveryPlanApplyCheckApi({
+          id: data.delivery_plan_id,
+          apply_remarks: apply_remarks.value
+        }).then(() => {
+          redirectTo(router, route, "/delivery/deliverylist")
+        })
+      } else {
+        redirectTo(router, route, "/delivery/deliverylist")
+      }
+    })
+    .finally(() => {
+      loading.value = true
+    })
 }
 
 // 一个计算属性 ref
@@ -186,7 +193,7 @@ const PiNumber = computed(() => {
 
     <item-info :infoData="infoData" />
 
-    <el-card shadow="never" class="search-wrapper">
+    <el-card v-loading="loading" shadow="never" class="search-wrapper">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <el-text tag="b" size="large">核對信息</el-text>

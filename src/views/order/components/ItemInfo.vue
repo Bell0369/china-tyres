@@ -36,7 +36,7 @@ watch([isQuantity], () => {
             type="primary"
             style="padding-right: 10px; display: inline-block"
           >
-            <router-link :to="`/piorder/piorderitem?id=${item.id}}`">{{ item.pi_no }}</router-link>
+            <router-link :to="`/piorder/piorderitem?id=${item.id}`">{{ item.pi_no }}</router-link>
           </el-text>
         </el-descriptions-item>
         <el-descriptions-item label="訂單總數量" width="200px">{{ orderInfo.number }}</el-descriptions-item>

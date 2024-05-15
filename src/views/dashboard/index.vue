@@ -15,7 +15,7 @@ const value = ref(new Date())
         <el-descriptions-item label="用戶名">{{ userinfo.username }}</el-descriptions-item>
         <el-descriptions-item label="電郵">{{ userinfo.email }}</el-descriptions-item>
         <el-descriptions-item label="電話">{{ userinfo.phone }}</el-descriptions-item>
-        <el-descriptions-item label="部門">{{ userinfo.account }}</el-descriptions-item>
+        <el-descriptions-item label="部門">{{ userinfo.role_name }}</el-descriptions-item>
         <el-descriptions-item label="性別">
           {{ userinfo.sex ? (userinfo.sex === 1 ? "男" : "女") : "未知" }}
         </el-descriptions-item>

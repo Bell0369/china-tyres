@@ -2,12 +2,12 @@
 import { ref, reactive } from "vue"
 import { ElMessage } from "element-plus"
 import { useRoute, useRouter } from "vue-router"
-import { useTagsViewStore } from "@/store/modules/tags-view"
 import { getDeliveryPlanNoApi, uploadPackingListApi } from "@/api/order"
 import { useOrderSelet } from "@/hooks/useOrderSelet"
 import { useeDeliverTypeSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { UploadXlsx } from "@/components/UploadXlsx"
 import UploadInfo from "./components/UploadInfo.vue"
+import { redirectTo } from "@/utils/tagsclose"
 
 defineOptions({
   name: "DeliveryUoload"
@@ -27,7 +27,6 @@ const { loadOrder, optionsOrder, loadOrderData } = useOrderSelet()
 // tag
 const route = useRoute()
 const router = useRouter()
-const tagsViewStore = useTagsViewStore()
 
 const ruleForm = reactive({
   file: "",
@@ -116,13 +115,24 @@ const submitForm = (Type) => {
         Object.assign(infoData, data.basicInfo)
         isorderInfo.value = true
       } else {
-        tagsViewStore.delVisitedView(route)
-        router.replace("/delivery/deliverylist")
+        redirectTo(router, route, "/delivery/deliverylist")
       }
     })
     .finally(() => {
       loading.value = false
     })
+}
+
+const getTextType = (row) => {
+  return row.reality_number === row.plan_number ? "" : "warning"
+}
+
+// 查看裝運詳情
+const dialogVisible = ref(false)
+const itemListData = ref([])
+const handleItemList = (row) => {
+  itemListData.value = row
+  dialogVisible.value = true
 }
 </script>
 
@@ -217,18 +227,31 @@ const submitForm = (Type) => {
         <el-table-column type="expand">
           <template #default="props">
             <div class="px">
-              <el-table border :data="props.row.product">
+              <el-table :data="props.row.product">
                 <el-table-column label="序號" type="index" width="80" />
                 <el-table-column label="產品名稱" prop="product_name" />
                 <el-table-column label="裝貨數量" prop="reality_number" />
                 <el-table-column label="發貨計劃數量" prop="plan_number" />
                 <el-table-column label="櫃號" prop="container_no" />
-                <el-table-column label="鉛封號" prop="seal_no" />
+                <el-table-column label="鉛封號" prop="seal_no">
+                  <template #default="scope">
+                    <el-text v-if="scope.row.seal_no">{{ scope.row.seal_no }}</el-text>
+                    <el-text v-else type="primary" @click="handleItemList(scope.row.item_list)" class="cursor-pointer"
+                      >查看裝運詳情</el-text
+                    >
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="發貨計劃號" prop="delivery_plan_no" />
+        <el-table-column label="發貨計劃號" prop="delivery_plan_no">
+          <template #default="scope">
+            <el-text :type="getTextType(scope.row)">{{ scope.row.delivery_plan_no }}</el-text>
+          </template>
+        </el-table-column>
+        <el-table-column label="計劃裝貨量" prop="plan_number" />
+        <el-table-column label="本次裝貨量" prop="reality_number" />
       </el-table>
       <div class="mt5" v-show="orderCheck.length !== 0">
         <el-text tag="b" size="large">異常</el-text>
@@ -246,6 +269,20 @@ const submitForm = (Type) => {
         </el-table>
       </div>
     </el-card>
+
+    <el-dialog v-model="dialogVisible" title="裝運詳情">
+      <div>
+        <el-table :data="itemListData" height="300">
+          <el-table-column prop="product_name" label="產品名稱" />
+          <el-table-column prop="reality_number" label="裝貨數量" />
+          <el-table-column prop="container_no" label="櫃號" />
+          <el-table-column prop="seal_no" label="封條號" />
+        </el-table>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="dialogVisible = false">确认</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 

@@ -8,6 +8,7 @@ import {
   getClientAdvancePaymentListApi,
   getFactoryAdvancePaymentListApi
 } from "@/api/users"
+import { validateNumberMin } from "@/utils/validate"
 
 const { isType, id } = defineProps(["isType", "id"])
 console.log(isType, id)
@@ -86,7 +87,12 @@ const getTableData = () => {
       <el-row>
         <el-col :span="11">
           <el-form-item prop="price" label="添加金額">
-            <el-input v-model="prepayForm.price" placeholder="請輸入金額" type="number" />
+            <el-input
+              v-model="prepayForm.price"
+              placeholder="請輸入金額"
+              type="number"
+              @input="prepayForm.price = validateNumberMin(prepayForm.price)"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="1" />

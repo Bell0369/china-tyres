@@ -51,37 +51,14 @@ const ruleForm = reactive({
 const rules = reactive({
   username: [{ required: true, message: "請輸入用戶名稱", trigger: "blur" }],
   account: [
-    {
-      required: true,
-      message: "請輸入登錄賬號",
-      trigger: "blur"
-    }
+    { required: true, message: "請輸入登錄賬號", trigger: "blur" },
+    { pattern: /^[^\u4e00-\u9fa5]+$/, message: "不能含有漢字", trigger: "blur" }
   ],
-  password: [
-    {
-      required: true,
-      message: "請輸入密碼",
-      trigger: "blur"
-    }
-  ],
-  phone: [
-    {
-      required: true,
-      message: "請輸入電話",
-      trigger: "blur"
-    }
-  ],
+  password: [{ required: true, message: "請輸入密碼", trigger: "blur" }],
+  phone: [{ required: true, message: "請輸入電話", trigger: "blur" }],
   email: [
-    {
-      required: true,
-      message: "請輸入郵箱",
-      trigger: "blur"
-    },
-    {
-      type: "email",
-      message: "請輸入正確郵箱地址",
-      trigger: ["blur", "change"]
-    }
+    { required: true, message: "請輸入郵箱", trigger: "blur" },
+    { type: "email", message: "請輸入正確郵箱地址", trigger: ["blur", "change"] }
   ]
 })
 
@@ -91,13 +68,14 @@ const defaultProps = {
   label: "title"
 }
 
+const isPassword = ref("")
 onMounted(() => {
   if (rowId > 0) {
     getUserItemApi({
       id: rowId
     })
       .then(({ data }) => {
-        // data.password = ""
+        data.password = undefined
         Object.assign(ruleForm, data)
         setTimeout(() => {
           data.permission_ids.forEach((item) => {
@@ -108,6 +86,8 @@ onMounted(() => {
       .finally(() => {
         loading.value = false
       })
+  } else {
+    isPassword.value = "password"
   }
 })
 
@@ -160,8 +140,8 @@ const submitForm = (formEl) => {
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="登錄密碼" prop="password">
-            <el-input type="password" v-model="ruleForm.password" autocomplete="off" />
+          <el-form-item label="登錄密碼" :prop="isPassword">
+            <el-input type="password" v-model="ruleForm.password" autocomplete="off" auto-complete="new-password" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -202,7 +182,7 @@ const submitForm = (formEl) => {
         </el-col>
       </el-row>
     </div>
-    <div class="text-right">
+    <div class="text-right" v-permission="['addUser']">
       <el-button type="primary" @click="submitForm(ruleFormRef)">提交</el-button>
     </div>
   </el-form>

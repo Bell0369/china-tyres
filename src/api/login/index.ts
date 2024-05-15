@@ -25,3 +25,12 @@ export function getTokenApi() {
     method: "post"
   })
 }
+
+// 修改密碼
+export function updatePasswordApi(data) {
+  return request({
+    url: "user/editPassword",
+    method: "post",
+    data
+  })
+}

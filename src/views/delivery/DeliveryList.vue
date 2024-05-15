@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, watch } from "vue"
+import { reactive, ref, watch, onActivated } from "vue"
 import { getDeliveryPlanListApi, deleteDeliveryPlanApi, createInvApi } from "@/api/order"
 import { ElButton, ElMessage } from "element-plus"
 import { Search, CirclePlus, Refresh } from "@element-plus/icons-vue"
@@ -8,6 +8,7 @@ import { usePagination } from "@/hooks/usePagination"
 import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { useDeleteList } from "@/hooks/useDeleteList"
+import { handleActivated } from "@/utils/tagsclose"
 
 defineOptions({
   name: "DeliveryList"
@@ -49,16 +50,16 @@ const searchFormRef = ref(null)
 const searchData = reactive({
   is_check: undefined,
   is_shipped: 0,
-  keyword: "",
-  client_code: "",
-  factory_code: "",
-  brand_code: ""
+  keyword: "" || undefined,
+  client_code: "" || undefined,
+  factory_code: "" || undefined,
+  brand_code: "" || undefined
 })
 const getTableData = () => {
   loading.value = true
   const page = {
-    start_date: monthrangeData.value[0],
-    end_date: monthrangeData.value[1],
+    start_date: monthrangeData.value[0] || undefined,
+    end_date: monthrangeData.value[1] || undefined,
     page: paginationData.currentPage,
     page_size: paginationData.pageSize
   }
@@ -120,6 +121,12 @@ const handleView = (row) => {
 // 生成发票
 const tableRef = ref(null)
 const CreateInvoice = () => {
+  console.log(orderType.value)
+  if (orderType.value !== 1) {
+    ElMessage.error("只有已發貨訂單可生成銷售發票")
+    return false
+  }
+
   const rows = tableRef.value.getSelectionRows()
   if (rows.length > 0) {
     const delivery_Arr = []
@@ -130,14 +137,27 @@ const CreateInvoice = () => {
     createInvApi({
       delivery_plan_no: delivery_Arr
     })
-      .then((data) => {
-        console.log(data)
+      .then(() => {
+        ElMessage.success("銷售發票已生成")
       })
       .finally(() => {
         loading.value = false
       })
   } else {
     ElMessage.error("未选中需生成的订单")
+  }
+}
+
+onActivated(() => {
+  if (handleActivated()) getTableData()
+})
+
+// 是否可选
+const selectable = (row) => {
+  if (row.is_create_inv) {
+    return false
+  } else {
+    return true
   }
 }
 </script>
@@ -200,12 +220,10 @@ const CreateInvoice = () => {
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
           <div>
-            <router-link v-permission="['uploadPackingList']" to="/delivery/deliveryupload">
+            <router-link class="mr" v-permission="['uploadPackingList']" to="/delivery/deliveryupload">
               <el-button type="primary" :icon="CirclePlus">上傳裝箱單</el-button>
             </router-link>
-            <el-button v-permission="['createInv']" class="ml" type="primary" @click="CreateInvoice"
-              >銷售發票生成</el-button
-            >
+            <el-button v-permission="['createInv']" type="primary" @click="CreateInvoice">銷售發票生成</el-button>
           </div>
           <div>
             <el-text size="large">未發貨總數量：</el-text>
@@ -222,7 +240,7 @@ const CreateInvoice = () => {
       </div>
       <div class="table-wrapper">
         <el-table ref="tableRef" border :data="tableData" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column type="selection" width="55" align="center" :selectable="selectable" />
           <el-table-column prop="delivery_plan_no" label="發貨計劃號" align="center" />
           <el-table-column prop="pi_no" label="PI號" align="center" />
           <el-table-column prop="client_code" label="客戶編碼" align="center" />

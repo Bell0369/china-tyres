@@ -1,13 +1,13 @@
 <script setup>
 import { ref, reactive } from "vue"
-import { ElButton } from "element-plus"
+import { ElButton, ElMessage } from "element-plus"
 import { useRoute, useRouter } from "vue-router"
-import { useTagsViewStore } from "@/store/modules/tags-view"
 import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
 import { uploadOrderApi } from "@/api/order"
 import UploadInfo from "./components/UploadInfo.vue"
 import { UploadXlsx } from "@/components/UploadXlsx"
+import { redirectTo } from "@/utils/tagsclose"
 
 defineOptions({
   name: "OrderUpload"
@@ -27,7 +27,6 @@ const { loadClient, optionsClient, loadClientData } = useClientSelect()
 // tag
 const route = useRoute()
 const router = useRouter()
-const tagsViewStore = useTagsViewStore()
 
 const ruleFormRef = ref()
 const ruleForm = reactive({
@@ -58,6 +57,11 @@ const orderChecks = ref([])
 const orderCheck0 = ref([])
 const orderCheck1 = ref([])
 const submitForm = (Type) => {
+  if (ruleForm.file === "") {
+    ElMessage.error("請上傳文件先")
+    return
+  }
+
   // 重置表格数据
   orderCheck.value = []
   orderChecks.value = []
@@ -95,10 +99,8 @@ const submitForm = (Type) => {
             Object.assign(orderInfo, data.orderInfo)
             isorderInfo.value = true
           } else {
-            tagsViewStore.delVisitedView(route)
-            router.replace("/order/orderlist")
+            redirectTo(router, route, "/order/orderlist")
           }
-          loading.value = false
         })
         .finally(() => {
           loading.value = false

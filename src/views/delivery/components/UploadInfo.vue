@@ -38,16 +38,7 @@ setTimeout(() => {
     <el-descriptions :column="3" border>
       <el-descriptions-item label="訂單號">{{ infoData.order_no }}</el-descriptions-item>
       <el-descriptions-item label="PI號">{{ infoData.pi_no }}</el-descriptions-item>
-      <el-descriptions-item label="發貨計劃號">
-        <el-text
-          v-for="item in infoData.delivery_plan_no"
-          :key="item.id"
-          type="primary"
-          style="padding-right: 10px; display: inline-block"
-        >
-          <router-link :to="`/delivery/deliveryitem?id=${item.id}}`">{{ item.delivery_plan_no }}</router-link>
-        </el-text>
-      </el-descriptions-item>
+      <el-descriptions-item label="發貨計劃號">{{ infoData.delivery_plan_no }}</el-descriptions-item>
       <el-descriptions-item label="訂單總數量">{{ infoData.order_number }}</el-descriptions-item>
       <el-descriptions-item label="PI數量">{{ infoData.pi_number }}</el-descriptions-item>
       <el-descriptions-item label="PI已發貨數">{{ infoData.pi_shipped }}</el-descriptions-item>
