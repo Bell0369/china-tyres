@@ -61,7 +61,9 @@ onMounted(() => {
                 <el-table-column prop="inv_number" label="數量" align="center" />
                 <el-table-column prop="etd" label="ETD时间" align="center">
                   <template #default="scope">
-                    <el-text v-for="item in scope.row.etd" :key="item">{{ item }}</el-text>
+                    <el-text v-for="(item, index) in scope.row.etd" :key="item"
+                      >{{ index === 0 ? "" : "," }} {{ item }}
+                    </el-text>
                   </template>
                 </el-table-column>
               </el-table>

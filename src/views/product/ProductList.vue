@@ -206,7 +206,7 @@ const handleChildEvent = () => {
                 bg
                 size="small"
                 @click="handleUpdate(scope.row.id)"
-                >修改</el-button
+                >編輯</el-button
               >
               <el-button
                 v-permission="['productShow']"

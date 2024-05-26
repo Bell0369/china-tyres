@@ -137,12 +137,12 @@ const getAuthAllTree = () => {
       const item = permission.item || []
       const simplifiedItem = item.map((item) => ({
         id: item.id,
-        title: item.title + item.id,
+        title: item.title,
         authority: item.authority
       }))
       return {
         id: permission.id,
-        title: permission.title + permission.id,
+        title: permission.title,
         authority: permission.authority,
         item: simplifiedItem
       }
@@ -214,7 +214,7 @@ onMounted(() => {
             </template>
           </el-table-column>
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="150" align="center">
+          <el-table-column fixed="right" label="操作" width="100" align="center">
             <template #default="scope">
               <el-button
                 :disabled="scope.row.id === 1"
@@ -224,7 +224,7 @@ onMounted(() => {
                 bg
                 size="small"
                 @click="handleUpdate(scope.row.id)"
-                >修改</el-button
+                >查看</el-button
               >
               <el-button
                 :disabled="scope.row.id === 1"

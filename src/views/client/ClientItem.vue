@@ -234,7 +234,7 @@ const handleEditPayment = (value) => {
             <el-form-item label="預付款">
               <span class="color-red">{{ ruleForm.advance_payment || 0 }}</span>
               <Tickets
-                v-permission="['clientAdvancePayment-1']"
+                v-permission="['clientAdvancePayment-1', 'clientAdvancePaymentList']"
                 class="w6 h6 m-l-2 color-blue cursor-pointer"
                 @click="dialogVisible = true"
               />
@@ -245,7 +245,12 @@ const handleEditPayment = (value) => {
     </el-card>
 
     <!-- 聯繫人信息 -->
-    <address-list @updataContact="updataContact" :defaultId="ruleForm.client_contact_id" addressType="client" />
+    <address-list
+      @updataContact="updataContact"
+      @getBasicInfo="getClientShow"
+      :defaultId="ruleForm.client_contact_id"
+      addressType="client"
+    />
 
     <el-card shadow="never">
       <client-product :isProduct="isProduct" />

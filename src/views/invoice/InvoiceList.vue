@@ -2,7 +2,7 @@
 import { reactive, ref, watch } from "vue"
 import { ElButton } from "element-plus"
 import { Search, Refresh } from "@element-plus/icons-vue"
-import { getInvListApi, deleteSellInvApi, exportInvApi } from "@/api/order"
+import { getInvListApi, deleteSellInvApi } from "@/api/order"
 import { usePagination } from "@/hooks/usePagination"
 import { useDeleteList } from "@/hooks/useDeleteList"
 import { useClientSelect } from "@/hooks/useClientSelect"
@@ -68,23 +68,6 @@ const resetSearch = () => {
 
 /** 监听分页参数的变化 */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
-
-// 下载
-const getExportInv = (row) => {
-  loading.value = true
-  exportInvApi({
-    id: row.id
-  })
-    .then((data) => {
-      const downloadLink = document.createElement("a")
-      downloadLink.href = URL.createObjectURL(data)
-      downloadLink.download = `${row.inv_no}.xlsx`
-      downloadLink.click()
-    })
-    .finally(() => {
-      loading.value = false
-    })
-}
 </script>
 
 <template>
@@ -141,10 +124,10 @@ const getExportInv = (row) => {
             </template>
           </el-table-column>
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="200" align="center">
+          <el-table-column fixed="right" label="操作" width="100" align="center">
             <template #default="scope">
               <el-button
-                v-permission="['invDetail']"
+                v-permission="['invDetail', 'editInv']"
                 type="success"
                 text
                 bg
@@ -154,21 +137,13 @@ const getExportInv = (row) => {
                 >查看</el-button
               >
               <el-button
-                v-permission="['exportInv']"
-                type="warning"
-                text
-                bg
-                size="small"
-                @click="getExportInv(scope.row)"
-                >下载</el-button
-              >
-              <el-button
                 v-permission="['deleteSellInv']"
                 type="danger"
                 text
                 bg
                 size="small"
                 @click="handleDelete(scope.row.id)"
+                style="display: none"
                 >删除</el-button
               >
             </template>

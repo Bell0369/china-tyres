@@ -59,7 +59,7 @@ watch(
       </div>
     </div>
     <div class="m-b">
-      <el-table :data="tableData">
+      <el-table :data="tableData" :max-height="800">
         <el-table-column type="index" label="序号" align="center" width="80" />
         <el-table-column prop="product_name" label="產品名稱" align="center" />
         <el-table-column prop="reality_number" label="实际装货数" align="center" />

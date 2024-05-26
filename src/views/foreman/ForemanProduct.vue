@@ -187,11 +187,11 @@ const submitProductSum = () => {
   })
 }
 
-const defaultContact = ref(null)
+const defaultContact = ref(true)
 watch(
   () => props.isProduct,
   (newValue) => {
-    defaultContact.value = newValue
+    defaultContact.value = newValue ? false : true
   }
 )
 </script>
@@ -202,10 +202,24 @@ watch(
       <div class="flex justify-between">
         <el-text tag="b" size="large">產品信息</el-text>
         <div>
-          <el-button type="primary" @click="dialogVisible2 = true" :disabled="defaultContact === null"
-            >批量調整價格</el-button
-          >
-          <el-button type="primary" @click="handleUpdate(0)" :disabled="defaultContact === null">新增產品</el-button>
+          <el-tooltip :disabled="!defaultContact" content="請確定默認聯繫人先" placement="top-start">
+            <el-button
+              v-permission="['editAllFactoryProductPrice']"
+              type="primary"
+              @click="dialogVisible2 = true"
+              :disabled="defaultContact"
+              >批量調整價格</el-button
+            >
+          </el-tooltip>
+          <el-tooltip :disabled="!defaultContact" content="請確定默認聯繫人先" placement="top-start">
+            <el-button
+              v-permission="['addFactoryProduct']"
+              type="primary"
+              @click="handleUpdate(0)"
+              :disabled="defaultContact"
+              >新增產品</el-button
+            >
+          </el-tooltip>
         </div>
       </div>
       <div class="m-t2">
@@ -224,8 +238,24 @@ watch(
         <el-table-column prop="brand_name" label="品牌" align="center" />
         <el-table-column fixed="right" label="操作" width="150" align="center">
           <template #default="scope">
-            <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row.id)">修改</el-button>
-            <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+            <el-button
+              v-permission="['addFactoryProduct']"
+              type="primary"
+              text
+              bg
+              size="small"
+              @click="handleUpdate(scope.row.id)"
+              >編輯</el-button
+            >
+            <el-button
+              v-permission="['deleteFactoryProduct']"
+              type="danger"
+              text
+              bg
+              size="small"
+              @click="handleDelete(scope.row.id)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>

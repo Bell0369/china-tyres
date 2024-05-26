@@ -269,16 +269,6 @@ export function getInvListApi(params) {
   })
 }
 
-// 导出發票
-export function exportInvApi(params) {
-  return request({
-    url: "inv/exportInv",
-    method: "get",
-    responseType: "blob",
-    params
-  })
-}
-
 // 刪
 export function deleteSellInvApi(data) {
   return request({

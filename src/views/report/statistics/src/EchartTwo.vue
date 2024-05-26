@@ -1,9 +1,10 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue"
+import { ref, reactive } from "vue"
 import { ElMessage } from "element-plus"
+import { Search } from "@element-plus/icons-vue"
 import { useClientSelect } from "@/hooks/useClientSelect"
+import { getStatisticClientTargetApi } from "@/api/selects"
 import BaseEchart from "./BaseEchart.vue"
-import { Years, Months, Weeks } from "./json1"
 
 defineOptions({
   name: "EchartTwo"
@@ -35,26 +36,24 @@ const echartOptions = reactive({
   series: []
 })
 
-onMounted(() => {
-  getEchart1(Years)
-})
-
-const getEchart1 = (Datas) => {
+const getEchart1 = () => {
   loading.value = true
-  setTimeout(() => {
-    loading.value = false
-
-    const orderNumbers = Datas.map((item) => item.order_number)
-    const datas = Datas.map((item) => item.date)
-    echartOptions.xAxis.data = datas
-    echartOptions.series = [{ name: "訂單", type: "bar", data: orderNumbers }]
-  }, 1500)
+  searchData.date_type = orderType.value
+  searchData.date = dateValue.value
+  getStatisticClientTargetApi(searchData)
+    .then(({ data }) => {
+      // console.log(data)
+      const Datas = data
+      const orderNumbers = Datas.map((item) => item.amount)
+      const datas = Datas.map((item) => item.date)
+      echartOptions.xAxis.data = datas
+      echartOptions.series = [{ name: "數量", type: "bar", data: orderNumbers }]
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
-const searchData = reactive({
-  client_code: "",
-  factory_code: ""
-})
 // 查詢
 const orderType = ref(1)
 const handleSearch = () => {
@@ -62,32 +61,31 @@ const handleSearch = () => {
     ElMessage.error("請選擇時間")
     return
   }
-  switch (orderType.value) {
-    case 1:
-      getEchart1(Years)
-      break
-    case 2:
-      getEchart1(Months)
-      break
-    case 3:
-      getEchart1(Weeks)
-      break
-    default:
-      break
+  if (searchData.client_id === "") {
+    ElMessage.error("請選擇客戶")
+    return
   }
+  getEchart1()
 }
 
-const currentYear = new Date().getFullYear()
-const dateValue = ref(currentYear)
+const dateValue = ref("")
 const dateTypes = reactive({
   type: ["", "year", "month", "week"],
   value_format: ["", "YYYY", "YYYY-MM", "YYYY-MM-DD"],
   format: ["", "YYYY", "YYYY-MM", "ww [周] YYYY-MM-DD"]
 })
+
+const searchData = reactive({
+  client_id: "",
+  type: 1
+})
 </script>
 
 <template>
   <el-card shadow="never" class="mb5">
+    <div class="mb5">
+      <el-text tag="b" size="large">客戶數據統計</el-text>
+    </div>
     <el-form :inline="true">
       <el-form-item>
         <el-radio-group v-model="orderType" fill="#29d" @change="dateValue = ''">
@@ -106,7 +104,7 @@ const dateTypes = reactive({
       </el-form-item>
       <el-form-item>
         <el-select
-          v-model="searchData.client_code"
+          v-model="searchData.client_id"
           filterable
           remote
           remote-show-suffix
@@ -115,11 +113,11 @@ const dateTypes = reactive({
           placeholder="客戶"
           style="width: 200px"
         >
-          <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_code" :value="item.client_code" />
+          <el-option v-for="item in optionsClient" :key="item.id" :label="item.client_code" :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-select v-model="searchData.factory_code" style="width: 200px">
+        <el-select v-model="searchData.type" style="width: 200px">
           <el-option v-for="item in selectOptions" :key="item.id" :label="item.value" :value="item.id" />
         </el-select>
       </el-form-item>

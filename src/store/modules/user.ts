@@ -25,11 +25,11 @@ export const useUserStore = defineStore("user", () => {
     token.value = data.token
     // 路由權限
     const authorities = data.permission.map((permission) => permission.authority)
-    setRoles(authorities)
     // 按鈕權限
     const secondLevelAuthorities = data.permission.flatMap((permission) =>
       permission.item ? permission.item.map((item) => item.authority) : []
     )
+    setRoles(authorities.concat(secondLevelAuthorities))
     setButtonAuthorities(secondLevelAuthorities)
   }
 

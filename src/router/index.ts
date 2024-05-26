@@ -130,7 +130,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "客戶詳情",
           name: "Client",
-          hidden: true
+          hidden: true,
+          roles: ["clientShow"]
         }
       }
     ]
@@ -163,7 +164,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "工廠詳情",
           name: "Foreman",
-          hidden: true
+          hidden: true,
+          roles: ["factoryBasicInfo"]
         }
       }
     ]
@@ -196,7 +198,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "訂單詳情",
           hidden: true,
-          name: "Order"
+          name: "Order",
+          roles: ["orderDetail"]
         }
       },
       {
@@ -206,7 +209,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "上傳訂單",
           hidden: true,
-          name: "Order"
+          name: "Order",
+          roles: ["uploadOrder"]
         }
       }
     ]
@@ -239,7 +243,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "PI詳情",
           name: "PIOrder",
-          hidden: true
+          hidden: true,
+          roles: ["piBasicDetail"]
         }
       },
       {
@@ -249,7 +254,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "上傳PI",
           name: "PIOrder",
-          hidden: true
+          hidden: true,
+          roles: ["uploadPi"]
         }
       },
       {
@@ -259,7 +265,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "PI發貨計劃",
           name: "PIOrder",
-          hidden: true
+          hidden: true,
+          roles: ["uploadDeliveryPlan"]
         }
       },
       {
@@ -269,7 +276,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "文件發貨計劃",
           name: "PIOrder",
-          hidden: true
+          hidden: true,
+          roles: ["uploadDeliveryPlan"]
         }
       }
     ]
@@ -302,7 +310,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "發貨計劃詳情",
           name: "Delivery",
-          hidden: true
+          hidden: true,
+          roles: ["deliveryPlanDetails"]
         }
       },
       {
@@ -312,7 +321,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "上傳裝箱單",
           name: "Delivery",
-          hidden: true
+          hidden: true,
+          roles: ["uploadPackingList"]
         }
       }
     ]
@@ -345,7 +355,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "發票詳情",
           name: "Invoice",
-          hidden: true
+          hidden: true,
+          roles: ["invDetail", "editInv"]
         }
       }
     ]
@@ -358,7 +369,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
     meta: {
       title: "應收應付",
       svgIcon: "payment",
-      roles: ["clientProceeds"]
+      alwaysShow: true,
+      roles: ["clientProceeds", "clientAdvancePayment"]
     },
     children: [
       {
@@ -368,7 +380,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "應收應付",
           name: "Payment",
-          keepAlive: true
+          keepAlive: true,
+          roles: ["clientProceeds"]
         }
       },
       {
@@ -378,7 +391,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "預付款",
           name: "Payment",
-          keepAlive: true
+          keepAlive: true,
+          roles: ["clientAdvancePayment"]
         }
       }
     ]
@@ -411,7 +425,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: {
           title: "產品詳情",
           name: "Product",
-          hidden: true
+          hidden: true,
+          roles: ["productShow"]
         }
       }
     ]
@@ -481,8 +496,10 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/report/Statistics.vue"),
         name: "Statistics",
         meta: {
-          title: "統計報表",
-          name: "Report"
+          title: "統計分析",
+          name: "Report",
+          roles: ["statisticSalesVolume"],
+          keepAlive: true
         }
       },
       {

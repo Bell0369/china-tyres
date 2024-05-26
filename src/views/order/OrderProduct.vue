@@ -132,11 +132,11 @@ const getEtdList = () => {
         </el-form-item>
       </el-form>
     </div>
-    <el-table v-loading="loading" :data="tableData" border row-key="pi_no">
+    <el-table v-loading="loading" :data="tableData" border row-key="pi_no" row-class-name="warning-row">
       <el-table-column type="expand">
         <template #default="props">
           <div class="px">
-            <el-table :data="props.row.list">
+            <el-table :data="props.row.list" :max-height="450">
               <el-table-column type="index" label="序號" width="80px" align="center" />
               <el-table-column label="產品名稱" prop="product_name" />
               <el-table-column label="訂單數量" prop="order_product_number" />
@@ -182,4 +182,8 @@ const getEtdList = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.el-table .warning-row) {
+  --el-table-tr-bg-color: var(--el-color-info-light-9);
+}
+</style>

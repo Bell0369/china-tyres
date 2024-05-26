@@ -127,7 +127,7 @@ const handleListPayment = () => {
             <el-table-column label="預付金額記錄" align="center">
               <template #default="scope">
                 <Tickets
-                  v-permission="['clientAdvancePayment']"
+                  v-permission="['clientAdvancePayment-1', 'clientAdvancePaymentList']"
                   class="w6 h6 m-l-2 color-blue cursor-pointer"
                   @click="showPrepay(scope.row.id)"
                 />
@@ -143,7 +143,7 @@ const handleListPayment = () => {
             <el-table-column label="預付金額記錄" align="center">
               <template #default="scope">
                 <Tickets
-                  v-permission="['clientAdvancePayment']"
+                  v-permission="['factoryAdvancePayment', 'factoryAdvancePaymentList']"
                   class="w6 h6 m-l-2 color-blue cursor-pointer"
                   @click="showPrepay(scope.row.id)"
                 />

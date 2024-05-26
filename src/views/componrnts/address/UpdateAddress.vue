@@ -32,27 +32,22 @@ onMounted(() => {
   Object.assign(ruleForm.value, addressData)
 
   // 默認 phone
-  for (const key in addressData.phones) {
-    if (ruleForm.value.phones[key].default === 1) {
-      phones_default.value = Number(key)
-      break
-    }
-  }
+  const phones = ruleForm.value.phones
+  phones_default.value = phones.findIndex((phone) => phone.default === 1)
+
   // 默認 address
-  for (const key in addressData.address) {
-    if (ruleForm.value.address[key].default === 1) {
-      address_default.value = Number(key)
-      break
-    }
-  }
+  const addresses = ruleForm.value.address
+  address_default.value = addresses.findIndex((address) => address.default === 1)
+  // for (const key in addressData.address) {
+  //   if (ruleForm.value.address[key].default === 1) {
+  //     address_default.value = Number(key)
+  //     break
+  //   }
+  // }
 
   // 默認 email
-  for (const key in addressData.emails) {
-    if (ruleForm.value.emails[key].default === 1) {
-      emails_default.value = Number(key)
-      break
-    }
-  }
+  const emails = ruleForm.value.phones
+  emails_default.value = emails.findIndex((emails) => emails.default === 1)
 })
 
 // 區號
@@ -240,30 +235,35 @@ const updateAddress = (item, index) => {
 
 // 查询接口
 const getCountriesArea = (index, id) => {
+  loading.value = true
   getCountriesAreaApi({
     pid: id || undefined
-  }).then(({ data }) => {
-    if (index === 1) {
-      countryOptions.value = data
-    } else if (index === 2) {
-      provinceOptions.value = data
-      if (data.length === 0) {
-        addressForm.value.province = ""
-        addressForm.value.province_name = ""
-        provinceVal.value = {}
-        addressForm.value.city = ""
-        addressForm.value.city_name = ""
-        cityVal.value = {}
-      }
-    } else {
-      cityOptions.value = data
-      if (data.length === 0) {
-        addressForm.value.city = ""
-        addressForm.value.city_name = ""
-        cityVal.value = {}
-      }
-    }
   })
+    .then(({ data }) => {
+      if (index === 1) {
+        countryOptions.value = data
+      } else if (index === 2) {
+        provinceOptions.value = data
+        if (data.length === 0) {
+          addressForm.value.province = ""
+          addressForm.value.province_name = ""
+          provinceVal.value = {}
+          addressForm.value.city = ""
+          addressForm.value.city_name = ""
+          cityVal.value = {}
+        }
+      } else {
+        cityOptions.value = data
+        if (data.length === 0) {
+          addressForm.value.city = ""
+          addressForm.value.city_name = ""
+          cityVal.value = {}
+        }
+      }
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 /**---------------------- */
 // 添加電郵
@@ -329,37 +329,22 @@ const submitForm = () => {
     return
   }
   // 默認 phone
-  Object.keys(ruleForm.value.phones).forEach((key) => {
-    if (phones_default.value === Number(key)) {
-      ruleForm.value.phones[key].default = 1
-    } else {
-      ruleForm.value.phones[key].default = 0
-    }
-  })
+  setDefaultProperty(ruleForm.value.phones, phones_default.value, "default")
+
   if (ruleForm.value.address.length === 0) {
     ElMessage.error("請選中默認地址")
     return
   }
   // 默認 address
-  Object.keys(ruleForm.value.address).forEach((key) => {
-    if (address_default.value === Number(key)) {
-      ruleForm.value.address[key].default = 1
-    } else {
-      ruleForm.value.address[key].default = 0
-    }
-  })
+  setDefaultProperty(ruleForm.value.address, address_default.value, "default")
+
   if (ruleForm.value.emails.length === 0) {
     ElMessage.error("請選中默認電郵")
     return
   }
   // 默認 email
-  Object.keys(ruleForm.value.emails).forEach((key) => {
-    if (emails_default.value === Number(key)) {
-      ruleForm.value.emails[key].default = 1
-    } else {
-      ruleForm.value.emails[key].default = 0
-    }
-  })
+  setDefaultProperty(ruleForm.value.emails, emails_default.value, "default")
+
   const api = idName === "factory" ? updateFactoryContactApi : updateClientContactApi
   api({
     address_json: JSON.stringify([ruleForm.value])
@@ -368,6 +353,13 @@ const submitForm = () => {
       ElMessage.success("操作成功")
       emitEvents("childEvent")
     }
+  })
+}
+
+// 设置默认函数
+const setDefaultProperty = (obj, defaultValue, targetKey) => {
+  Object.keys(obj).forEach((key) => {
+    obj[key][targetKey] = defaultValue === Number(key) ? 1 : 0
   })
 }
 </script>

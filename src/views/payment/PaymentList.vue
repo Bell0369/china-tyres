@@ -3,8 +3,8 @@ import { reactive, ref, watch } from "vue"
 import { getClientProceedsApi, getFactoryCopeApi, getConfirmReceiptApi } from "@/api/order"
 import { ElMessageBox, ElMessage, ElButton } from "element-plus"
 import { Search, Refresh, Tickets } from "@element-plus/icons-vue"
-import { useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
+import { useFactorySelect } from "@/hooks/useFactorySelect"
 import { usePagination } from "@/hooks/usePagination"
 import { Dialog } from "@/components/Dialog"
 import addPayRecord from "./components/addPayRecord.vue"
@@ -18,8 +18,8 @@ const loading = ref(false)
 
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-//工厂代碼
-const factoryCodeOptions = useFactoryCodeSelect()
+//工厂
+const { loadFactory, optionsFactory, loadFactoryData } = useFactorySelect()
 
 // 客户
 const { loadClient, optionsClient, loadClientData } = useClientSelect()
@@ -91,9 +91,9 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
 const dialogVisible = ref(false)
 const prepayId = ref(0)
 const prepayType = ref(1)
-const handleAddPrice = (id) => {
+const handleAddPrice = (row) => {
   dialogVisible.value = true
-  prepayId.value = id
+  prepayId.value = row
   prepayType.value = orderType.value ? 2 : 1
 }
 
@@ -132,9 +132,7 @@ const handleReceipt = (id, type) => {
     })
 }
 
-// watch(dialogVisible, (value) => {
-//   value ? "" : getTableData()
-// })
+// 修改後刷新表格
 const handleListPayment = () => {
   getTableData()
 }
@@ -187,9 +185,17 @@ const handleListPayment = () => {
           </el-select>
         </el-form-item>
         <el-form-item prop="factory_id" label="工廠名稱" v-show="orderType === 1">
-          <el-select v-model="searchData.factory_id" style="width: 150px">
+          <el-select
+            v-model="searchData.factory_id"
+            filterable
+            remote
+            remote-show-suffix
+            :remote-method="loadFactoryData"
+            :loading="loadFactory"
+            style="width: 150px"
+          >
             <el-option label="全部" value="" />
-            <el-option v-for="item in factoryCodeOptions" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option v-for="item in optionsFactory" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -224,7 +230,7 @@ const handleListPayment = () => {
               <template #default="scope">
                 <span class="inline-block align-mid">{{ scope.row.paicl_price }}</span>
                 <Tickets
-                  v-permission="['addPrice']"
+                  v-permission="['clientAdvancePayment-1', 'clientAdvancePaymentList']"
                   @click="showPrepay(scope.row.client_id)"
                   class="color-blue cursor-pointer w5 h5 inline-block align-mid"
                 />
@@ -242,17 +248,17 @@ const handleListPayment = () => {
               <template #default="scope">
                 <el-button
                   v-permission="['addPrice']"
-                  :disabled="scope.row.status"
                   type="primary"
                   text
                   bg
                   size="small"
-                  @click="handleAddPrice(scope.row.id)"
-                  >添加金額</el-button
+                  @click="handleAddPrice(scope.row)"
+                >
+                  {{ scope.row.status ? "查看记录" : "添加金額" }}</el-button
                 >
                 <el-button
                   v-permission="['confirmReceipt']"
-                  :disabled="scope.row.status"
+                  :disabled="scope.row.status === 1"
                   type="danger"
                   text
                   bg
@@ -278,7 +284,7 @@ const handleListPayment = () => {
               <template #default="scope">
                 <span class="inline-block align-mid">{{ scope.row.actually_price }}</span>
                 <Tickets
-                  v-permission="['addPrice']"
+                  v-permission="['factoryAdvancePayment', 'factoryAdvancePaymentList']"
                   @click="showPrepay(scope.row.factory_id)"
                   class="color-blue cursor-pointer w5 h5 inline-block align-mid"
                 />
@@ -296,17 +302,16 @@ const handleListPayment = () => {
               <template #default="scope">
                 <el-button
                   v-permission="['addPrice']"
-                  :disabled="scope.row.status"
                   type="primary"
                   text
                   bg
                   size="small"
-                  @click="handleAddPrice(scope.row.id)"
-                  >添加金額</el-button
+                  @click="handleAddPrice(scope.row)"
+                  >{{ scope.row.status ? "查看记录" : "添加金額" }}</el-button
                 >
                 <el-button
                   v-permission="['confirmReceipt']"
-                  :disabled="scope.row.status"
+                  :disabled="scope.row.status === 1"
                   type="danger"
                   text
                   bg
@@ -334,8 +339,8 @@ const handleListPayment = () => {
       </div>
     </el-card>
 
-    <Dialog v-model="dialogVisible" title="添加金額">
-      <add-payRecord :isType="prepayType" :id="prepayId" @handle-listPayment="handleListPayment" />
+    <Dialog v-model="dialogVisible" :title="prepayId.status ? '查看记录' : '添加金額'">
+      <add-payRecord :isType="prepayType" :row="prepayId" @handle-listPayment="handleListPayment" />
     </Dialog>
 
     <Dialog v-model="dialogVisible2" title="預付款">

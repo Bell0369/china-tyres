@@ -169,7 +169,7 @@ const handleChildEvent = () => {
           <el-table-column prop="credit" label="信用額度" align="center" />
           <el-table-column prop="advance_payment" label="預付款" align="center" />
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="130" align="center">
+          <el-table-column fixed="right" label="操作" width="100" align="center">
             <template #default="scope">
               <el-button
                 type="primary"
@@ -178,7 +178,7 @@ const handleChildEvent = () => {
                 bg
                 size="small"
                 @click="handleUpdate(scope.row)"
-                >修改</el-button
+                >查看</el-button
               >
               <el-button type="danger" text bg size="small" @click="handleDelete(scope.row.id)" style="display: none"
                 >删除</el-button

@@ -64,8 +64,6 @@ const submitInfo = async (formEl) => {
       updateFactoryApi(ruleForm).then(() => {
         ElMessage.success("操作成功")
         getfactoryBasicInfo()
-        ruleForm.user_ids = []
-        userOptions.value = []
       })
     } else {
       console.log("error submit!", fields)
@@ -85,6 +83,9 @@ const getfactoryBasicInfo = () => {
   getFactoryBasicInfoApi({
     id: route.query.id
   }).then(({ data }) => {
+    ruleForm.user_ids = []
+    userOptions.value = []
+
     data.users.forEach((item) => {
       ruleForm.user_ids.push(item.user_id)
       userOptions.value.push({
@@ -92,12 +93,17 @@ const getfactoryBasicInfo = () => {
         username: item.username
       })
     })
-    ruleForm.name = data.name
-    ruleForm.factory_code = data.factory_code_id + ""
-    ruleForm.advance_payment = data.advance_payment
-    ruleForm.id = data.id
+    // ruleForm.name = data.name
+    // ruleForm.factory_code = data.factory_code_id + ""
+    // ruleForm.advance_payment = data.advance_payment
+    // ruleForm.id = data.id
+    // ruleForm.factory_contact_id = data.factory_contact_id
+    data.factory_code = data.factory_code_id + ""
+    delete data.users
+    delete data.factory_code_id
+    Object.assign(ruleForm, data)
+
     loading.value = false
-    ruleForm.factory_contact_id = data.factory_contact_id
 
     isProduct.value = data.factory_contact_id
   })
@@ -161,7 +167,7 @@ const handleEditPayment = (value) => {
             <el-form-item label="預付款">
               <span class="color-red">{{ ruleForm.advance_payment || 0 }}</span>
               <Tickets
-                v-permission="['factoryAdvancePayment']"
+                v-permission="['factoryAdvancePayment', 'factoryAdvancePaymentList']"
                 class="w6 h6 m-l-2 color-blue cursor-pointer"
                 @click="dialogVisible = true"
               />
@@ -188,7 +194,12 @@ const handleEditPayment = (value) => {
     </el-card>
 
     <!-- 聯繫人信息 -->
-    <AddressList @updataContact="updataContact" :defaultId="ruleForm.factory_contact_id" addressType="factory" />
+    <AddressList
+      @updataContact="updataContact"
+      @getBasicInfo="getfactoryBasicInfo"
+      :defaultId="ruleForm.factory_contact_id"
+      addressType="factory"
+    />
 
     <!-- 產品信息 -->
     <el-card shadow="never">

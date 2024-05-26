@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, watch, onActivated } from "vue"
-import { ElButton, ElMessage } from "element-plus"
+import { ElButton } from "element-plus"
 import { Search, CirclePlus, Refresh, EditPen } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 import { getOrderListApi, updateQuantityApi, deleteOrderApi } from "@/api/order"
@@ -94,11 +94,6 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
 onActivated(() => {
   if (handleActivated()) getTableData()
 })
-
-// 下载
-const handleUpload = (row) => {
-  ElMessage.info(`该功能暂未开通-${row.id}`)
-}
 </script>
 
 <template>
@@ -182,7 +177,7 @@ const handleUpload = (row) => {
           <el-table-column prop="pi_shipped_number" label="PI已發貨數量" align="center" />
           <el-table-column prop="pi_not_shipped_number" label="PI未發貨數量" align="center" />
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="200" align="center">
+          <el-table-column fixed="right" label="操作" width="130" align="center">
             <template #default="scope">
               <el-button
                 v-permission="['orderDetail']"
@@ -194,7 +189,6 @@ const handleUpload = (row) => {
                 :to="`/order/orderitem?id=${scope.row.id}`"
                 >查看</el-button
               >
-              <el-button type="warning" text bg size="small" @click="handleUpload(scope.row)">下载</el-button>
               <el-button
                 v-permission="['deleteOrder']"
                 type="danger"

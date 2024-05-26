@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue"
 import { ElMessage } from "element-plus"
+import { Search } from "@element-plus/icons-vue"
 import { getStatisticSalesVolumeApi } from "@/api/selects"
 import BaseEchart from "./BaseEchart.vue"
 

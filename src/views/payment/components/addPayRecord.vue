@@ -4,8 +4,9 @@ import { ElMessage } from "element-plus"
 import { getAddPayRecordApi, AddPriceApi } from "@/api/order"
 import { validateNumberMin } from "@/utils/validate"
 
-const { isType, id } = defineProps(["isType", "id"])
-console.log(isType, id)
+const { isType, row } = defineProps(["isType", "row"])
+console.log(isType, row.id)
+const itemId = row.id
 const emit = defineEmits(["handleEditPayment"])
 
 const loading = ref(false)
@@ -13,7 +14,7 @@ const loading = ref(false)
 const prepayFormRef = ref()
 // 初始化
 const prepayForm = reactive({
-  id: id,
+  id: itemId,
   type: isType,
   price: "",
   bank_statement_number: ""
@@ -50,7 +51,7 @@ const tableData = ref([])
 const getTableData = () => {
   loading.value = true
   getAddPayRecordApi({
-    id: id,
+    id: itemId,
     type: isType
   })
     .then(({ data }) => {
@@ -64,7 +65,7 @@ const getTableData = () => {
 
 <template>
   <div>
-    <el-form ref="prepayFormRef" :model="prepayForm" :rules="rules">
+    <el-form ref="prepayFormRef" :model="prepayForm" :rules="rules" v-show="row.status === 0">
       <el-row>
         <el-col :span="11">
           <el-form-item prop="price" label="添加金額">
@@ -94,7 +95,7 @@ const getTableData = () => {
           </el-table>
         </div>
       </div>
-      <div class="flex flex-row-reverse">
+      <div class="flex flex-row-reverse" v-show="row.status === 0">
         <div>
           <ElButton type="primary" @click="submitForm(prepayFormRef)"> 保存 </ElButton>
         </div>

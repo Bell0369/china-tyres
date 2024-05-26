@@ -173,7 +173,7 @@ const handleChildEvent = () => {
           <el-table-column prop="address" width="150" :show-overflow-tooltip="true" label="地址" align="center" />
           <el-table-column prop="advance_payment" label="預付款" align="center" />
           <el-table-column prop="created_at" label="创建时间" align="center" sortable />
-          <el-table-column fixed="right" label="操作" width="150" align="center">
+          <el-table-column fixed="right" label="操作" width="100" align="center">
             <template #default="scope">
               <el-button
                 v-permission="['addFactory', 'factoryBasicInfo']"
@@ -182,7 +182,7 @@ const handleChildEvent = () => {
                 bg
                 size="small"
                 @click="handleUpdate(scope.row)"
-                >修改</el-button
+                >查看</el-button
               >
               <el-button
                 v-permission="['deleteFactory']"

@@ -12,6 +12,8 @@ const props = defineProps({
   addressType: String
 })
 
+const emits = defineEmits(["updataContact", "getBasicInfo"])
+
 const addressType = props.addressType
 
 const loading = ref(false)
@@ -63,10 +65,12 @@ const connectUpdate = (row) => {
 const handleChildEvent = () => {
   dialogVisible.value = false
   getContact()
+  if (!props.defaultId) {
+    emits("getBasicInfo")
+  }
 }
 
 // 切換默認
-const emits = defineEmits(["updataContact"])
 const defaultAddress = (id) => {
   defaultContact.value = id
   emits("updataContact", id)
@@ -75,7 +79,7 @@ const defaultAddress = (id) => {
 // 删除
 const { handleDelete, isDeleted } = useDeleteList({
   api: addressType === "factory" ? deleteFactoryContactApi : deleteClientContactApi,
-  text: "聯繫人"
+  text: "聯繫人?"
 })
 
 // 删除-成功

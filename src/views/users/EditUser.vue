@@ -3,6 +3,7 @@ import { reactive, ref, defineEmits, onMounted, watch } from "vue"
 import { getUserItemApi, updateUserItemApi } from "@/api/users"
 import { usePayMentSelect, useDepartmentSelect } from "@/hooks/useSelectOption"
 import { ElMessage } from "element-plus"
+// import { setRoles, setButtonAuthorities } from "@/utils/cache/local-storage"
 
 defineOptions({
   name: "EditUser"
@@ -14,11 +15,11 @@ const loading = ref(true)
 
 // 部門
 const { roleOptions } = useDepartmentSelect()
+
 // 區號
 const { codeArr } = usePayMentSelect()
 
 // 部門權限
-// const authority1 = ref([])
 const authority = reactive({})
 watch(roleOptions, () => {
   roleOptions.value.map((item) => {
@@ -81,9 +82,10 @@ onMounted(() => {
           data.permission_ids.forEach((item) => {
             treeRef.value.setChecked(item, true, false)
           })
+          loading.value = false
         }, 500)
       })
-      .finally(() => {
+      .catch(() => {
         loading.value = false
       })
   } else {
@@ -93,7 +95,7 @@ onMounted(() => {
 
 // 切換部門
 const updateRoles = () => {
-  console.log(authority[ruleForm.role_id])
+  // console.log(authority[ruleForm.role_id])
   treeRef.value.setCheckedKeys([], false)
   authority[ruleForm.role_id].forEach((item) => {
     treeRef.value.setChecked(item, true, false)
@@ -106,6 +108,9 @@ const submitForm = (formEl) => {
   formEl.validate((valid, fields) => {
     if (valid) {
       ruleForm.permission_ids = treeRef.value.getHalfCheckedKeys().concat(treeRef.value.getCheckedKeys())
+      // console.log(ruleForm.permission_ids)
+      // setRoles(ruleForm.permission_ids)
+      // setButtonAuthorities(ruleForm.permission_ids)
       updateUserItemApi(ruleForm).then(() => {
         ElMessage.success("操作成功")
         emitEvents("childEvent")

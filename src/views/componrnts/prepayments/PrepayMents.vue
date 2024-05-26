@@ -9,9 +9,11 @@ import {
   getFactoryAdvancePaymentListApi
 } from "@/api/users"
 import { validateNumberMin } from "@/utils/validate"
+import { checkPermission } from "@/utils/permission"
 
 const { isType, id } = defineProps(["isType", "id"])
 console.log(isType, id)
+
 const emit = defineEmits(["handleEditPayment"])
 
 // const route = useRoute()
@@ -57,7 +59,7 @@ const submitForm = (formEl) => {
 
 // 列表
 onMounted(() => {
-  getTableData()
+  if (isPaymentList.value) getTableData()
 })
 
 const types = ref(1)
@@ -79,11 +81,26 @@ const getTableData = () => {
       loading.value = false
     })
 }
+
+const invoiceName = computed(() => {
+  const name = isType === "factory" ? "採購發票號" : "銷售發票號"
+  return name
+})
+
+const isAddPayment = computed(() => {
+  return isType === "factory" ? checkPermission(["factoryAdvancePayment"]) : checkPermission(["clientAdvancePayment-1"])
+})
+
+const isPaymentList = computed(() => {
+  return isType === "factory"
+    ? checkPermission(["factoryAdvancePaymentList"])
+    : checkPermission(["clientAdvancePaymentList"])
+})
 </script>
 
 <template>
   <div>
-    <el-form ref="prepayFormRef" :model="prepayForm" :rules="rules">
+    <el-form ref="prepayFormRef" :model="prepayForm" :rules="rules" v-show="isAddPayment">
       <el-row>
         <el-col :span="11">
           <el-form-item prop="price" label="添加金額">
@@ -104,7 +121,7 @@ const getTableData = () => {
       </el-row>
     </el-form>
     <div>
-      <div class="my">
+      <div class="mb" v-show="isPaymentList">
         <div>
           <el-radio-group v-model="types" @change="getTableData" fill="#29d">
             <el-radio-button label="添加記錄" :value="1" />
@@ -114,18 +131,18 @@ const getTableData = () => {
         <div v-loading="loading">
           <el-table :data="tableData" height="300">
             <el-table-column prop="price" :label="types === 1 ? '添加金額' : '扣除金額'" />
-            <el-table-column prop="invoice" :label="types === 1 ? '銀行水單' : '銷售發票號'" />
+            <el-table-column prop="invoice" :label="types === 1 ? '銀行水單' : invoiceName" />
             <el-table-column prop="created_at" :label="types === 1 ? '添加時間' : '扣除時間'" sortable />
           </el-table>
         </div>
-        <div class="flex justify-between m-t5 items-center">
-          <div>
-            <el-text>當前預付款: </el-text>
-            <el-text type="danger" size="large">{{ advancePayment }}</el-text>
-          </div>
-          <div>
-            <ElButton type="primary" @click="submitForm(prepayFormRef)"> 保存 </ElButton>
-          </div>
+      </div>
+      <div class="flex justify-between m-t5 items-center">
+        <div>
+          <el-text>當前預付款: </el-text>
+          <el-text type="danger" size="large">{{ advancePayment }}</el-text>
+        </div>
+        <div>
+          <ElButton type="primary" @click="submitForm(prepayFormRef)" v-show="isAddPayment"> 保存 </ElButton>
         </div>
       </div>
     </div>

@@ -65,6 +65,7 @@ const handleUpdate = (row) => {
         number: value
       }).then(() => {
         ElMessage.success("修改成功")
+        getInfoData()
         getTableData()
       })
     })
@@ -179,7 +180,7 @@ const closeTab = () => {
           </div>
         </div>
       </div>
-      <el-table v-loading="loading" :data="tableData">
+      <el-table v-loading="loading" :data="tableData" :max-height="800">
         <el-table-column type="index" label="序號" width="80px" align="center" />
         <el-table-column prop="product_name" label="產品名稱" align="center" />
         <el-table-column prop="number" label="PI數量" align="center">

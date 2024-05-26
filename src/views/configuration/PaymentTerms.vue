@@ -87,7 +87,7 @@ const submitForm = (formRef) => {
           <el-table-column prop="name" label="名稱" />
           <el-table-column label="操作">
             <template #default="scope">
-              <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
+              <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">編輯</el-button>
               <!-- <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button> -->
             </template>
           </el-table-column>

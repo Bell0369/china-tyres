@@ -60,7 +60,7 @@ const resetSearch = () => {
         </el-form-item>
       </el-form>
     </div>
-    <el-table :data="tableData" border>
+    <el-table :data="tableData" border row-class-name="warning-row">
       <el-table-column type="expand">
         <template #default="props">
           <div class="px">
@@ -82,4 +82,8 @@ const resetSearch = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.el-table .warning-row) {
+  --el-table-tr-bg-color: var(--el-color-info-light-9);
+}
+</style>

@@ -101,11 +101,72 @@ export function getDepartmentApi(params) {
   })
 }
 
+/**數據統計 */
 // 銷售總體概況
 export function getStatisticSalesVolumeApi(params) {
   return request({
     url: "report/statisticSalesVolume",
     method: "get",
+    params
+  })
+}
+
+// 根據客戶統計
+export function getStatisticClientTargetApi(params) {
+  return request({
+    url: "report/statisticClientTarget",
+    method: "get",
+    params
+  })
+}
+
+/** 導出 */
+// 导出發票
+export function exportInvApi(params) {
+  return request({
+    url: "inv/exportInv",
+    method: "post",
+    responseType: "blob",
+    params
+  })
+}
+
+// 導出裝箱單
+export function exportPackingListApi(params) {
+  return request({
+    url: "inv/exportPackingList",
+    method: "post",
+    responseType: "blob",
+    params
+  })
+}
+
+// 導出SN
+export function exportSNApi(params) {
+  return request({
+    url: "inv/exportSN",
+    method: "post",
+    responseType: "blob",
+    params
+  })
+}
+
+// 發貨流水賬導出
+export function exportTheShipmentLedgerApi(params) {
+  return request({
+    url: "report/exportTheShipmentLedger",
+    method: "post",
+    responseType: "blob",
+    params
+  })
+}
+
+// 導出銷售實時情況
+export function exportSellRealSituationApi(params) {
+  return request({
+    url: "report/exportSellRealSituation",
+    method: "post",
+    responseType: "blob",
     params
   })
 }

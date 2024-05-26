@@ -155,14 +155,16 @@ onActivated(() => {
     <el-card v-loading="loading" shadow="never">
       <div class="toolbar-wrapper">
         <div class="flex justify-between">
-          <el-button
-            v-permission="['uploadPi']"
-            type="primary"
-            :icon="CirclePlus"
-            tag="router-link"
-            to="/piorder/piorderupload"
-            >上傳PI</el-button
-          >
+          <div>
+            <el-button
+              v-permission="['uploadPi']"
+              type="primary"
+              :icon="CirclePlus"
+              tag="router-link"
+              to="/piorder/piorderupload"
+              >上傳PI</el-button
+            >
+          </div>
           <div>
             <el-text>未發貨PI總數量：</el-text>
             <el-text size="large" type="danger">{{ notShipped }}</el-text>
