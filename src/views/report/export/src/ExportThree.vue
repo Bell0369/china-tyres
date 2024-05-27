@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue"
 import { getOrderListApi } from "@/api/order"
+import { exportOrderCompleteFlowSchemeApi } from "@/api/selects"
 
 defineOptions({
   name: "ExportThree"
@@ -25,9 +26,48 @@ const remoteMethod = (query) => {
     })
 }
 
-const order_no = ref("")
-const CreateInvoice = () => {
-  console.log(order_no.value)
+const order_no = ref(null)
+
+// 導出訂單流程數據
+const loadingBtn1 = ref(false)
+
+// 導出訂單客戶報表
+const loadingBtn2 = ref(false)
+
+// 選中數據
+const exportData = (Type) => {
+  if (order_no.value === "") {
+    ElMessage.error("請選擇訂單號")
+    return false
+  }
+  switch (Type) {
+    case 1:
+      exportFile(exportOrderCompleteFlowSchemeApi, loadingBtn1, "order-process")
+      break
+    case 2:
+      exportFile(exportOrderCompleteFlowSchemeApi, loadingBtn2, "order-customer")
+      break
+    default:
+      break
+  }
+}
+
+const exportFile = (api, loadingRef, name) => {
+  loadingRef.value = true
+  api({
+    id: order_no.value.id
+  })
+    .then((data) => {
+      const downloadLink = document.createElement("a")
+      downloadLink.href = URL.createObjectURL(data)
+      downloadLink.download = `${order_no.value.order_no}.${name}.xlsx`
+      downloadLink.click()
+    })
+    .finally(() => {
+      setTimeout(() => {
+        loadingRef.value = false
+      }, 500)
+    })
 }
 </script>
 
@@ -37,6 +77,7 @@ const CreateInvoice = () => {
       <el-form-item>
         <el-select
           v-model="order_no"
+          value-key="id"
           filterable
           remote
           remote-show-suffix
@@ -45,14 +86,14 @@ const CreateInvoice = () => {
           style="width: 200px"
           placeholder="請選擇訂單號"
         >
-          <el-option v-for="item in optionsData" :key="item.id" :label="item.order_no" :value="item.id" />
+          <el-option v-for="item in optionsData" :key="item.id" :label="item.order_no" :value="item" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="CreateInvoice">導出訂單流程數據</el-button>
+        <el-button type="primary" @click="exportData(1)" :loading="loadingBtn1">導出訂單流程數據</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="CreateInvoice">導出訂單客戶報表</el-button>
+        <el-button type="primary" @click="exportData(2)" :loading="loadingBtn2">導出訂單客戶報表</el-button>
       </el-form-item>
     </el-form>
   </el-card>

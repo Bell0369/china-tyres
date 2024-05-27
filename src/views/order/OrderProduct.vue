@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue"
+import { Search, Refresh } from "@element-plus/icons-vue"
 import { getOrderDetailProductApi, getEtdOptionsApi, getEtdOrderProductSelectApi } from "@/api/order"
 import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"

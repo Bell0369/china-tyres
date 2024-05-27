@@ -3,7 +3,7 @@ import { ref, reactive } from "vue"
 import { ElMessage } from "element-plus"
 import { useRoute, useRouter } from "vue-router"
 import { getDeliveryPlanNoApi, uploadPackingListApi } from "@/api/order"
-import { useOrderSelet } from "@/hooks/useOrderSelet"
+import { useClientSelect } from "@/hooks/useClientSelect"
 import { useeDeliverTypeSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { UploadXlsx } from "@/components/UploadXlsx"
 import UploadInfo from "./components/UploadInfo.vue"
@@ -21,8 +21,8 @@ const factoryCodeOptions = useFactoryCodeSelect()
 // 發貨類型
 const { eDeliverTypeOptions } = useeDeliverTypeSelect()
 
-// 訂單
-const { loadOrder, optionsOrder, loadOrderData } = useOrderSelet()
+// 客戶
+const { loadClient, optionsClient, loadClientData } = useClientSelect()
 
 // tag
 const route = useRoute()
@@ -30,7 +30,7 @@ const router = useRouter()
 
 const ruleForm = reactive({
   file: "",
-  order_no: "",
+  client_code: "",
   factory_code: "1",
   delivery_plan_no: [],
   company_name: "",
@@ -46,12 +46,12 @@ const setUploadXlsx = (value) => {
 const cities = ref([])
 const getDeliveryPlanNo = () => {
   ruleForm.delivery_plan_no = []
-  if (ruleForm.order_no === "" || ruleForm.factory_code === "") {
-    ElMessage.error("請選擇訂單")
+  if (ruleForm.client_code === "" || ruleForm.factory_code === "") {
+    ElMessage.error("請選擇客戶")
     return
   }
   getDeliveryPlanNoApi({
-    order_no: ruleForm.order_no,
+    client_code: ruleForm.client_code,
     factory_code: ruleForm.factory_code
   }).then(({ data }) => {
     if (data.length === 0) {
@@ -143,17 +143,22 @@ const handleItemList = (row) => {
         <el-text tag="b" size="large">基本信息</el-text>
       </div>
       <el-row>
-        <el-col :span="8">
-          <el-form-item label="訂單號">
+        <el-col :span="6">
+          <el-form-item label="客戶">
             <el-select
-              v-model="ruleForm.order_no"
+              v-model="ruleForm.client_code"
               filterable
               remote
               remote-show-suffix
-              :remote-method="loadOrderData"
-              :loading="loadOrder"
+              :remote-method="loadClientData"
+              :loading="loadClient"
             >
-              <el-option v-for="item in optionsOrder" :key="item.id" :label="item.order_no" :value="item.order_no" />
+              <el-option
+                v-for="item in optionsClient"
+                :key="item.id"
+                :label="item.client_code"
+                :value="item.client_code"
+              />
             </el-select>
           </el-form-item>
         </el-col>

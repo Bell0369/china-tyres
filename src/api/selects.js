@@ -170,3 +170,13 @@ export function exportSellRealSituationApi(params) {
     params
   })
 }
+
+// 導出訂單全流程
+export function exportOrderCompleteFlowSchemeApi(params) {
+  return request({
+    url: "report/exportOrderCompleteFlowScheme",
+    method: "post",
+    responseType: "blob",
+    params
+  })
+}

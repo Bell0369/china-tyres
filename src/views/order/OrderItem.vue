@@ -45,7 +45,7 @@ onMounted(() => {
         <el-descriptions-item width="25%" label="BO數量">{{ orderReal.unproduced }}</el-descriptions-item>
         <el-descriptions-item :span="4" label="PI數量">
           <el-collapse>
-            <el-collapse-item :title="orderReal.pi_number">
+            <el-collapse-item :title="`${orderReal.pi_number}`">
               <el-table border :data="orderReal.pi_list">
                 <el-table-column prop="pi_no" label="編號" align="center" />
                 <el-table-column prop="number" label="數量" align="center" />
@@ -55,7 +55,7 @@ onMounted(() => {
         </el-descriptions-item>
         <el-descriptions-item :span="4" label="INV數量">
           <el-collapse>
-            <el-collapse-item :title="orderReal.inv_number">
+            <el-collapse-item :title="`${orderReal.inv_number}`">
               <el-table border :data="orderReal.inv_list">
                 <el-table-column prop="inv_no" label="編號" align="center" />
                 <el-table-column prop="inv_number" label="數量" align="center" />

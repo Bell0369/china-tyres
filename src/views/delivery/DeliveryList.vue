@@ -239,7 +239,8 @@ const selectable = (row) => {
         </el-radio-group>
       </div>
       <div class="table-wrapper">
-        <el-table ref="tableRef" border :data="tableData" @selection-change="handleSelectionChange">
+        <!-- @selection-change="handleSelectionChange" -->
+        <el-table ref="tableRef" border :data="tableData">
           <el-table-column type="selection" width="55" align="center" :selectable="selectable" />
           <el-table-column prop="delivery_plan_no" label="發貨計劃號" align="center" />
           <el-table-column prop="pi_no" label="PI號" align="center" />
