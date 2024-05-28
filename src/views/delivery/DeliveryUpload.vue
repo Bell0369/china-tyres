@@ -234,15 +234,15 @@ const handleItemList = (row) => {
         <el-table-column type="expand">
           <template #default="props">
             <div class="px">
-              <el-table :data="props.row.product">
-                <el-table-column label="序號" type="index" width="80" />
-                <el-table-column label="產品名稱" prop="product_name" />
-                <el-table-column label="裝貨數量" prop="reality_number" />
-                <el-table-column label="發貨計劃數量" prop="plan_number" />
-                <el-table-column label="櫃號" prop="container_no" />
-                <el-table-column label="鉛封號" prop="seal_no">
+              <el-table :data="props.row.product" :max-height="450">
+                <el-table-column label="序號" type="index" width="80" align="center" />
+                <el-table-column label="產品名稱" prop="product_name" align="center" />
+                <el-table-column label="裝貨數量" prop="reality_number" align="center" />
+                <el-table-column label="發貨計劃數量" prop="plan_number" align="center" />
+                <el-table-column label="櫃號" prop="container_no" align="center" />
+                <el-table-column label="鉛封號" prop="seal_no" align="center">
                   <template #default="scope">
-                    <el-text v-if="scope.row.seal_no">{{ scope.row.seal_no }}</el-text>
+                    <el-text v-if="scope.row.item_list.length === 0">{{ scope.row.seal_no }}</el-text>
                     <el-text v-else type="primary" @click="handleItemList(scope.row.item_list)" class="cursor-pointer"
                       >查看裝運詳情</el-text
                     >
@@ -263,7 +263,7 @@ const handleItemList = (row) => {
       <div class="mt5" v-show="orderCheck.length !== 0">
         <el-text tag="b" size="large">異常</el-text>
         <el-table :data="orderCheck" class="mt5" height="400px">
-          <el-table-column prop="serial_number" label="序號" />
+          <el-table-column prop="serial_number" label="序號" width="80" align="center" />
           <el-table-column prop="product_name" label="產品名稱" align="center" />
           <el-table-column prop="number" label="裝貨數量" align="center" />
           <el-table-column prop="container_no" label="櫃號" align="center" />
@@ -279,7 +279,7 @@ const handleItemList = (row) => {
 
     <el-dialog v-model="dialogVisible" title="裝運詳情">
       <div>
-        <el-table :data="itemListData" height="300">
+        <el-table :data="itemListData" height="400">
           <el-table-column prop="product_name" label="產品名稱" />
           <el-table-column prop="reality_number" label="裝貨數量" />
           <el-table-column prop="container_no" label="櫃號" />

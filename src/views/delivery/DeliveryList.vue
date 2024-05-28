@@ -139,6 +139,7 @@ const CreateInvoice = () => {
     })
       .then(() => {
         ElMessage.success("銷售發票已生成")
+        getTableData()
       })
       .finally(() => {
         loading.value = false

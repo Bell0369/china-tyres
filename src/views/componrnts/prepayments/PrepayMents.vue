@@ -130,9 +130,9 @@ const isPaymentList = computed(() => {
         </div>
         <div v-loading="loading">
           <el-table :data="tableData" height="300">
-            <el-table-column prop="price" :label="types === 1 ? '添加金額' : '扣除金額'" />
-            <el-table-column prop="invoice" :label="types === 1 ? '銀行水單' : invoiceName" />
-            <el-table-column prop="created_at" :label="types === 1 ? '添加時間' : '扣除時間'" sortable />
+            <el-table-column prop="price" :label="types === 1 ? '添加金額' : '扣除金額'" align="center" />
+            <el-table-column prop="invoice" :label="types === 1 ? '銀行水單' : invoiceName" align="center" />
+            <el-table-column prop="created_at" :label="types === 1 ? '添加時間' : '扣除時間'" sortable align="center" />
           </el-table>
         </div>
       </div>

@@ -89,9 +89,9 @@ const getTableData = () => {
       <div class="my">
         <div v-loading="loading">
           <el-table :data="tableData" height="300">
-            <el-table-column prop="price" label="金額" />
-            <el-table-column prop="bank_statement_number" label="銀行水單" />
-            <el-table-column prop="created_at" label="添加時間" />
+            <el-table-column prop="price" label="金額" align="center" />
+            <el-table-column prop="bank_statement_number" label="銀行水單" align="center" />
+            <el-table-column prop="created_at" label="添加時間" align="center" />
           </el-table>
         </div>
       </div>
