@@ -5,6 +5,11 @@
   background-color: var(--el-bg-color);
 }
 
+.el-checkbox {
+  // --el-checkbox-disabled-border-color: #bebdbd;
+  --el-checkbox-disabled-input-fill: #e7e7e7;
+}
+
 // 分页
 .el-pagination {
   // 参考 Bootstrap 的响应式设计 WIDTH = 768

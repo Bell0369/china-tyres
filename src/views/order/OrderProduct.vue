@@ -4,7 +4,6 @@ import { Search, Refresh } from "@element-plus/icons-vue"
 import { getOrderDetailProductApi, getEtdOptionsApi, getEtdOrderProductSelectApi } from "@/api/order"
 import { useBrandSelect, useFactoryCodeSelect } from "@/hooks/useSelectOption"
 import { useClientSelect } from "@/hooks/useClientSelect"
-import { Dialog } from "@/components/Dialog"
 
 defineOptions({
   name: "OrderProduct"
@@ -139,13 +138,13 @@ const getEtdList = () => {
           <div class="px">
             <el-table :data="props.row.list" :max-height="450">
               <el-table-column type="index" label="序號" width="80px" align="center" />
-              <el-table-column label="產品名稱" prop="product_name" />
-              <el-table-column label="訂單數量" prop="order_product_number" />
-              <el-table-column :label="props.row.pi_no ? 'PI數量' : '未分配PI数量'" prop="number" />
-              <el-table-column label="PI已發貨數量" prop="shipped_number" />
-              <el-table-column label="PI未發貨數量" prop="not_shipped_number" />
-              <el-table-column label="單價" prop="unit_price" />
-              <el-table-column label="總價" prop="total_prices" />
+              <el-table-column label="產品名稱" prop="product_name" align="center" />
+              <el-table-column label="訂單數量" prop="order_product_number" align="center" />
+              <el-table-column :label="props.row.pi_no ? 'PI數量' : '未分配PI数量'" prop="number" align="center" />
+              <el-table-column label="PI已發貨數量" prop="shipped_number" align="center" />
+              <el-table-column label="PI未發貨數量" prop="not_shipped_number" align="center" />
+              <el-table-column label="單價" prop="unit_price" align="center" />
+              <el-table-column label="總價" prop="total_prices" align="center" />
             </el-table>
           </div>
         </template>
@@ -158,7 +157,7 @@ const getEtdList = () => {
     </el-table>
 
     <!-- etd -->
-    <Dialog v-model="dialogVisible" title="ETD查詢">
+    <el-dialog v-model="dialogVisible" title="ETD查詢" width="60%">
       <div>
         <div class="flex justify-between items-center">
           <div>
@@ -172,14 +171,14 @@ const getEtdList = () => {
           </div>
         </div>
         <div v-loading="loading2">
-          <el-table :data="etdTableData" height="300">
+          <el-table :data="etdTableData" height="400">
             <el-table-column prop="product_name" label="產品名稱" />
             <el-table-column prop="delivery_plan_no" label="發貨計劃號" />
             <el-table-column prop="reality_number" label="發貨數量" width="100" align="center" />
           </el-table>
         </div>
       </div>
-    </Dialog>
+    </el-dialog>
   </div>
 </template>
 

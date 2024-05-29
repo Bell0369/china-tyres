@@ -86,7 +86,7 @@ const getTableData = () => {
       </el-row>
     </el-form>
     <div>
-      <div class="my">
+      <div class="">
         <div v-loading="loading">
           <el-table :data="tableData" height="300">
             <el-table-column prop="price" label="金額" align="center" />
@@ -95,7 +95,7 @@ const getTableData = () => {
           </el-table>
         </div>
       </div>
-      <div class="flex flex-row-reverse" v-show="row.status === 0">
+      <div class="flex flex-row-reverse mt" v-show="row.status === 0">
         <div>
           <ElButton type="primary" @click="submitForm(prepayFormRef)"> 保存 </ElButton>
         </div>

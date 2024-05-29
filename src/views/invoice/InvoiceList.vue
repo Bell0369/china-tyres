@@ -128,7 +128,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
             <template #default="scope">
               <el-button
                 v-permission="['invDetail', 'editInv']"
-                type="success"
+                type="primary"
                 text
                 bg
                 size="small"

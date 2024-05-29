@@ -104,7 +104,7 @@ watch([isDeleted], () => {
               shadow="never"
               @click="defaultAddress(item.id)"
               class="cursor-pointer"
-              :class="defaultContact === item.id ? 'bg-#fffcb2!' : ''"
+              :class="defaultContact === item.id ? 'bg-#fffccc!' : ''"
             >
               <el-text> {{ item.assemble }} </el-text>
             </el-card>

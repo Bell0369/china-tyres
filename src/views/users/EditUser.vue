@@ -177,7 +177,14 @@ const submitForm = (formEl) => {
         </el-col>
         <el-col :span="24">
           <el-form-item label="權限分配">
-            <el-tree ref="treeRef" :data="authAllTree" show-checkbox node-key="id" :props="defaultProps" />
+            <el-tree
+              ref="treeRef"
+              :data="authAllTree"
+              show-checkbox
+              node-key="id"
+              :props="defaultProps"
+              :check-strictly="true"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="24">

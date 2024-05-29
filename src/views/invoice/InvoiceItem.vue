@@ -144,7 +144,7 @@ const submitForm = (formEl) => {
             <el-row :gutter="20" v-for="(domain, index) in domainsForm" :key="domain.key">
               <el-col :span="6">
                 <el-form-item
-                  :label="`${index + 1}費用標題`"
+                  :label="`${index + 1}. 費用標題`"
                   :prop="index + '.title'"
                   :rules="{
                     required: true,
@@ -157,7 +157,7 @@ const submitForm = (formEl) => {
               </el-col>
               <el-col :span="6">
                 <el-form-item
-                  :label="`${index + 1}費用金額`"
+                  :label="`${index + 1}. 費用金額`"
                   :prop="index + '.price'"
                   :rules="{
                     required: true,

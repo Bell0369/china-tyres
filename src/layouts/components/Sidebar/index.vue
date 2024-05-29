@@ -8,11 +8,11 @@ import SidebarItem from "./SidebarItem.vue"
 import Logo from "../Logo/index.vue"
 import { useDevice } from "@/hooks/useDevice"
 import { useLayoutMode } from "@/hooks/useLayoutMode"
-import { getCssVariableValue } from "@/utils"
+// import { getCssVariableValue } from "@/utils"
 
-const v3SidebarMenuBgColor = getCssVariableValue("--v3-sidebar-menu-bg-color")
-const v3SidebarMenuTextColor = getCssVariableValue("--v3-sidebar-menu-text-color")
-const v3SidebarMenuActiveTextColor = getCssVariableValue("--v3-sidebar-menu-active-text-color")
+// const v3SidebarMenuBgColor = getCssVariableValue("--v3-sidebar-menu-bg-color")
+// const v3SidebarMenuTextColor = getCssVariableValue("--v3-sidebar-menu-text-color")
+// const v3SidebarMenuActiveTextColor = getCssVariableValue("--v3-sidebar-menu-active-text-color")
 
 const { isMobile } = useDevice()
 const { isLeft, isTop } = useLayoutMode()
@@ -31,9 +31,9 @@ const activeMenu = computed(() => {
 const noHiddenRoutes = computed(() => permissionStore.routes.filter((item) => !item.meta?.hidden))
 const isCollapse = computed(() => !appStore.sidebar.opened)
 const isLogo = computed(() => isLeft.value && settingsStore.showLogo)
-const backgroundColor = computed(() => (isLeft.value ? v3SidebarMenuBgColor : undefined))
-const textColor = computed(() => (isLeft.value ? v3SidebarMenuTextColor : undefined))
-const activeTextColor = computed(() => (isLeft.value ? v3SidebarMenuActiveTextColor : undefined))
+// const backgroundColor = computed(() => (isLeft.value ? v3SidebarMenuBgColor : undefined))
+// const textColor = computed(() => (isLeft.value ? v3SidebarMenuTextColor : undefined))
+// const activeTextColor = computed(() => (isLeft.value ? v3SidebarMenuActiveTextColor : undefined))
 const sidebarMenuItemHeight = computed(() => {
   return !isTop.value ? "var(--v3-sidebar-menu-item-height)" : "var(--v3-navigationbar-height)"
 })
@@ -53,12 +53,21 @@ const hiddenScrollbarVerticalBar = computed(() => {
   <div :class="{ 'has-logo': isLogo }">
     <Logo v-if="isLogo" :collapse="isCollapse" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
-      <el-menu
+      <!-- <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse && !isTop"
         :background-color="backgroundColor"
         :text-color="textColor"
         :active-text-color="activeTextColor"
+        :unique-opened="true"
+        :collapse-transition="false"
+        :mode="isTop && !isMobile ? 'horizontal' : 'vertical'"
+      >
+        <SidebarItem v-for="route in noHiddenRoutes" :key="route.path" :item="route" :base-path="route.path" />
+      </el-menu> -->
+      <el-menu
+        :default-active="activeMenu"
+        :collapse="isCollapse && !isTop"
         :unique-opened="true"
         :collapse-transition="false"
         :mode="isTop && !isMobile ? 'horizontal' : 'vertical'"
@@ -134,13 +143,13 @@ const hiddenScrollbarVerticalBar = computed(() => {
   }
 }
 
-:deep(.el-sub-menu) {
-  &.is-active {
-    > .el-sub-menu__title {
-      color: v-bind(activeTextColor) !important;
-    }
-  }
-}
+// :deep(.el-sub-menu) {
+//   &.is-active {
+//     > .el-sub-menu__title {
+//       color: v-bind(activeTextColor) !important;
+//     }
+//   }
+// }
 
 :deep(.el-menu-item.is-active) {
   @extend %tip-line;

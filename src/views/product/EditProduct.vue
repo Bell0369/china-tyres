@@ -13,7 +13,7 @@ const ruleForm = reactive({
   name: "",
   art: "",
   ean: "",
-  brand_id: 1,
+  brand_id: "",
   customs_code: "",
   quantity: "",
   tyre_type: "",
@@ -29,6 +29,7 @@ const rules = reactive({
   name: [{ required: true, message: "請輸入產品名稱", trigger: "blur" }],
   art: [{ required: true, message: "請輸入產品代碼", trigger: "blur" }],
   ean: [{ required: true, message: "請輸入條碼", trigger: "blur" }],
+  brand_id: [{ required: true, message: "請選擇品牌", trigger: "blur" }],
   customs_code: [{ required: true, message: "請輸入海關編碼", trigger: "blur" }],
   quantity: [{ required: true, message: "請輸入裝箱量", trigger: "blur" }],
   tyre_type: [{ required: true, message: "請輸入輪胎類型", trigger: "blur" }],
@@ -98,7 +99,7 @@ const submitForm = (formEl) => {
           </el-col>
           <el-col :span="6">
             <el-form-item label="品牌" prop="brand_id">
-              <el-select v-model="ruleForm.brand_id">
+              <el-select v-model="ruleForm.brand_id" placeholder="請選擇品牌">
                 <el-option v-for="item in brandOptions" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
             </el-form-item>

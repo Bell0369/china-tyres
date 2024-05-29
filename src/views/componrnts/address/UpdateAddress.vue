@@ -324,21 +324,22 @@ const submitForm = () => {
     ElMessage.error("請輸入聯繫人")
     return
   }
-  if (ruleForm.value.phones.length === 0) {
+
+  if (ruleForm.value.phones.length === 0 || phones_default.value < 0) {
     ElMessage.error("請選中默認電話")
     return
   }
   // 默認 phone
   setDefaultProperty(ruleForm.value.phones, phones_default.value, "default")
 
-  if (ruleForm.value.address.length === 0) {
+  if (ruleForm.value.address.length === 0 || address_default.value < 0) {
     ElMessage.error("請選中默認地址")
     return
   }
   // 默認 address
   setDefaultProperty(ruleForm.value.address, address_default.value, "default")
 
-  if (ruleForm.value.emails.length === 0) {
+  if (ruleForm.value.emails.length === 0 || emails_default.value < 0) {
     ElMessage.error("請選中默認電郵")
     return
   }
